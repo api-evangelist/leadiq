@@ -1,0 +1,216 @@
+openapi: 3.0.3
+info:
+  title: LeadIQ Data API
+  description: >-
+    LeadIQ's public GraphQL Data API for B2B sales intelligence: verified
+    contact data, company firmographics, prospect-list management, account
+    usage, and closed-loop data feedback. All operations are POSTed to the
+    single `/graphql` endpoint with a GraphQL document in the request body.
+    Authentication is HTTP Basic with the API key as the username and an
+    empty password. Default rate limits are 10 requests/minute on Free and
+    60 requests/minute on paid plans, with credit-based metering (1 credit
+    per email, 10 credits per phone, 3 credits per account enrichment).
+  version: '1.0'
+  contact:
+    name: LeadIQ API Support
+    email: api@leadiq.com
+    url: https://developer.leadiq.com/
+  license:
+    name: LeadIQ Terms of Service
+    url: https://leadiq.com/terms
+servers:
+  - url: https://api.leadiq.com
+    description: LeadIQ production API
+security:
+  - BasicAuth: []
+tags:
+  - name: GraphQL
+    description: Single GraphQL endpoint exposing all LeadIQ queries and mutations.
+paths:
+  /graphql:
+    post:
+      tags:
+        - GraphQL
+      summary: Execute GraphQL Operation
+      description: >-
+        Execute any LeadIQ GraphQL query or mutation. Supported root queries
+        include searchPeople, searchCompany, flatAdvancedSearch,
+        groupedAdvancedSearch, account, prospect, list, lists, usage, and
+        workatoToken. Supported mutations include createList,
+        addProspectToList, submitPersonFeedback, and markAsInvalid.
+      operationId: executeGraphQL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GraphQLRequest'
+            examples:
+              searchPeople:
+                summary: Search People By Name And Company
+                value:
+                  query: |
+                    query SearchPeople($input: SearchPeopleInput!) {
+                      searchPeople(input: $input) {
+                        totalResults
+                        results {
+                          name { first last }
+                          currentPositions {
+                            title
+                            companyInfo { name domain }
+                            emails { value type status }
+                            phones { value type status }
+                          }
+                          linkedin { linkedinUrl }
+                        }
+                      }
+                    }
+                  variables:
+                    input:
+                      name: { first: Ada, last: Lovelace }
+                      company: { name: Analytical Engines }
+              searchCompany:
+                summary: Search Company By Domain
+                value:
+                  query: |
+                    query SearchCompany($domain: String!) {
+                      searchCompany(domain: $domain) {
+                        name domain industry numberOfEmployees
+                        locationInfo { city country }
+                      }
+                    }
+                  variables:
+                    domain: example.com
+              groupedAdvancedSearch:
+                summary: Grouped Advanced Search By ICP
+                value:
+                  query: |
+                    query Grouped($company: CompanyFilter!, $contact: ContactFilter!) {
+                      groupedAdvancedSearch(company: $company, contact: $contact) {
+                        totalResults
+                        results {
+                          company { name domain }
+                          contacts { name { first last } currentPositions { title } }
+                        }
+                      }
+                    }
+                  variables:
+                    company:
+                      industries: [Software]
+                      countries: [US]
+                    contact:
+                      titles: [VP Engineering, CTO]
+                      seniorities: [VP, CXO]
+              createList:
+                summary: Create A Prospect List
+                value:
+                  query: |
+                    mutation CreateList($name: String!) {
+                      createList(name: $name) { id name }
+                    }
+                  variables:
+                    name: Q3 Enterprise Targets
+              submitFeedback:
+                summary: Submit Person Feedback
+                value:
+                  query: |
+                    mutation Feedback($input: PersonFeedbackInput!) {
+                      submitPersonFeedback(input: $input) { status }
+                    }
+                  variables:
+                    input:
+                      personId: abc123
+                      field: workEmail
+                      reason: bounced
+              usage:
+                summary: Inspect Account Usage And Plan
+                value:
+                  query: |
+                    query Usage {
+                      usage { plan creditsUsed creditsRemaining periodEnd }
+                    }
+      responses:
+        '200':
+          description: GraphQL response (errors are reported in the body, not the status code).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphQLResponse'
+        '401':
+          description: Missing or invalid API key.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+      description: >-
+        HTTP Basic authentication. Use your LeadIQ API key as the username and
+        leave the password empty. API keys are issued in the LeadIQ dashboard
+        under Settings > API Keys.
+  schemas:
+    GraphQLRequest:
+      type: object
+      required:
+        - query
+      properties:
+        query:
+          type: string
+          description: A GraphQL query or mutation document.
+        variables:
+          type: object
+          additionalProperties: true
+          description: Variables referenced by the query document.
+        operationName:
+          type: string
+          description: Name of the operation to execute when the document contains multiple.
+    GraphQLResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          additionalProperties: true
+          nullable: true
+          description: Operation result data, shaped per the query.
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/GraphQLError'
+        extensions:
+          type: object
+          additionalProperties: true
+    GraphQLError:
+      type: object
+      properties:
+        message:
+          type: string
+        path:
+          type: array
+          items:
+            type: string
+        locations:
+          type: array
+          items:
+            type: object
+            properties:
+              line: { type: integer }
+              column: { type: integer }
+        extensions:
+          type: object
+          additionalProperties: true
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+        code:
+          type: string
