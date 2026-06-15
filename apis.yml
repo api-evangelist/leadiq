@@ -26,166 +26,168 @@ position: Provider
 access: 3rd-Party
 image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
 tags:
-  - Sales Intelligence
-  - B2B Data
-  - Contact Data
-  - Lead Generation
-  - Prospecting
-  - CRM Enrichment
-  - Sales Engagement
-  - GraphQL
-  - Model Context Protocol
-  - Revenue Operations
-  - Go To Market
+- Sales Intelligence
+- B2B Data
+- Contact Data
+- Lead Generation
+- Prospecting
+- CRM Enrichment
+- Sales Engagement
+- GraphQL
+- Model Context Protocol
+- Revenue Operations
+- Go To Market
 url: https://raw.githubusercontent.com/api-evangelist/leadiq/refs/heads/main/apis.yml
 created: '2026-05-25'
 modified: '2026-05-25'
 specificationVersion: '0.20'
 apis:
-  - aid: leadiq:leadiq-data-api
-    name: LeadIQ Data API
-    description: >-
-      Public GraphQL Data API exposing LeadIQ's verified B2B contact and
-      company intelligence. Supports people search by name + company / domain /
-      LinkedIn URL / email, company search by name or domain, grouped and flat
-      advanced search with ContactFilter and CompanyFilter inputs (industries,
-      titles, seniorities, technologies, geography), prospect list management
-      (createList, addProspectToList), account / usage / plan inspection, the
-      workatoToken query for low-code integration, and submitPersonFeedback /
-      markAsInvalid mutations for closed-loop data correction. Premium data
-      fields (mobile phone) and ProfileFilter inputs (HasWorkEmail,
-      HasVerifiedWorkEmail, HasWorkPhone, HasVerifiedWorkPhone,
-      HasPersonalEmail) gate higher-cost lookups. Authentication is HTTP Basic
-      with the API key as the username and an empty password.
-    humanURL: https://developer.leadiq.com/
-    baseURL: https://api.leadiq.com/graphql
-    tags:
-      - Sales Intelligence
-      - Contact Data
-      - GraphQL
-      - Prospecting
-    properties:
-      - type: Documentation
-        url: https://developer.leadiq.com/
-      - type: Documentation
-        url: https://leadiqhelp.zendesk.com/hc/en-us/articles/35509840045083-LeadIQ-Public-API-Overview
-      - type: Documentation
-        url: https://leadiqhelp.zendesk.com/hc/en-us/articles/29375289152795-LeadIQ-Public-API-Guide
-      - type: OpenAPI
-        url: openapi/leadiq-data-api-openapi.yml
-      - type: APIBlueprint
-        url: https://github.com/leadiq/dataiq-api-specs/blob/master/apiary.apib
-      - type: Repository
-        url: https://github.com/leadiq/dataiq-api-specs
-      - type: Samples
-        url: https://github.com/leadiq/api-samples
-      - type: GraphQL
-        url: https://api.leadiq.com/graphql
-      - type: Authentication
-        url: https://leadiqhelp.zendesk.com/hc/en-us/sections/29405194605723-API
-      - type: RateLimits
-        url: https://leadiqhelp.zendesk.com/hc/en-us/articles/35509840045083-LeadIQ-Public-API-Overview
-      - type: Pricing
-        url: https://leadiq.com/pricing
-      - type: SignUp
-        url: https://leadiq.com/sign-up
-      - type: Support
-        url: https://leadiqhelp.zendesk.com/hc/en-us
-      - type: Contact
-        url: mailto:api@leadiq.com
-  - aid: leadiq:leadiq-mcp-server
-    name: LeadIQ MCP Server
-    description: >-
-      Model Context Protocol server that exposes LeadIQ's verified B2B contact
-      and company intelligence to AI agents (Claude Desktop, Claude Code,
-      Cursor, and any MCP-compatible client). Provides conversational access to
-      the same searchPeople, searchCompany, advanced search, prospect-list, and
-      account-usage capabilities offered by the Data API, with credentialing
-      handled via the LeadIQ API key.
-    humanURL: https://leadiq.com/blog/claude-mcp/
-    tags:
-      - Model Context Protocol
-      - AI Agents
-      - Sales Intelligence
-    properties:
-      - type: Documentation
-        url: https://leadiq.com/blog/claude-mcp/
-      - type: Authentication
-        url: https://leadiqhelp.zendesk.com/hc/en-us/sections/29405194605723-API
-common:
-  - type: Website
-    url: https://leadiq.com
-  - type: DeveloperPortal
+- aid: leadiq:leadiq-data-api
+  name: LeadIQ Data API
+  description: >-
+    Public GraphQL Data API exposing LeadIQ's verified B2B contact and
+    company intelligence. Supports people search by name + company / domain /
+    LinkedIn URL / email, company search by name or domain, grouped and flat
+    advanced search with ContactFilter and CompanyFilter inputs (industries,
+    titles, seniorities, technologies, geography), prospect list management
+    (createList, addProspectToList), account / usage / plan inspection, the
+    workatoToken query for low-code integration, and submitPersonFeedback /
+    markAsInvalid mutations for closed-loop data correction. Premium data
+    fields (mobile phone) and ProfileFilter inputs (HasWorkEmail,
+    HasVerifiedWorkEmail, HasWorkPhone, HasVerifiedWorkPhone,
+    HasPersonalEmail) gate higher-cost lookups. Authentication is HTTP Basic
+    with the API key as the username and an empty password.
+  humanURL: https://developer.leadiq.com/
+  baseURL: https://api.leadiq.com/graphql
+  tags:
+  - Sales Intelligence
+  - Contact Data
+  - GraphQL
+  - Prospecting
+  properties:
+  - type: Documentation
     url: https://developer.leadiq.com/
   - type: Documentation
+    url: https://leadiqhelp.zendesk.com/hc/en-us/articles/35509840045083-LeadIQ-Public-API-Overview
+  - type: Documentation
+    url: https://leadiqhelp.zendesk.com/hc/en-us/articles/29375289152795-LeadIQ-Public-API-Guide
+  - type: OpenAPI
+    url: openapi/leadiq-data-api-openapi.yml
+  - type: APIBlueprint
+    url: https://github.com/leadiq/dataiq-api-specs/blob/master/apiary.apib
+  - type: Repository
+    url: https://github.com/leadiq/dataiq-api-specs
+  - type: Samples
+    url: https://github.com/leadiq/api-samples
+  - type: GraphQL
+    url: https://api.leadiq.com/graphql
+  - type: Authentication
     url: https://leadiqhelp.zendesk.com/hc/en-us/sections/29405194605723-API
+  - type: RateLimits
+    url: https://leadiqhelp.zendesk.com/hc/en-us/articles/35509840045083-LeadIQ-Public-API-Overview
   - type: Pricing
     url: https://leadiq.com/pricing
   - type: SignUp
     url: https://leadiq.com/sign-up
-  - type: Login
-    url: https://account.leadiq.com/login
-  - type: Blog
-    url: https://leadiq.com/blog
-  - type: Podcast
-    url: https://leadiq.com/podcast
-  - type: CaseStudies
-    url: https://leadiq.com/case-studies
   - type: Support
     url: https://leadiqhelp.zendesk.com/hc/en-us
-  - type: Status
-    url: https://status.leadiq.com
-  - type: Security
-    url: https://leadiq.com/security
-  - type: Privacy
-    url: https://leadiq.com/privacy
-  - type: Terms
-    url: https://leadiq.com/terms
-  - type: Careers
-    url: https://leadiq.com/careers
-  - type: About
-    url: https://leadiq.com/about
   - type: Contact
-    url: https://leadiq.com/contact
-  - type: Integrations
-    url: https://leadiq.com/integrations
-  - type: Repository
-    url: https://github.com/leadiq
-  - type: APIRepository
-    url: https://github.com/leadiq/dataiq-api-specs
-  - type: APISamples
-    url: https://github.com/leadiq/api-samples
-  - type: LinkedIn
-    url: https://www.linkedin.com/company/leadiq
-  - type: Twitter
-    url: https://twitter.com/leadiq
-  - type: YouTube
-    url: https://www.youtube.com/@LeadIQ
-  - type: Crunchbase
-    url: https://www.crunchbase.com/organization/leadiq
-  - type: G2
-    url: https://www.g2.com/products/leadiq/reviews
-solutions:
-  - Outbound Prospecting
-  - B2B Contact Discovery
-  - CRM Hygiene And Enrichment
-  - Champion And Job-Change Tracking
-  - ICP-Fit Account Targeting
-  - AI-Generated Outbound Messaging
-  - Conversational AI Sales Assistance
-integrations:
-  - Salesforce
-  - HubSpot
-  - Outreach
-  - Salesloft
-  - Gong
-  - Microsoft Dynamics 365
-  - LinkedIn Sales Navigator
-  - Zapier
-  - Workato
-  - Slack
-  - Claude
+    url: mailto:api@leadiq.com
+  - url: graphql/leadiq-graphql.md
+    type: GraphQL
+- aid: leadiq:leadiq-mcp-server
+  name: LeadIQ MCP Server
+  description: >-
+    Model Context Protocol server that exposes LeadIQ's verified B2B contact
+    and company intelligence to AI agents (Claude Desktop, Claude Code,
+    Cursor, and any MCP-compatible client). Provides conversational access to
+    the same searchPeople, searchCompany, advanced search, prospect-list, and
+    account-usage capabilities offered by the Data API, with credentialing
+    handled via the LeadIQ API key.
+  humanURL: https://leadiq.com/blog/claude-mcp/
+  tags:
   - Model Context Protocol
+  - AI Agents
+  - Sales Intelligence
+  properties:
+  - type: Documentation
+    url: https://leadiq.com/blog/claude-mcp/
+  - type: Authentication
+    url: https://leadiqhelp.zendesk.com/hc/en-us/sections/29405194605723-API
+common:
+- type: Website
+  url: https://leadiq.com
+- type: DeveloperPortal
+  url: https://developer.leadiq.com/
+- type: Documentation
+  url: https://leadiqhelp.zendesk.com/hc/en-us/sections/29405194605723-API
+- type: Pricing
+  url: https://leadiq.com/pricing
+- type: SignUp
+  url: https://leadiq.com/sign-up
+- type: Login
+  url: https://account.leadiq.com/login
+- type: Blog
+  url: https://leadiq.com/blog
+- type: Podcast
+  url: https://leadiq.com/podcast
+- type: CaseStudies
+  url: https://leadiq.com/case-studies
+- type: Support
+  url: https://leadiqhelp.zendesk.com/hc/en-us
+- type: Status
+  url: https://status.leadiq.com
+- type: Security
+  url: https://leadiq.com/security
+- type: Privacy
+  url: https://leadiq.com/privacy
+- type: Terms
+  url: https://leadiq.com/terms
+- type: Careers
+  url: https://leadiq.com/careers
+- type: About
+  url: https://leadiq.com/about
+- type: Contact
+  url: https://leadiq.com/contact
+- type: Integrations
+  url: https://leadiq.com/integrations
+- type: Repository
+  url: https://github.com/leadiq
+- type: APIRepository
+  url: https://github.com/leadiq/dataiq-api-specs
+- type: APISamples
+  url: https://github.com/leadiq/api-samples
+- type: LinkedIn
+  url: https://www.linkedin.com/company/leadiq
+- type: Twitter
+  url: https://twitter.com/leadiq
+- type: YouTube
+  url: https://www.youtube.com/@LeadIQ
+- type: Crunchbase
+  url: https://www.crunchbase.com/organization/leadiq
+- type: G2
+  url: https://www.g2.com/products/leadiq/reviews
+solutions:
+- Outbound Prospecting
+- B2B Contact Discovery
+- CRM Hygiene And Enrichment
+- Champion And Job-Change Tracking
+- ICP-Fit Account Targeting
+- AI-Generated Outbound Messaging
+- Conversational AI Sales Assistance
+integrations:
+- Salesforce
+- HubSpot
+- Outreach
+- Salesloft
+- Gong
+- Microsoft Dynamics 365
+- LinkedIn Sales Navigator
+- Zapier
+- Workato
+- Slack
+- Claude
+- Model Context Protocol
 maintainers:
-  - FN: Kin Lane
-    email: kin@apievangelist.com
+- FN: Kin Lane
+  email: kin@apievangelist.com

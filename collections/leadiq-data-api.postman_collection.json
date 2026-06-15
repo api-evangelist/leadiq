@@ -1,0 +1,246 @@
+{
+  "item": [
+    {
+      "id": "4d88761a-63a4-4a35-a96a-82d84e7e8384",
+      "name": "GraphQL",
+      "description": {
+        "content": "Single GraphQL endpoint exposing all LeadIQ queries and mutations.",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "eea4e397-3e4f-4146-a81c-caa2914d22ad",
+          "name": "Execute GraphQL Operation",
+          "request": {
+            "name": "Execute GraphQL Operation",
+            "description": {
+              "content": "Execute any LeadIQ GraphQL query or mutation. Supported root queries include searchPeople, searchCompany, flatAdvancedSearch, groupedAdvancedSearch, account, prospect, list, lists, usage, and workatoToken. Supported mutations include createList, addProspectToList, submitPersonFeedback, and markAsInvalid.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "graphql"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"<string>\",\n  \"variables\": {\n    \"key_0\": \"string\",\n    \"key_1\": 4454.562543918958\n  },\n  \"operationName\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "b99d6cff-785f-4a5f-9bf3-de09532d4760",
+              "name": "GraphQL response (errors are reported in the body, not the status code).",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "graphql"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: basic",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Basic <credentials>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"query SearchPeople($input: SearchPeopleInput!) {\\n  searchPeople(input: $input) {\\n    totalResults\\n    results {\\n      name { first last }\\n      currentPositions {\\n        title\\n        companyInfo { name domain }\\n        emails { value type status }\\n        phones { value type status }\\n      }\\n      linkedin { linkedinUrl }\\n    }\\n  }\\n}\\n\",\n  \"variables\": {\n    \"input\": {\n      \"name\": {\n        \"first\": \"Ada\",\n        \"last\": \"Lovelace\"\n      },\n      \"company\": {\n        \"name\": \"Analytical Engines\"\n      }\n    }\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": {\n    \"key_0\": true,\n    \"key_1\": 2032\n  },\n  \"errors\": [\n    {\n      \"message\": \"string\",\n      \"path\": [\n        \"string\",\n        \"string\"\n      ],\n      \"locations\": [\n        {\n          \"line\": 7198,\n          \"column\": 3741\n        },\n        {\n          \"line\": 2497,\n          \"column\": 948\n        }\n      ],\n      \"extensions\": {\n        \"key_0\": \"string\"\n      }\n    },\n    {\n      \"message\": \"string\",\n      \"path\": [\n        \"string\",\n        \"string\"\n      ],\n      \"locations\": [\n        {\n          \"line\": 7794,\n          \"column\": 7280\n        },\n        {\n          \"line\": 4329,\n          \"column\": 911\n        }\n      ],\n      \"extensions\": {\n        \"key_0\": false,\n        \"key_1\": 9270,\n        \"key_2\": true\n      }\n    }\n  ],\n  \"extensions\": {\n    \"key_0\": \"string\"\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "ccc72513-2eae-4edc-8f94-ff39f84224b5",
+              "name": "Missing or invalid API key.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "graphql"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: basic",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Basic <credentials>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"query SearchPeople($input: SearchPeopleInput!) {\\n  searchPeople(input: $input) {\\n    totalResults\\n    results {\\n      name { first last }\\n      currentPositions {\\n        title\\n        companyInfo { name domain }\\n        emails { value type status }\\n        phones { value type status }\\n      }\\n      linkedin { linkedinUrl }\\n    }\\n  }\\n}\\n\",\n  \"variables\": {\n    \"input\": {\n      \"name\": {\n        \"first\": \"Ada\",\n        \"last\": \"Lovelace\"\n      },\n      \"company\": {\n        \"name\": \"Analytical Engines\"\n      }\n    }\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"message\": \"string\",\n  \"code\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "d5c8065d-53ab-4383-824c-b174ce493aa5",
+              "name": "Rate limit exceeded.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "graphql"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: basic",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Basic <credentials>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"query SearchPeople($input: SearchPeopleInput!) {\\n  searchPeople(input: $input) {\\n    totalResults\\n    results {\\n      name { first last }\\n      currentPositions {\\n        title\\n        companyInfo { name domain }\\n        emails { value type status }\\n        phones { value type status }\\n      }\\n      linkedin { linkedinUrl }\\n    }\\n  }\\n}\\n\",\n  \"variables\": {\n    \"input\": {\n      \"name\": {\n        \"first\": \"Ada\",\n        \"last\": \"Lovelace\"\n      },\n      \"company\": {\n        \"name\": \"Analytical Engines\"\n      }\n    }\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"message\": \"string\",\n  \"code\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.leadiq.com",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "basic",
+    "basic": [
+      {
+        "key": "username",
+        "value": "{{basicAuthUsername}}"
+      },
+      {
+        "key": "password",
+        "value": "{{basicAuthPassword}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "6a5e5cc3-c3fc-4223-9363-fc43f8d291dc",
+    "name": "LeadIQ Data API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "LeadIQ's public GraphQL Data API for B2B sales intelligence: verified contact data, company firmographics, prospect-list management, account usage, and closed-loop data feedback. All operations are POSTed to the single `/graphql` endpoint with a GraphQL document in the request body. Authentication is HTTP Basic with the API key as the username and an empty password. Default rate limits are 10 requests/minute on Free and 60 requests/minute on paid plans, with credit-based metering (1 credit per email, 10 credits per phone, 3 credits per account enrichment).\n\nContact Support:\n Name: LeadIQ API Support\n Email: api@leadiq.com",
+      "type": "text/plain"
+    }
+  }
+}
