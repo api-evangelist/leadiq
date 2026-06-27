@@ -87,7 +87,7 @@ apis:
     url: https://leadiqhelp.zendesk.com/hc/en-us/articles/35509840045083-LeadIQ-Public-API-Overview
   - type: Pricing
     url: https://leadiq.com/pricing
-  - type: SignUp
+  - type: Signup
     url: https://leadiq.com/sign-up
   - type: Support
     url: https://leadiqhelp.zendesk.com/hc/en-us
@@ -123,7 +123,7 @@ common:
   url: https://leadiqhelp.zendesk.com/hc/en-us/sections/29405194605723-API
 - type: Pricing
   url: https://leadiq.com/pricing
-- type: SignUp
+- type: Signup
   url: https://leadiq.com/sign-up
 - type: Login
   url: https://account.leadiq.com/login
