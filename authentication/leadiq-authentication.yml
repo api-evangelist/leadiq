@@ -1,0 +1,14 @@
+generated: '2026-07-11'
+method: derived
+source: openapi/leadiq-data-api-openapi.yml
+summary:
+  types:
+  - http
+schemes:
+- name: BasicAuth
+  type: http
+  scheme: basic
+  description: HTTP Basic authentication. Use your LeadIQ API key as the username and leave
+    the password empty. API keys are issued in the LeadIQ dashboard under Settings > API Keys.
+  sources:
+  - openapi/leadiq-data-api-openapi.yml
