@@ -115,6 +115,8 @@ apis:
   - type: Authentication
     url: https://leadiqhelp.zendesk.com/hc/en-us/sections/29405194605723-API
 common:
+- type: AgenticAccess
+  url: agentic-access/leadiq-agentic-access.yml
 - type: DomainSecurity
   url: security/leadiq-domain-security.yml
 - type: Authentication
