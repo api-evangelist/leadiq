@@ -1,0 +1,14 @@
+{
+  "provider": "leadiq",
+  "sources": [
+    "leadiq-graphql-api-openapi.yml"
+  ],
+  "outputs": [
+    "leadiq-graphql-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [],
+  "skipped": []
+}
