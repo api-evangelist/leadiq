@@ -112,6 +112,8 @@ apis:
   - type: GraphQL
     url: graphql/leadiq-graphql.md
 common:
+- type: IssueTracker
+  url: https://github.com/leadiq/dataiq-api-specs/issues
 - type: AgenticAccess
   url: agentic-access/leadiq-agentic-access.yml
 - type: DomainSecurity
