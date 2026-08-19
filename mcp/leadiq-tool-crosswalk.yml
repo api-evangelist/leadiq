@@ -1,0 +1,200 @@
+generated: '2026-08-13'
+method: derived
+source: >-
+  mcp/leadiq-mcp.yml (17 published MCP tools) bound to graphql/leadiq.graphql
+  (live introspection SDL, 18 Query fields + 11 Mutation fields) and
+  openapi/leadiq-prospector-api-openapi.yml (14 REST operations)
+note: >-
+  LeadIQ runs three overlapping-but-non-identical projections of one data core. The
+  MCP tool table on developer.leadiq.com names the GraphQL operation each tool wraps,
+  so those bindings are the provider's own statement, not our inference (confidence:
+  high). The tools LeadIQ marks "MCP only" all bind cleanly to Prospector REST
+  operations we discovered at prospector.leadiq.com/openapi.json — they are MCP-only
+  relative to the GRAPHQL surface, not relative to the whole API estate, and that is
+  recorded here. The Prospector OpenAPI declares NO operationIds, so REST operations
+  are addressed by "METHOD path".
+surfaces:
+  openapi:
+  - file: openapi/leadiq-prospector-api-openapi.yml
+    base: https://prospector.leadiq.com
+    operations: 14
+    note: OpenAPI 3.1.0 served publicly at https://prospector.leadiq.com/openapi.json; no operationIds declared.
+  - file: openapi/leadiq-graphql-api-openapi.yml
+    base: https://api.leadiq.com
+    operations: 1
+    note: API Evangelist-authored envelope for the single POST /graphql operation; not a LeadIQ-published spec.
+  graphql:
+    endpoint: https://api.leadiq.com/graphql
+    sdl: graphql/leadiq.graphql
+    introspection: graphql/leadiq-introspection.json
+    gated: false
+    note: Anonymous introspection returns HTTP 200 — the full 216-type schema is public.
+  mcp:
+    endpoint: https://mcp.leadiq.com/mcp
+    gated: true
+    note: 'tools/list requires OAuth (HTTP 401 anonymous); tool names/descriptions transcribed from the provider''s published table. Input schemas need an authenticated tools/list.'
+crosswalk:
+- tool: EnrichPeople
+  category: enrichment
+  graphql: [searchPeople]
+  rest: []
+  binding: graphql
+  confidence: high
+  note: Provider-stated ("Wraps searchPeople").
+- tool: EnrichCompanies
+  category: enrichment
+  graphql: [searchCompany]
+  rest: []
+  binding: graphql
+  confidence: high
+  note: Provider-stated ("Wraps searchCompany").
+- tool: FindPeople
+  category: prospecting
+  graphql: [flatAdvancedSearch]
+  rest: []
+  binding: graphql
+  confidence: high
+  note: Provider-stated ("Wraps flatAdvancedSearch").
+- tool: FindCompanies
+  category: prospecting
+  graphql: [groupedAdvancedSearch]
+  rest: []
+  binding: graphql
+  confidence: high
+  note: Provider-stated ("Wraps groupedAdvancedSearch").
+- tool: FindJobChanges
+  category: signals
+  graphql: [flatAdvancedSearch]
+  rest: []
+  binding: graphql
+  confidence: high
+  note: Provider-stated ("Wraps flatAdvancedSearch with job-change filters"); same field, JobChangeFilter input.
+- tool: BrowseProspectLists
+  category: list-management
+  graphql: [lists]
+  rest: ['GET /v1/lists']
+  binding: both
+  confidence: high
+  note: Provider-stated GraphQL equivalence; the REST twin is the Prospector list index.
+- tool: CreateProspectList
+  category: list-management
+  graphql: [createList]
+  rest: ['POST /v1/lists']
+  binding: both
+  confidence: high
+- tool: GetProspectList
+  category: list-management
+  graphql: [list]
+  rest: ['GET /v1/lists/{listId}', 'GET /v1/lists/{listId}/prospects']
+  binding: both
+  confidence: high
+  note: The REST side splits the list record and its prospects across two operations.
+- tool: AddProspectToList
+  category: list-management
+  graphql: [addProspectToList]
+  rest: ['POST /v1/lists/{listId}/prospects', 'POST /v1/lists/{listId}/prospects/batch']
+  binding: both
+  confidence: high
+  note: REST also offers a batch form (up to 100 items) with no GraphQL or MCP equivalent.
+- tool: AttachProspectToList
+  category: list-management
+  graphql: []
+  rest: ['POST /v1/lists/{listId}/prospects/{prospectId}']
+  binding: rest
+  confidence: high
+  note: LeadIQ labels this "MCP only" — true against GraphQL, but the Prospector REST API has an exact twin, and it is the one operation the spec documents as idempotent.
+- tool: GetProspect
+  category: list-management
+  graphql: [prospect]
+  rest: ['GET /v1/prospects/{prospectId}']
+  binding: both
+  confidence: high
+- tool: CreateProspect
+  category: list-management
+  graphql: []
+  rest: ['POST /v1/prospects']
+  binding: rest
+  confidence: high
+  note: Labelled "MCP only"; REST twin is POST /v1/prospects ("Create a prospect (no list)").
+- tool: SearchProspects
+  category: list-management
+  graphql: []
+  rest: ['GET /v1/prospects']
+  binding: rest
+  confidence: high
+  note: Labelled "MCP only"; REST twin is GET /v1/prospects ("List or search prospects").
+- tool: VerifyEmail
+  category: verification
+  graphql: []
+  rest: ['GET /v1/verify-email']
+  binding: rest
+  confidence: high
+  note: Labelled "MCP only"; REST twin is GET /v1/verify-email ("Verify a standalone email address").
+- tool: VerifyProspectEmail
+  category: verification
+  graphql: []
+  rest: ['POST /v1/prospects/{prospectId}/verify-email']
+  binding: rest
+  confidence: high
+- tool: ExportProspectToSalesforce
+  category: crm-export
+  graphql: []
+  rest: ['POST /v1/prospects/{prospectId}/export/salesforce']
+  binding: rest
+  confidence: high
+  note: Highest-consequence operation on the estate — writes to an external system of record, has no delete path, and is explicitly not idempotent.
+- tool: CheckCredits
+  category: account
+  graphql: [account]
+  rest: ['GET /v1/whoami']
+  binding: both
+  confidence: medium
+  note: Provider-stated GraphQL binding is `account`. GET /v1/whoami identifies the caller but the spec does not show it returning credit balances, so the REST binding is partial.
+mcp_only: []
+graphql_only:
+- {field: searchPeoplePreview, kind: query, reason: Lightweight pre-flight check on whether an email/phone can be produced; no MCP tool or REST operation.}
+- {field: matchProfile, kind: query, reason: Match a profile by email; no MCP tool or REST operation.}
+- {field: usage, kind: query, reason: API credit usage and limit; partially covered by CheckCredits via `account`.}
+- {field: regeneratedTime, kind: query, reason: Last regenerated time; no tool.}
+- {field: workatoToken, kind: query, reason: Issues a Workato low-code integration token; documented in the reference, no MCP tool.}
+- {field: trackedContacts, kind: query, reason: Champion-tracking roster; no MCP tool.}
+- {field: contactTrackingBalance, kind: query, reason: Champion-tracking quota; no MCP tool.}
+- {field: companyTrackingTask, kind: query, reason: Company-tracking task status; no MCP tool.}
+- {field: trackedCompanies, kind: query, reason: Tracked-company roster; no MCP tool.}
+- {field: icpDefinitions, kind: query, reason: Stored ICP definitions; the MCP `icp` PROMPT is guided rather than reading these.}
+- {field: submitPersonFeedback, kind: mutation, reason: Closed-loop data correction; no MCP tool or REST operation.}
+- {field: regenerate, kind: mutation, reason: Regenerate a person record; no MCP tool.}
+- {field: trackContacts, kind: mutation, reason: Champion tracking; no MCP tool.}
+- {field: abandonBatch, kind: mutation, reason: Abandon a batch job; no MCP tool.}
+- {field: addTrackedCompanies, kind: mutation, reason: Company tracking; no MCP tool.}
+- {field: removeTrackedCompanies, kind: mutation, reason: Company tracking; no MCP tool.}
+- {field: removeAllTrackedCompanies, kind: mutation, reason: Company tracking; no MCP tool.}
+- {field: startCompanyTrackingTask, kind: mutation, reason: Company tracking; no MCP tool.}
+- {field: cancelCompanyTrackingTask, kind: mutation, reason: Company tracking; no MCP tool.}
+rest_only:
+- operation: 'POST /v1/lists/{listId}/prospects/batch'
+  reason: >-
+    Bulk prospect create (up to 100 per call) with per-item succeeded[]/failed[]
+    reporting; no MCP tool and no GraphQL mutation.
+- operation: 'GET /v1/whoami'
+  reason: 'Caller identity (user + team); only partially reached through CheckCredits.'
+coverage:
+  mcp_tools_named: 17
+  mcp_tools_bound: 17
+  mcp_tools_unbound: 0
+  bound_to_graphql: 9
+  bound_to_rest_only: 7
+  bound_to_both: 6
+  graphql_root_fields_total: 29
+  graphql_fields_with_a_tool: 10
+  graphql_only_fields: 19
+  rest_operations_total: 14
+  rest_operations_with_a_tool: 12
+  rest_only_operations: 2
+divergence_note: >-
+  The champion/company-tracking family (9 GraphQL fields) and the data-feedback
+  mutation are the largest capability block with no agent surface at all: an agent
+  connected over MCP cannot start, cancel, or read a company-tracking task, and cannot
+  submit a data correction. Conversely the REST batch-create path (100 prospects per
+  call) is the only high-throughput write on the estate and neither MCP nor GraphQL
+  exposes it.

@@ -1,0 +1,1959 @@
+# LeadIQ GraphQL Data API — Schema Definition Language
+#
+# generated: 2026-08-13
+# method: probed
+# source: https://api.leadiq.com/graphql (anonymous introspection, HTTP 200)
+# derived-from: graphql/leadiq-introspection.json
+#
+# Rendered verbatim from the live introspection result. Anonymous introspection is
+# enabled in production, so this is the provider's own contract, not an approximation.
+# 216 types, 18 Query fields, 11 Mutation fields.
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+enum AdvancedSearchEmailVerificationStatusType {
+  Verified
+  VerifiedLikely
+}
+
+enum ApiCreditType {
+  Page
+  ExactMatch
+  PremiumMobile
+}
+
+enum ApiName {
+  Contact
+  ContactPreview
+  Company
+  API
+  PremiumMobilePhone
+  AdvancedSearch
+}
+
+enum ApiUsageType {
+  Premium
+  Standard
+}
+
+enum BalancePlan {
+  ContactTracking
+  UniversalCreditsType
+}
+
+enum BillingType {
+  FreeCredits
+  Postpaid
+  Prepaid
+}
+
+enum CompanyBusinessTypeValue {
+  Agency
+  B2B
+  B2C
+  B2G
+  ECommerce
+  Enterprise
+  ISP
+  Marketplace
+  Mobile
+  SAAS
+}
+
+enum CompanySortingOption {
+  IdDesc
+  IdAsc
+  SizeDesc
+  NameAsc
+  SizeAsc
+  IndustryAsc
+  NameDesc
+  IndustryDesc
+}
+
+enum ConfigurableDataPoint {
+  "Represents all datapoints of a company."
+  Company
+  EmailReverification
+  "Represents a unified `Person` datapoint. Will only be present if `PersonEmail` and `PersonPhone` are not."
+  Person
+  "Represents an email datapoint of a person. Will only be present if `Person` is not."
+  PersonEmail
+  "Represents a phone datapoint of a person. Will only be present if `Person` is not."
+  PersonPhone
+  Message
+  Opener
+  ValueProp
+  Profile
+  LLMToken
+}
+
+enum ContactInfoStatus {
+  Correct
+  Invalid
+}
+
+enum ContactInfoType {
+  PersonalMobile
+  PersonalLandline
+  WorkHQ
+  WorkPhone
+  WorkEmail
+  PersonalPhone
+  WorkBranch
+  PersonalEmail
+  WorkMobile
+  Fax
+}
+
+enum ContactSortingOption {
+  RoleAsc
+  NameDesc
+  SeniorityAsc
+  IdAsc
+  NameAsc
+  TitleAsc
+  SeniorityDesc
+  RoleDesc
+  TitleDesc
+  IdDesc
+  MobilePhoneAsc
+  MobilePhoneDesc
+  UpdatedAtAsc
+  UpdatedAtDesc
+  JobChangeStartedAtAsc
+  JobChangeStartedAtDesc
+}
+
+enum EmailQuality {
+  Unverified
+  Verified
+  VerifiedLikely
+}
+
+enum EmailSuppressionReason {
+  SuppressedByAdminPrivacy
+}
+
+"Type of email"
+enum EmailType {
+  WorkEmail
+  PersonalEmail
+}
+
+"Status of an email"
+enum EmailVerificationStatusType {
+  Verified
+  VerifiedLikely
+  Unverified
+  Invalid
+  Suppressed
+}
+
+enum EmailVerificationStatusTypeInput {
+  Verified
+  Unverified
+  VerifiedLikely
+  Invalid
+}
+
+enum EnrichJobType {
+  InstantEnrichJobType
+  HourlyEnrichJobType
+  BulkOnDemandEnrichJobType
+  ScheduleEnrichJobType
+  OnDemandEnrichJobType
+}
+
+enum EnrichmentScheduleType {
+  OneTime
+  Recurring
+}
+
+enum ErrorCode {
+  AlreadyCanceled
+  AlreadyCompleted
+  AlreadyFailed
+  Canceled
+  InsufficientCredits
+  InvalidParameters
+  NoTrackedEntities
+  NotFound
+  Timeout
+  Unexpected
+  UnexpectedCreditError
+  UnsupportedByCreditPlan
+}
+
+"A generic field status"
+enum GenericFieldStatus {
+  Valid
+  Invalid
+}
+
+"A generic field type"
+enum GenericFieldType {
+  NotApplicable
+}
+
+enum ICPProductLine {
+  Prospector
+  Scribe
+  Track
+}
+
+enum InvalidReason {
+  "5.1.3 Bad destination mailbox address syntax"
+  EmailBounceCode513
+  "5.5.4 Invalid command arguments"
+  EmailBounceCode554
+  "5.0.0 Other undefined Status"
+  EmailBounceCode500
+  "5.4.7 Delivery time expired"
+  EmailBounceCode547
+  "5.3.2 System not accepting network messages"
+  EmailBounceCode532
+  "5.6.4 Conversion with loss performed"
+  EmailBounceCode564
+  "5.2.4 Mailing list expansion problem"
+  EmailBounceCode524
+  "5.6.3 Conversion required but not supported"
+  EmailBounceCode563
+  "5.2.2 Mailbox full"
+  EmailBounceCode522
+  "5.5.5 Wrong protocol version"
+  EmailBounceCode555
+  "5.5.2 Syntax error"
+  EmailBounceCode552
+  "5.7.0 Other or undefined security status"
+  EmailBounceCode570
+  "5.1.5 Destination mailbox address valid"
+  EmailBounceCode515
+  "Email or Phone belongs to someone else"
+  WrongPerson
+  "5.6.5 Conversion failed"
+  EmailBounceCode565
+  "5.4.4 Unable to route"
+  EmailBounceCode544
+  "5.1.2 Bad destination system address"
+  EmailBounceCode512
+  "5.1.6 Mailbox has moved"
+  EmailBounceCode516
+  "5.7.5 Cryptographic failure"
+  EmailBounceCode575
+  Other
+  "5.6.1 Media not supported"
+  EmailBounceCode561
+  "5.7.3 Security conversion required but not possible"
+  EmailBounceCode573
+  "5.1.0 Another address status"
+  EmailBounceCode510
+  "5.7.7 Message integrity failure"
+  EmailBounceCode577
+  "5.5.1 Invalid command"
+  EmailBounceCode551
+  "5.4.3 Routing server failure"
+  EmailBounceCode543
+  "5.3.0 Other or undefined mail system status"
+  EmailBounceCode530
+  "5.2.3 Message length exceeds administrative limit"
+  EmailBounceCode523
+  "5.4.1 No answer from host"
+  EmailBounceCode541
+  "5.3.3 System not capable of selected features"
+  EmailBounceCode533
+  "5.4.5 Network congestion"
+  EmailBounceCode545
+  "5.6.2 Conversion required and prohibited"
+  EmailBounceCode562
+  "5.7.1 Delivery not authorized, message refused"
+  EmailBounceCode571
+  "5.1.4 Destination mailbox address ambiguous"
+  EmailBounceCode514
+  "5.7.2 Mailing list expansion prohibited"
+  EmailBounceCode572
+  "5.4.2 Bad connection"
+  EmailBounceCode542
+  "5.1.7 Bad sender’s mailbox address syntax"
+  EmailBounceCode517
+  "5.7.4 Security features not supported"
+  EmailBounceCode574
+  "5.2.1 Mailbox disabled, not accepting messages"
+  EmailBounceCode521
+  "5.3.4 Message too big for system"
+  EmailBounceCode534
+  "5.3.1 Mail system full"
+  EmailBounceCode531
+  "5.5.3 Too many recipients"
+  EmailBounceCode553
+  "5.1.8 Bad sender’s system address"
+  EmailBounceCode518
+  "5.2.0 Other or undefined mailbox status"
+  EmailBounceCode520
+  "5.1.1 Bad destination mailbox address"
+  EmailBounceCode511
+  "5.7.6 Cryptographic algorithm not supported"
+  EmailBounceCode576
+  "5.5.0 Other or undefined protocol status"
+  EmailBounceCode550
+  "5.4.0 Other or undefined network or routing status"
+  EmailBounceCode540
+  "5.4.6 Routing loop detected"
+  EmailBounceCode546
+  "5.6.0 Other or undefined media error"
+  EmailBounceCode560
+}
+
+enum JobChangeType {
+  Departure
+  JobChange
+  Promotion @deprecated
+  TitleChange
+}
+
+enum JobDetectionType {
+  JobChange
+  TitleChange
+}
+
+"""
+Wire-level phone verification status. Single positive value (`Verified`) is
+emitted when prospector-api's score-based check confirms the number; absent
+otherwise. Future positive values may be added; consumers should treat any
+unrecognized value as "absent / unknown" rather than failing.
+"""
+enum MobilePhoneStatus {
+  Verified
+}
+
+enum PersonJobChangeType {
+  JobChange
+  TitleChange
+}
+
+enum PersonJobChangeTypeFilter {
+  JobChange
+  TitleChange
+}
+
+enum PhoneQualityFilter {
+  HigherQualityPhones
+  HighestQualityPhones
+  AllPhones
+}
+
+enum PhoneQualityLevel {
+  HigherQualityPhones
+}
+
+enum PhoneSuppressionReason {
+  SuppressedByAdminPrivacy
+}
+
+"Type of phone"
+enum PhoneType {
+  WorkPhone
+  WorkMobile
+  WorkHQ
+  WorkBranch
+  PersonalPhone
+  PersonalLandline
+  PersonalMobile
+  Fax
+}
+
+"Status of a phone number"
+enum PhoneVerificationStatusType {
+  Verified @deprecated
+  Unverified @deprecated
+  Invalid @deprecated
+  Suppressed
+  LikelyAccurate
+}
+
+"An enum representing the status of a plan."
+enum PlanStatus {
+  Active
+  Inactive
+  Trialing
+}
+
+enum PremiumDataField {
+  MobilePhone @deprecated
+}
+
+"A high level product name. This is used to delineate between subscriptions to different products."
+enum ProductName {
+  DataHub
+  ContactTracking
+  Api
+  Universal
+}
+
+enum ProfileFilterType {
+  HasVerifiedWorkPhone
+  HasPersonalPhone
+  HasWorkPhone @deprecated
+  HasPersonalEmail @deprecated
+  HasVerifiedWorkEmail
+  HasWorkEmail
+}
+
+enum RecordBehaviorType {
+  Update
+  Create
+}
+
+enum RegenerateResponse {
+  InProgress
+  NotFound
+  Started
+}
+
+"Represents a specific product category. SKUs may have different costs or datapoints associated with them"
+enum SKU {
+  AccountTracking
+  AIChat
+  Api
+  BulkCapture
+  ContactTracking
+  MCP
+  Raven
+  Refresh
+  Prospector
+  Scribe
+}
+
+enum Seniority {
+  VP
+  Manager
+  Director
+  Executive
+  SeniorIndividualContributor
+  Other
+}
+
+"Network name of the social profile."
+enum SocialNetworkType {
+  Twitter
+  Foursquare
+  Gravatar
+  Pinterest
+  Angellist
+  Facebook
+  Klout
+}
+
+enum TaskStatus {
+  Failed
+  Processing
+  Successful
+}
+
+enum UnlockableDataPoint {
+  Company
+  EmailReverification
+  PersonEmail
+  PersonPhone
+  Message
+  Opener
+  ValueProp
+  Profile
+  LLMToken
+}
+
+enum UnlockableDataPointRequest {
+  PersonEmail
+  PersonPhone
+}
+
+"Verification status"
+enum VerificationStatusType {
+  LikelyAccurate
+  None
+}
+
+input AddTrackedCompaniesInput {
+  companies: [AddTrackedCompanyInput!]!
+}
+
+input AddTrackedCompanyInput {
+  name: String!
+  domain: String!
+  customData: Json
+}
+
+input ApiPersonFeedback {
+  personId: String
+  linkedinUrl: String
+  linkedinId: String
+  name: String
+  companyId: String
+  companyName: String
+  companyDomain: String
+  title: String
+  value: String!
+  status: ContactInfoStatus
+  invalidReason: InvalidReason
+  type: ContactInfoType
+  lastSeen: ZonedDateTime
+}
+
+input CancelCompanyTrackingTaskInput {
+  id: ID!
+  reason: String
+}
+
+input CompanyDetails {
+  companyId: String
+  name: String
+  domain: String
+  emailDomain: String
+  linkedinId: String
+  country: String
+  "If set to true, match company against both current and past positions. Defaults to false."
+  searchInPastCompanies: Boolean
+  "If set to true, all input company details must match some existing companies. If the company doesn't exists, maybe due to bad data, the search result will be empty. Defaults to false."
+  strict: Boolean
+}
+
+input CompanyFilter {
+  ids: [String!]
+  names: [String!]
+  domains: [String!]
+  linkedinIds: [String!]
+  industries: [String!]
+  sizes: [CompanySizeFilter!]
+  locations: [LocationFilterInput!]
+  technologies: [String!]
+  technologyCategories: [String!]
+  revenueRanges: [RangeFilter!]
+  fundingInfoFilters: [FundingInfoFilter!]
+  naicsCodeFilters: [NAICSCodeFilter!]
+  sicCodeFilters: [SICCodeFilter!]
+}
+
+input CompanySizeFilter {
+  min: Int
+  max: Int
+}
+
+input ContactFilter {
+  ids: [String!]
+  names: [String!]
+  titles: [String!]
+  linkedinIds: [String!]
+  linkedinUrls: [String!]
+  seniorities: [Seniority!]
+  roles: [String!]
+  locations: [LocationFilterInput!]
+  containsWorkEmails: [AdvancedSearchEmailVerificationStatusType!]
+  updatedAt: DateRangeFilter
+  newHireFrom: Long
+  newPromotionFrom: Long
+}
+
+input CreateListInput {
+  name: String!
+  description: String
+}
+
+input CreateProspectInput {
+  firstName: String!
+  lastName: String!
+  """
+  Work email. Must be a valid email address (RFC 5322); malformed values are
+rejected with 400.
+  """
+  workEmail: String
+  """
+  Verification status of `workEmail`. Set this when the email has already been
+vetted upstream (e.g., the prospect came from tool_SearchPeople with a
+verified email). Allowed values: `Verified`, `VerifiedLikely`, `Unverified`.
+Omit if unknown — do not default to `Unverified`. Other values (including
+`Invalid`) are rejected with 400 on create; `Invalid` may still appear on
+reads when set by the verify-email endpoints.
+  """
+  emailStatus: String
+  """
+  Mobile phone number. Plain string; format isn't validated. When `personId`
+is also supplied, prospector-api will attempt to verify this number against
+dataiq's records and emit `status: Verified` on the resulting prospect's
+`mobilePhones` if the confidence score crosses the threshold.
+  """
+  phone: String
+  """
+  dataiq stable person identifier. Optional. Required only to opt into the
+phone-verification flow described under `phone` — when both `phone` and
+`personId` are supplied, prospector-api gates a tyrion RUM check + dataiq
+score lookup. Without `personId`, the phone is still saved but no badge is
+emitted on read.
+  """
+  personId: String
+  title: String
+  """
+  Job seniority bucket. Allowed values: `VP`, `Manager`, `Director`,
+`Executive`, `SeniorIndividualContributor`, `Other`. Other values are
+rejected with 400 — when the source title doesn't map cleanly, use `Other`
+rather than guessing.
+  """
+  seniority: String
+  function: String
+  company: String
+  companyDomain: String
+  companyIndustry: String
+  """
+  Prospect's LinkedIn profile URL. Must be a valid URL; malformed values are
+rejected with 400.
+  """
+  linkedinUrl: String
+  """
+  Prospect's address. All fields are optional; provide whatever you have.
+`formatted` is the human-readable single-line form; the structured fields
+(`streetLine1`/`streetLine2`/`city`/`state`/`zip`/`country`) populate the
+parsed columns independently.
+  """
+  location: LocationInput
+  """
+  Free-form notes attached to the prospect. Max 5000 characters; longer values
+are rejected with 400.
+  """
+  notes: String
+}
+
+input DateRangeFilter {
+  start: Long
+  end: Long
+}
+
+input FlatSearchInput {
+  companyFilter: CompanyFilter
+  companyExcludedFilter: CompanyFilter
+  contactFilter: ContactFilter
+  contactExcludedFilter: ContactFilter
+  "Limited access only. This filter is ignored and has no effect on search results unless this feature is enabled for your organization."
+  previousCompanyFilter: PreviousCompanyFilter
+  "Limited access only. This filter is ignored and has no effect on search results unless this feature is enabled for your organization."
+  previousPositionFilter: PreviousPositionFilter
+  "Limited access only. This filter is ignored and has no effect on search results unless this feature is enabled for your organization."
+  jobChangeFilter: JobChangeFilter
+  skip: Int
+  limit: Int
+  sortContactsBy: [ContactSortingOption!]
+}
+
+input FundingInfoFilter {
+  lastFundingDateRange: DateRangeFilter
+  lastFundingRange: RangeFilter
+}
+
+"Input for Advanced Search for grouped response"
+input GroupedSearchInput {
+  companyFilter: CompanyFilter
+  companyExcludedFilter: CompanyFilter
+  contactFilter: ContactFilter
+  contactExcludedFilter: ContactFilter
+  skip: Int
+  limit: Int
+  limitPerCompany: Int
+  sortCompaniesBy: [CompanySortingOption!]
+  sortContactsBy: [ContactSortingOption!]
+}
+
+input JobChangeFilter {
+  jobChangeTypes: [PersonJobChangeTypeFilter!]!
+  startedAfter: Long
+}
+
+input LocationFilterInput {
+  city: String
+  areaLevel1: String
+  country: String
+  postalCode: String
+}
+
+input LocationInput {
+  streetLine1: String
+  streetLine2: String
+  city: String
+  state: String
+  zip: String
+  country: String
+  formatted: String
+}
+
+input MatchingServiceInput {
+  email: String!
+}
+
+input NAICSCodeFilter {
+  code: String
+  description: String
+}
+
+input PreviousCompanyFilter {
+  ids: [String!]
+  names: [String!]
+  domains: [String!]
+  linkedinIds: [String!]
+  industries: [String!]
+  employeeCount: [CompanySizeFilter!]
+  locations: [LocationFilterInput!]
+}
+
+input PreviousPositionFilter {
+  titles: [String!]
+}
+
+input QualityFilter {
+  phone: PhoneQualityFilter
+}
+
+input RangeFilter {
+  start: Long
+  end: Long
+}
+
+"Input for `regenerate`. Only one of {`personId`, `linkedinUrl`} has to be provided"
+input RegenerateRecordInput {
+  personId: String
+  linkedinUrl: String
+}
+
+"Input for `regeneratedTime`. Only one of {`personId`, `linkedinUrl`} has to be provided"
+input RegeneratedTimeInput {
+  personId: String
+  linkedinUrl: String
+}
+
+input RemoveTrackedCompaniesInput {
+  ids: [ID!]!
+}
+
+input SICCodeFilter {
+  code: String
+  description: String
+}
+
+"Input for searching company"
+input SearchCompanyInput {
+  id: String
+  name: String
+  domain: String
+  linkedinId: String
+  linkedinUrl: String
+  "Internal use, for analytics on Enrich"
+  sfdcExtraDetails: SfdcExtraDetails
+  "If set to true, all input company details must match some existing companies. Defaults to false."
+  strict: Boolean
+}
+
+"Input for searching people"
+input SearchPeopleInput {
+  skip: Int
+  limit: Int
+  id: String
+  firstName: String
+  lastName: String
+  middleName: String
+  fullName: String
+  company: CompanyDetails
+  linkedinId: String
+  linkedinUrl: String
+  email: String
+  "Search by SHA256 hashed email"
+  hashedEmail: String
+  phone: String
+  "If set, only return result with email statuses from this list. Default to all statuses."
+  workEmailStatusIn: [EmailVerificationStatusTypeInput!]
+  "If set to true, only return results with work contacts. Default to false."
+  containsWorkContactInfo: Boolean
+  "If set, only return results that satisfy these filters. Default to empty."
+  profileFilter: [ProfileFilterType!]
+  "If set to true, include Invalid emails in result. Default to false."
+  includeInvalid: Boolean
+  "Internal use, for analytics on Enrich"
+  sfdcExtraDetails: SfdcExtraDetails
+  "Apply Quality Filter"
+  qualityFilter: QualityFilter
+  "Min confidence property (if applicable) for a person (0 - 100)"
+  minConfidence: Int
+}
+
+"""
+Input for `searchPeoplePreview`. Provide at least one of:
+  - `linkedinUrl`
+  - `email`
+  - `fullName` + (`companyName` OR `companyDomain`)
+  - `firstName` + `lastName` + (`companyName` OR `companyDomain`)
+"""
+input SearchPeoplePreviewInput {
+  linkedinUrl: String
+  email: String
+  fullName: String
+  firstName: String
+  lastName: String
+  companyName: String
+  companyDomain: String
+}
+
+input SfdcExtraDetails {
+  sfdcUserId: String
+  updateCreate: RecordBehaviorType
+  enrichmentJobType: EnrichJobType
+  sfdcRecordId: String
+  orgId: String
+  companyName: String
+  frequency: EnrichmentScheduleType
+  batchJobId: String
+}
+
+input StartCompanyTrackingTaskInput {
+  monthsBack: Int
+  maxContactsPerCompany: Int
+  unlockDataPoints: [UnlockableDataPointRequest!]
+  icps: [ID!]
+  jobDetections: [JobDetectionType!]
+  timeoutAfterMinutes: Int
+  emailQuality: [EmailQuality!]
+  phoneQuality: PhoneQualityLevel
+}
+
+input TrackContactInput {
+  companyName: String!
+  companyDomain: String
+  firstName: String!
+  lastName: String!
+  title: String
+  email: String
+  personalLinkedInUrl: String
+  externalRecordId: String
+  "An optional reference ID that can be used to link this contact to an external record."
+  referenceId: String
+}
+
+input TrackContactsInput {
+  importId: ID!
+  unlockRequests: [UnlockableDataPointRequest!]
+  icps: [ID!]
+  jobDetections: [JobChangeType!]
+  timeoutAfterMinutes: Int
+  emailQuality: [EmailQuality!]
+  phoneQuality: PhoneQualityLevel
+  contacts: [TrackContactInput!]!
+}
+
+interface Plan {
+  "A human readable name for the plan. e.g. Enterprise Annual"
+  name: String!
+  "The product that this plan is for"
+  product: ProductName!
+  "The current status of the plan"
+  status: PlanStatus!
+  "The next billing period for this plan, null if the plan is inactive or will not reactivate"
+  nextBillingPeriod: ZonedDateTime
+}
+
+type AbandonBatchResponse {
+  batchId: ID!
+  success: Boolean!
+  errorCode: ErrorCode
+  errors: [String!]!
+}
+
+type Account {
+  "Returns the set of subscribed plans, this will include all plans, including trial plans"
+  plans: [Plan!]!
+  "Returns the datahub plan if it is present"
+  dataHubPlan: DataHubPlan
+  "Returns the universal plan if it is present"
+  universalPlan: UniversalPlan
+}
+
+"The response of adding a set of companies to the tracked list"
+type AddTrackedCompaniesResponse {
+  "The results of adding each company to the tracked list"
+  companies: [AddTrackedCompanyResult!]!
+  "Total number of companies added to the tracked list"
+  totalAdded: Long!
+  trackedCompanies(first: Int, after: ID): TrackedCompaniesConnection
+}
+
+type AddTrackedCompany {
+  name: String!
+  domain: String!
+  customData: Json
+}
+
+"The result of adding a single company to the tracked list"
+type AddTrackedCompanyResult {
+  "The input data for the company to add"
+  input: AddTrackedCompany!
+  "The tracked company after adding. If the company was not added, this field will be empty"
+  company: TrackedCompany
+  "Whether adding the company was successful"
+  success: Boolean!
+  "A list of errors that occurred while adding the company. This field will be empty if the company was added successfully."
+  errors: [String!]!
+}
+
+type ApiPlan {
+  "A human readable name for the plan. e.g. Enterprise Annual"
+  name: String!
+  "The product that this plan is for"
+  product: ProductName!
+  "The current status of the plan"
+  status: PlanStatus!
+  "The next billing period for this plan, null if the plan is inactive or will not reactivate"
+  nextBillingPeriod: ZonedDateTime
+  "The current usage of the plan"
+  usage: [PlanUsage!]!
+}
+
+type BalanceResponse {
+  alreadyUsed: Int! @deprecated
+  balance: Int!
+  remaining: Int!
+  maxCredits: Int!
+  plan: BalancePlan!
+}
+
+type CancelCompanyTrackingResponse {
+  success: Boolean!
+  error: String
+  errorCode: ErrorCode
+  task: CompanyTrackingTask
+}
+
+type Company {
+  id: String!
+  name: String
+  industry: String
+  description: String
+  linkedinId: String
+  domain: String
+  employeeCount: Int
+  city: String
+  country: String
+  countryCode2: String
+  countryCode3: String
+  state: String
+  postalCode: String
+  score: Float @deprecated
+  companyTechnologies: [String!]
+  companyTechnologyCategories: [String!]
+  revenueRange: RevenueRange
+  fundingInfo: FundingInfo
+  naicsCode: NAICSCode
+  sicCode: SICCode
+}
+
+type CompanyBusinessType {
+  value: CompanyBusinessTypeValue!
+}
+
+type CompanyBusinessTypesResult {
+  types: [CompanyBusinessType!]!
+}
+
+type CompanyData {
+  id: String!
+  inputName: String!
+  inputDomain: String!
+  customData: Json
+}
+
+type CompanyDefinition {
+  industries: [String!]!
+  sizes: [Size!]!
+  locations: [Location!]!
+  technologies: [String!]!
+  technologyCategories: [String!]!
+}
+
+type CompanyHierarchy {
+  isUltimate: Boolean!
+  parent: CompanyHierarchyNode
+  ultimateParent: CompanyHierarchyNode
+}
+
+type CompanyHierarchyNode {
+  id: String
+  name: String
+}
+
+type CompanyInfo {
+  id: String!
+  "Company Id"
+  source: String! @deprecated
+  name: String!
+  alternativeNames: [String!]
+  domain: String
+  description: String
+  emailDomains: [String!]
+  type: String
+  phones: [String!]
+  country: String @deprecated
+  address: String
+  locationInfo: LocationInfo
+  logoUrl: String
+  linkedinId: String
+  linkedinUrl: String
+  numberOfEmployees: Int
+  industry: String
+  specialities: [String!]
+  fundingInfo: FundingInfo
+  technologies: [TechnologyInfo!]
+  revenue: Long
+  revenueRange: RevenueRange
+  predictedRevenue: RevenueRange
+  sicCode: SICCode
+  secondarySicCodes: [SICCode!]
+  naicsCode: NAICSCode
+  employeeRange: String
+  crunchbaseUrl: String
+  facebookUrl: String
+  twitterUrl: String
+  foundedYear: Int
+  companyHierarchy: CompanyHierarchy
+  updatedDate: ZonedDateTime
+  businessTypes: CompanyBusinessTypesResult!
+  functionTrends(from: ZonedDateTime, to: ZonedDateTime): [FunctionTrends!]
+  isExcluded: Boolean
+}
+
+type CompanySearchResponse {
+  totalCompanies: Long!
+  companies: [CompanyWithPeople!]!
+}
+
+type CompanySearchResult {
+  totalResults: Int!
+  hasMore: Boolean!
+  results: [CompanyInfo!]!
+}
+
+type CompanyTrackingTask {
+  id: ID!
+  "Returns a list of jobchanges. Note that this collection will be empty if the task is not yet completed."
+  jobChanges(first: Int!, after: ID): JobChangeConnection
+  "A snapshot of the ICP/Persona as they were defined at the time of this run."
+  icpDefinitionSnapshot: [ICPDefinition!]
+  "The present status of the task."
+  status: TaskStatus!
+  "The timestamp of when this task was created."
+  createdAt: Instant!
+  "The number of months in the past to look for job changes. This value will be rounded to the 1st of the month. For the exact start date, see `jobStartDateFrom`"
+  monthsBack: Int!
+  "The exact start date to look for job changes."
+  jobStartDateFrom: LocalDate!
+  "The maximum number of contacts that will be returned per company"
+  maxContactsPerCompany: Int!
+  "The ICP/Persona filter"
+  icps: [ID!]! @deprecated
+  "Filters to narrow down job detections scope."
+  filters: JobDetectionFilters!
+  "The error message if the task is in a failed state."
+  error: String
+  "The error code if the task is in a failed state."
+  errorCode: ErrorCode
+  "True if the task was manually cancelled before completion."
+  isCancelled: Boolean!
+  "Time when the job will be forcefully complete if not finished"
+  timeoutAt: Instant!
+  "True if this was timeout"
+  isTimeout: Boolean
+  "Number of job detections that were dropped due to privacy suppression settings"
+  suppressedContacts: Int!
+  "The warning message if the task finished with a partial success"
+  warning: String
+}
+
+type CompanyWithPeople {
+  company: Company!
+  people: [Person!]!
+  totalContactsInCompany: Long!
+}
+
+type ContactInfo {
+  email: Email
+  personalPhones: PersonalPhones
+  workPhones: WorkPhones
+}
+
+type ContactTrackingPlan {
+  "A human readable name for the plan. e.g. Enterprise Annual"
+  name: String!
+  "The product that this plan is for"
+  product: ProductName!
+  "The current status of the plan"
+  status: PlanStatus!
+  "The next billing period for this plan, null if the plan is inactive or will not reactivate"
+  available: Int!
+}
+
+type DataHubCost {
+  "The subproduct that this cost is associated with"
+  sku: SKU!
+  "A list of dataPoint to cost mappings"
+  costs: [DataPointCost!]!
+}
+
+type DataHubPlan {
+  "A human readable name for the plan. e.g. Enterprise Annual"
+  name: String!
+  "The product that this plan is for"
+  product: ProductName!
+  "The current status of the plan"
+  status: PlanStatus!
+  nextBillingPeriod: ZonedDateTime
+  "The number of credits available for use"
+  available: Int!
+  "The number of credits used during the current billing period"
+  used: Int!
+  "The visibility of datapoints for this plan"
+  visibility: [DataHubVisibility!]!
+  "The costs per datapoint associated with this plan"
+  costs: [DataHubCost!]!
+}
+
+type DataHubVisibility {
+  "The subproduct that this visibility is associated with"
+  sku: SKU!
+  "A list of dataPoints that are visible"
+  dataPoints: [UnlockableDataPoint!]!
+}
+
+type DataPointCost {
+  "The datapoint that this cost is associated with"
+  dataPoint: ConfigurableDataPoint!
+  "The cost of the datapoint"
+  cost: Int!
+  "The cost of the datapoint in decimals"
+  costInDecimals: BigDecimal!
+}
+
+type DateRange {
+  start: ZonedDateTime
+  end: ZonedDateTime
+}
+
+type EducationRecord {
+  name: String!
+  type: String
+  linkedinUrl: String
+  facebookUrl: String
+  twitterUrl: String
+  linkedinId: String
+  website: String
+  domain: String
+  degrees: [String!]!
+  majors: [String!]!
+  grades: String
+  dateRange: DateRange
+  activities: String
+  description: String
+}
+
+type EmailSuppressed {
+  reason: EmailSuppressionReason!
+}
+
+type EmailValue {
+  email: String!
+  status: String!
+}
+
+type FunctionTrends {
+  time: ZonedDateTime!
+  buckets: [TrendBucketCount!]!
+}
+
+type FundingInfo {
+  fundingRounds: String
+  fundingTotalUsd: Long
+  lastFundingOn: ZonedDateTime
+  lastFundingType: String
+  lastFundingUsd: Long
+}
+
+type Group {
+  id: ID!
+  name: String!
+}
+
+type ICPDefinition {
+  id: ID!
+  name: String!
+  persona: PersonaDefinition!
+  company: CompanyDefinition!
+  "Groups as defined in Prospector for a team."
+  groups: [Group!]!
+  productLines: [ICPProductLine!]!
+}
+
+type ICPDefinitionResponse {
+  icps: [ICPDefinition!]!
+}
+
+type JobChange {
+  id: ID!
+  person: PersonData!
+  currentCompany: CompanyData!
+  previousCompany: PreviousCompanyData!
+  currentPosition: Position!
+  previousPosition: PreviousPosition!
+  jobChangeType: JobDetectionType!
+  matchedICPIds: [String!]!
+  duplicateRecordIds: [String!]!
+}
+
+type JobChangeConnection {
+  edges: [JobChangeEdge!]!
+  pageInfo: PageInfo!
+}
+
+type JobChangeEdge {
+  cursor: ID!
+  node: JobChange!
+}
+
+type JobDetectionFilters {
+  icps: [ID!]!
+  jobDetections: [JobDetectionType!]!
+  emailQuality: [EmailQuality!]!
+  phoneQuality: PhoneQualityLevel
+}
+
+type LinkedinRecord {
+  linkedinId: String
+  linkedinUrl: String
+  salesUrls: [String!]
+  type: GenericFieldType!
+  status: GenericFieldStatus!
+  updatedAt: ZonedDateTime!
+  guid: String
+}
+
+type List {
+  id: ID!
+  name: String!
+  description: String
+  status: String
+  visibility: String
+  startDate: String
+  endDate: String
+  createdAt: String!
+  updatedAt: String!
+  prospects(limit: Int = 25, cursor: ID): ProspectConnection
+}
+
+type ListConnection {
+  items: [List!]!
+  nextCursor: ID
+}
+
+type Location {
+  country: String
+  areaLevel1: String
+  city: String
+}
+
+type LocationInfo {
+  formattedAddress: String
+  street1: String
+  street2: String
+  city: String
+  areaLevel1: String
+  country: String
+  countryCode2: String
+  countryCode3: String
+  postalCode: String
+}
+
+type LocationRecord {
+  fullAddress: String
+  areaLevel1: String
+  city: String
+  country: String
+  countryCode2: String
+  countryCode3: String
+  type: GenericFieldType!
+  status: GenericFieldStatus!
+  updatedAt: ZonedDateTime!
+}
+
+type MatchedPerson {
+  confidence: Int!
+  person: MatchingServicePerson!
+}
+
+type MatchingServiceCompany {
+  id: String!
+  name: String
+  industry: String
+  description: String
+  linkedinId: String
+  domain: String
+  employeeCount: Int
+  city: String
+  country: String
+  state: String
+  postalCode: String
+  companyTechnologies: [String!]
+  companyTechnologyCategories: [String!]
+  revenueRange: RevenueRange
+  fundingInfo: FundingInfo
+  naicsCode: NAICSCode
+}
+
+type MatchingServicePerson {
+  id: String!
+  companyId: String!
+  company: MatchingServiceCompany
+  name: String
+  linkedinId: String
+  linkedinUrl: String
+  title: String
+  role: String
+  state: String
+  country: String
+  seniority: String
+  workEmails: [String!]
+  verifiedWorkEmails: [String!]
+  verifiedLikelyWorkEmails: [String!]
+  workPhones: [String!]
+  personalEmails: [String!]
+  personalPhones: [String!]
+  firstName: String
+  middleName: String
+  lastName: String
+  updatedAt: ZonedDateTime
+  currentPositionStartDate: ZonedDateTime
+}
+
+type MatchingServiceResponse {
+  people: [MatchedPerson!]!
+  fallbackCompanies: [MatchingServiceCompany!]
+}
+
+type MobilePhoneRecord {
+  value: String!
+  status: MobilePhoneStatus
+}
+
+"The supported mutations"
+type Mutation {
+  "Submit feedback about a person contact"
+  submitPersonFeedback(input: ApiPersonFeedback!): ID!
+  "Regenerate person"
+  regenerate(input: RegenerateRecordInput!): RegenerateResponse!
+  trackContacts(input: TrackContactsInput!): TrackContactsResponse!
+  abandonBatch(importId: ID!, reason: String): AbandonBatchResponse!
+  "Add companies to the list of tracked companies. Companies must be added to the list before calling `startCompanyTrackingTask`."
+  addTrackedCompanies(input: AddTrackedCompaniesInput!): AddTrackedCompaniesResponse
+  "Remove companies from the list of tracked companies."
+  removeTrackedCompanies(input: RemoveTrackedCompaniesInput!): RemoveTrackedCompaniesResponse
+  "Remove all companies from the list of tracked companies."
+  removeAllTrackedCompanies: RemoveAllTrackedCompaniesResponse
+  "Start a scheduled task to track companies. You should have tracked companies before calling this mutation."
+  startCompanyTrackingTask(input: StartCompanyTrackingTaskInput!): StartCompanyTrackingResponse
+  "Cancel a scheduled task to track companies."
+  cancelCompanyTrackingTask(input: CancelCompanyTrackingTaskInput!): CancelCompanyTrackingResponse
+  createList(input: CreateListInput!): List
+  addProspectToList(listId: ID!, input: CreateProspectInput!): Prospect
+}
+
+type NAICSCode {
+  code: String!
+  description: String!
+}
+
+type NameInfo {
+  first: String!
+  fullName: String!
+  last: String
+  middle: String
+}
+
+type PageInfo {
+  "Total count matching the query for this connection"
+  total: Int!
+  "The cursor of the first item in the connection"
+  startCursor: Cursor
+  "The cursor of the last item in the connection"
+  endCursor: Cursor
+  "Whether there are more items in the connection before the current page"
+  hasPreviousPage: Boolean!
+  "Whether there are more items in the connection after the current page"
+  hasNextPage: Boolean!
+}
+
+type Person {
+  id: String!
+  companyId: String!
+  name: String
+  linkedinId: String
+  linkedinUrl: String
+  title: String
+  role: String
+  city: String
+  state: String
+  country: String
+  countryCode2: String
+  countryCode3: String
+  seniority: String
+  workEmails: [String!] @deprecated
+  verifiedWorkEmails: [String!] @deprecated
+  verifiedLikelyWorkEmails: [String!] @deprecated
+  workPhones: [String!] @deprecated
+  personalEmails: [String!] @deprecated
+  personalPhones: [String!] @deprecated
+  score: Float @deprecated
+  firstName: String
+  middleName: String
+  lastName: String
+  updatedAt: ZonedDateTime
+  currentPositionStartDate: ZonedDateTime
+  company: Company
+  picture: String
+  "Limited access only. Always returns null unless this feature is enabled for your organization."
+  personJobChange: PersonJobChange
+}
+
+type PersonCurrentPosition {
+  companyId: String!
+  company: Company
+  title: String
+  role: String
+  seniority: String
+}
+
+type PersonData {
+  firstName: String!
+  lastName: String
+  email: String
+  emailStatus: String
+  personalPhones: [String!]!
+  personalPhonesWithQuality: [PhoneWithQuality!]!
+  workPhones: [String!]!
+  contactInfo: ContactInfo
+  linkedinUrl: String
+  country: String
+}
+
+type PersonJobChange {
+  jobChangeType: PersonJobChangeType!
+  startedAt: ZonedDateTime
+  previousPosition: PersonPreviousPosition!
+  currentPosition: PersonCurrentPosition!
+}
+
+type PersonPreviousPosition {
+  companyId: String
+  company: Company
+  title: String
+}
+
+type PersonRecord {
+  id: String!
+  _id: String! @deprecated
+  name: NameInfo!
+  currentPositions: [PositionRecord!]!
+  pastPositions: [PositionRecord!]!
+  linkedin: LinkedinRecord
+  profiles: [SocialProfile!]!
+  location: LocationRecord
+  education: [EducationRecord!]!
+  updatedAt: ZonedDateTime
+  personalEmails: [PersonalEmailRecordType!]!
+  personalPhones: [PersonalPhoneRecordType!]!
+  confidence: Int
+}
+
+type PersonSearchResponse {
+  totalPeople: Long!
+  people: [Person!]!
+}
+
+type PersonaDefinition {
+  locations: [Location!]!
+  titles: [String!]!
+  functions: [String!]!
+  seniorities: [String!]!
+}
+
+type PersonalEmailRecordType {
+  type: EmailType!
+  status: EmailVerificationStatusType!
+  updatedAt: ZonedDateTime!
+  value: String!
+}
+
+type PersonalPhoneRecordType {
+  type: PhoneType!
+  status: PhoneVerificationStatusType!
+  verificationStatus: VerificationStatusType!
+  updatedAt: ZonedDateTime!
+  value: String!
+}
+
+type PersonalPhonesSuppressed {
+  reason: PhoneSuppressionReason!
+}
+
+type PersonalPhonesValue {
+  phones: [PhoneWithQuality!]!
+}
+
+type PhoneWithQuality {
+  phone: String!
+  quality: PhoneVerificationStatusType
+}
+
+type PlanUsage {
+  name: ApiName!
+  usageType: ApiUsageType!
+  creditType: ApiCreditType!
+  units: Int!
+  cap: Int
+  billingType: BillingType!
+  trial: Boolean!
+}
+
+type Position {
+  title: String!
+  function: String!
+  seniority: String!
+  startDate: LocalDate
+}
+
+type PositionRecord {
+  companyId: String!
+  title: String
+  dateRange: DateRange
+  updatedAt: ZonedDateTime!
+  emails: [WorkEmailRecordType!]!
+  phones: [WorkPhoneRecordType!]!
+  companyInfo: CompanyInfo
+  seniority: String
+  function: String
+  workEmail: WorkEmailRecordType
+  matchedQuery: Boolean!
+}
+
+type PreviousCompanyData {
+  name: String
+  domain: String
+}
+
+type PreviousPosition {
+  title: String!
+}
+
+type Prospect {
+  id: ID!
+  personId: String
+  linkedinId: String
+  linkedinUrl: String
+  firstName: String
+  lastName: String
+  name: String
+  picture: String
+  title: String
+  seniority: String
+  function: String
+  workEmail: String
+  """
+  Verification status of `workEmail`. One of: `Verified`, `VerifiedLikely`,
+`Unverified`, or `Invalid` (the latter is set by the verify-email endpoints
+when an address fails verification — it can be present on saved prospects
+whose email was checked after creation). May be null when the prospect was
+saved without an email or without a verification verdict.
+  """
+  emailStatus: String
+  personalEmails: [String!]
+  """
+  Mobile phone numbers attached to the prospect. Each entry carries the
+number plus an optional `status` flag — `Verified` when prospector-api
+was able to confirm the number against dataiq's records (score-driven,
+threshold-gated), absent otherwise. Internal `LikelyAccurate` /
+`VerifiedByUser` / `Edited` storage values collapse to a single wire
+enum (`Verified`) or are omitted; do not surface other values.
+  """
+  mobilePhones: [MobilePhoneRecord!]
+  location: ProspectorLocation
+  company: ProspectorCompany
+  listIds: [ID!]!
+  notes: String
+  createdAt: String!
+  updatedAt: String!
+}
+
+type ProspectConnection {
+  items: [Prospect!]!
+  nextCursor: ID
+}
+
+type ProspectorCompany {
+  id: String
+  name: String
+  domain: String
+  industry: String
+  employees: Int
+  phone: String
+  location: ProspectorLocation
+}
+
+type ProspectorLocation {
+  streetLine1: String
+  streetLine2: String
+  city: String
+  state: String
+  zip: String
+  country: String
+  formatted: String
+}
+
+"The root query"
+type Query {
+  "The current user's account"
+  account: Account
+  "Search for people based on identifying information: name, company (past & present), social profiles, email, etc"
+  searchPeople(input: SearchPeopleInput!): SearchResult!
+  """
+  Lightweight preview to check whether a work email and/or phone can likely be produced for a person.
+Does not charge credits. Returns the matched personId and the requested boolean flags.
+At least one of `hasEmail` or `hasPhone` must be selected.
+  """
+  searchPeoplePreview(input: SearchPeoplePreviewInput!): SearchPeoplePreviewResult!
+  "Search for companies based on identifying information: name, domain, country, etc"
+  searchCompany(input: SearchCompanyInput!): CompanySearchResult!
+  "Advanced search for grouped response"
+  groupedAdvancedSearch(input: GroupedSearchInput!): CompanySearchResponse!
+  "Advanced search for flat response"
+  flatAdvancedSearch(input: FlatSearchInput!): PersonSearchResponse!
+  "Match profile by email"
+  matchProfile(input: MatchingServiceInput!): MatchingServiceResponse!
+  "View API credit usage and limit"
+  usage: UsageMetaType!
+  "Last regenerated time"
+  regeneratedTime(input: RegeneratedTimeInput!): RegeneratedTimeResult!
+  workatoToken(orgDomainUrl: String!): WorkatoTokenResponse!
+  trackedContacts(importId: String, limit: Int!, cursor: Cursor, uniqueOnly: Boolean): TrackedContactsConnection!
+  contactTrackingBalance: BalanceResponse
+  "Get the current status of the company tracking task."
+  companyTrackingTask(id: ID!, uniqueOnly: Boolean): CompanyTrackingTask
+  "Get the list of tracked companies."
+  trackedCompanies(first: Int, after: ID): TrackedCompaniesConnection
+  "The current ICP definitions"
+  icpDefinitions(productLines: [ICPProductLine!]): ICPDefinitionResponse
+  lists(limit: Int = 25, cursor: ID): ListConnection
+  list(id: ID!): List
+  prospect(id: ID!): Prospect
+}
+
+type RegeneratedTimeResult {
+  time: ZonedDateTime
+}
+
+type RemoveAllTrackedCompaniesResponse {
+  "True if all companies were removed successfully"
+  success: Boolean!
+  "Total number of companies removed"
+  totalRemaining: Long!
+}
+
+type RemoveTrackedCompaniesResponse {
+  companies: [RemoveTrackedCompanyResult!]!
+  notFound: [ID!]!
+  totalRemoved: Long!
+  trackedCompanies(first: Int, after: ID): TrackedCompaniesConnection
+}
+
+type RemoveTrackedCompanyResult {
+  id: ID!
+  name: String!
+  domain: String!
+}
+
+type RevenueRange {
+  start: Long
+  end: Long
+  description: String
+}
+
+type SICCode {
+  code: String!
+  description: String!
+}
+
+"Result of `searchPeoplePreview`. `hasEmail` and `hasPhone` are populated only when requested in the selection set."
+type SearchPeoplePreviewResult {
+  "Identifier of the matched person"
+  personId: String
+  "True when the matched person likely has a work email available."
+  hasEmail: Boolean
+  "True when the matched person likely has a phone available."
+  hasPhone: Boolean
+}
+
+type SearchResult {
+  totalResults: Int!
+  hasMore: Boolean!
+  results: [PersonRecord!]!
+}
+
+type Size {
+  min: Int!
+  max: Int!
+}
+
+type SocialProfile {
+  network: SocialNetworkType!
+  id: String
+  username: String
+  url: String
+  status: GenericFieldStatus!
+  updatedAt: ZonedDateTime!
+}
+
+type StartCompanyTrackingResponse {
+  "Whether the task was successfully started"
+  success: Boolean!
+  "A list of errors that prevented the task from starting"
+  errors: [String!]!
+  "The code of the error that prevented the task from starting"
+  errorCode: ErrorCode
+  "The created task if the mutation was successful"
+  task: CompanyTrackingTask
+  "A list of non-critical errors with which the task started"
+  warnings: [String!]!
+}
+
+type SubscriptionInfo {
+  status: String
+}
+
+type TechnologyInfo {
+  name: String!
+  category: String
+  parentCategory: String
+  attributes: [String!]!
+  categories: [String!]!
+}
+
+type TrackContactsResponse {
+  importId: ID!
+  totalCount: Long!
+  batchCount: Long!
+  errors: [String!]!
+  errorCode: ErrorCode
+  "A list of non-critical errors with which the job started"
+  warnings: [String!]!
+  contactsExceedingSubscriptionLimit: [String!]! @deprecated
+  totalSubscriptionContactsUsed: Long! @deprecated
+  totalSubscriptionContactsRemaining: Long! @deprecated
+}
+
+type TrackedCompaniesConnection {
+  pageInfo: PageInfo!
+  edges: [TrackedCompanyEdge!]!
+}
+
+type TrackedCompany {
+  id: ID!
+  name: String!
+  domain: String!
+  customData: Json
+}
+
+type TrackedCompanyEdge {
+  node: TrackedCompany!
+  cursor: ID!
+}
+
+type TrackedContact {
+  id: ID!
+  contactCountry: String
+  firstName: String!
+  lastName: String!
+  lastKnownCompany: String
+  lastKnownCompanyDomain: String
+  lastKnownTitle: String
+  linkedIn: String
+  company: String
+  companyDomain: String
+  companyCountry: String
+  companyState: String
+  title: String
+  jobStartDate: LocalDate
+  email: String
+  emailStatus: String
+  phones: [String!]!
+  phonesWithQuality: [PhoneWithQuality!]!
+  workPhones: [String!]!
+  companySize: String
+  companyIndustry: String
+  companyLinkedIn: String
+  titleLevel: String
+  titleDomain: String
+  referenceId: String
+  externalRecordId: String
+  jobChangeType: JobChangeType!
+  duplicateRecordIds: [String!]!
+  duplicateAccountIds: [String!]!
+  matchedICPIds: [ID!]!
+  contactInfo: ContactInfo
+}
+
+type TrackedContactEdge {
+  cursor: Cursor!
+  node: TrackedContact!
+}
+
+type TrackedContactsConnection {
+  edges: [TrackedContactEdge!]!
+  pageInfo: PageInfo!
+  isProcessing: Boolean!
+  errors: [String!]
+  errorCode: ErrorCode
+  totalSubscriptionContactsUsed: Int
+  totalSubscriptionContactsRemaining: Int
+  "A snapshot of the ICP/Persona as they were defined at the time of this run."
+  availableICPs: [ICPDefinition!]!
+  "Time when the run will forcefully complete if not finished"
+  timeoutAt: Instant!
+  "True if this ended from timeout"
+  isTimeout: Boolean
+  "Number of job detections that were dropped due to privacy suppression settings"
+  suppressedContacts: Int!
+  "The warning message if the task finished with a partial success"
+  warning: String
+}
+
+type TrendBucketCount {
+  bucket: String!
+  count: Int!
+}
+
+type TrialUsage {
+  name: ApiName!
+  usageType: ApiUsageType!
+  creditType: ApiCreditType!
+  units: Int!
+  cap: Int
+  billingType: BillingType!
+}
+
+type UniversalCost {
+  "The subproduct that this cost is associated with"
+  sku: SKU!
+  "A list of dataPoint to cost mappings"
+  costs: [DataPointCost!]!
+}
+
+type UniversalPlan {
+  "A human readable name for the plan. e.g. Enterprise Annual"
+  name: String!
+  "The product that this plan is for"
+  product: ProductName!
+  "The current status of the plan"
+  status: PlanStatus!
+  "When the next billing period starts, null if the plan is inactive or will not reactivate"
+  nextBillingPeriod: ZonedDateTime
+  "The number of credits available for use"
+  available: Int!
+  "The number of credits used during the current billing period"
+  used: Int!
+  "The visibility of datapoints for this plan"
+  visibility: [UniversalVisibility!]!
+  "The costs per datapoint associated with this plan"
+  costs: [UniversalCost!]!
+}
+
+type UniversalUsage {
+  units: Int!
+  cap: Int!
+}
+
+type UniversalVisibility {
+  "The subproduct that this visibility is associated with"
+  sku: SKU!
+  "A list of dataPoints that are visible"
+  dataPoints: [UnlockableDataPoint!]!
+}
+
+type UsageMetaType {
+  "Returns the active(non-trial) api usage in the current billing period. The from input argument is deprecated and will be ignored."
+  planUsage(from: ZonedDateTime): [PlanUsage!]!
+  trialUsage: [TrialUsage!]!
+  subscription: SubscriptionInfo!
+  universalUsage: [UniversalUsage!]!
+}
+
+type WorkEmailRecordType {
+  type: EmailType!
+  status: EmailVerificationStatusType!
+  updatedAt: ZonedDateTime!
+  value: String!
+}
+
+type WorkPhoneRecordType {
+  type: PhoneType!
+  status: PhoneVerificationStatusType!
+  verificationStatus: VerificationStatusType!
+  updatedAt: ZonedDateTime!
+  value: String!
+}
+
+type WorkPhonesSuppressed {
+  reason: PhoneSuppressionReason!
+}
+
+type WorkPhonesValue {
+  phones: [String!]!
+}
+
+type WorkatoTokenResponseFailure {
+  message: String!
+}
+
+type WorkatoTokenResponseSuccess {
+  token: String!
+  customerAccountId: String
+  apiKey: String
+}
+
+"BigDecimal type"
+scalar BigDecimal
+
+"A pagination cursor"
+scalar Cursor
+
+"An instantaneous point on the time-line represented by a standard date time string"
+scalar Instant
+
+"Represents a JSON object"
+scalar Json
+
+"A date without a time-zone in the ISO-8601 calendar system using the format 1970-01-01"
+scalar LocalDate
+
+"The `Long` scalar type represents non-fractional signed whole numeric values. Long can represent values between -(2^63) and 2^63 - 1."
+scalar Long
+
+"Zoned date time type"
+scalar ZonedDateTime
+
+union Email = EmailSuppressed | EmailValue
+
+union PersonalPhones = PersonalPhonesSuppressed | PersonalPhonesValue
+
+union WorkPhones = WorkPhonesSuppressed | WorkPhonesValue
+
+union WorkatoTokenResponse = WorkatoTokenResponseFailure | WorkatoTokenResponseSuccess
+

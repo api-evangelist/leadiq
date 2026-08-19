@@ -1,0 +1,71 @@
+generated: '2026-08-13'
+method: searched
+source: https://developer.leadiq.com/
+sources:
+- https://developer.leadiq.com/
+- https://status.leadiq.com
+- https://leadiqhelp.zendesk.com/hc/en-us/articles/29375289152795-LeadIQ-Public-API-Guide
+- openapi/leadiq-prospector-api-openapi.yml
+- graphql/leadiq-introspection.json
+versioning:
+- surface: Prospector REST API
+  scheme: uri-path
+  current: v1
+  base: https://prospector.leadiq.com/v1
+  spec_version: 1.0.0
+- surface: GraphQL Data API
+  scheme: unversioned
+  current: null
+  note: Single /graphql endpoint. Evolution is schema-only; there is no version header, date pin, or version path.
+- surface: MCP connector
+  scheme: unversioned
+  current: null
+  note: >-
+    The tool set changed generation without a version marker — LeadIQ's help centre
+    documents fifteen tools under tool_-prefixed names while the developer portal
+    documents seventeen tools under bare names. No migration note accompanied it.
+deprecation:
+  policy_url: null
+  policy_published: false
+  sunset_header: false
+  deprecation_header: false
+  detail: >-
+    LeadIQ publishes no deprecation or sunset policy on any surface. RFC 8594 Sunset /
+    Deprecation headers are not declared in the Prospector OpenAPI and are not
+    documented. No GraphQL field or enum value in the live 216-type introspection
+    carries an @deprecated directive, and no Prospector operation is marked
+    `deprecated: true` — so there is currently nothing deprecated, but equally no
+    stated contract for what happens when there is.
+deprecated_operations: []
+sla:
+  url: null
+  uptime_target: null
+  published: false
+  note: No public SLA or uptime commitment found. Enterprise terms are negotiated via sales.
+status_page:
+  url: https://status.leadiq.com
+  provider: Uptime.com
+  http_status: 200
+  machine_readable_feed: false
+  note: >-
+    A real hosted status page is served. It is NOT Statuspage.io — there is no
+    /api/v2/summary.json (probed, 404) and no other machine-readable component or
+    incident feed was found, so a monitoring agent has to scrape the HTML.
+changelog:
+  url: null
+  published: false
+  note: >-
+    No changelog, release-notes, or product-updates page exists. Probed
+    leadiq.com/changelog, /whats-new, /product-updates (all 404) and the developer
+    portal has no such section. The only dated change signal available is the
+    `updated_at` on LeadIQ's help-centre articles.
+roadmap:
+  url: null
+  published: false
+support:
+  email: api@leadiq.com
+  help_center: https://leadiqhelp.zendesk.com/hc/en-us
+  api_section: https://leadiqhelp.zendesk.com/hc/en-us/sections/29405194605723-API
+findings:
+- The Prospector REST API is versioned (v1) and the GraphQL API is not; a breaking GraphQL change has no announcement channel.
+- No deprecation policy, no Sunset headers, no changelog — three of the four operational-transparency signals are absent on an estate that is otherwise unusually well documented at the operation level.

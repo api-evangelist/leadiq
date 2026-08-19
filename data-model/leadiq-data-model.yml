@@ -1,0 +1,108 @@
+generated: '2026-08-13'
+method: derived
+source: openapi/leadiq-prospector-api-openapi.yml, graphql/leadiq.graphql
+docs: https://developer.leadiq.com/
+note: >-
+  Entity graph derived from the Prospector OpenAPI components.schemas ($ref links and
+  id-reference fields) and cross-checked against the live GraphQL SDL. The two surfaces
+  model the SAME core — Person/Prospect, Company, List — but with different field names
+  and different id spaces, which is recorded in id_spaces below.
+entities:
+- name: List
+  surface: rest+graphql
+  schema: openapi/leadiq-prospector-api-openapi.yml#/components/schemas/List
+  id: id
+  id_format: 24-char hex (^[0-9a-fA-F]{24}$)
+  fields: [id, name, role, description, status, visibility, startDate, endDate, createdAt, updatedAt]
+  enums:
+    role: ListRole (caller's relationship to the list — owner or collaborator)
+  graphql_twin: List / ListConnection
+  note: Name is unique per account — POST /v1/lists returns 409 on a duplicate name.
+- name: Prospect
+  surface: rest+graphql
+  schema: openapi/leadiq-prospector-api-openapi.yml#/components/schemas/Prospect
+  id: id
+  id_format: 24-char hex
+  fields: [id, personId, linkedinId, linkedinUrl, firstName, lastName, name, picture, title, seniority, function, workEmail, emailStatus, personalEmails, mobilePhones, location, company, listIds, notes, createdAt, updatedAt]
+  graphql_twin: Prospect / ProspectConnection
+  note: >-
+    A Prospect is a SAVED copy inside the customer's workspace. It is not the same
+    object as a Person from the search graph — `personId` is the foreign key back into
+    LeadIQ's canonical people data.
+- name: Company
+  surface: rest+graphql
+  schema: openapi/leadiq-prospector-api-openapi.yml#/components/schemas/Company
+  id: id
+  fields: [id, name, domain, industry, employees, location, phone]
+  graphql_twin: Company / CompanyDetails / CompanyInfo / ProspectorCompany
+  note: The REST Company is a thin projection; the GraphQL side carries firmographics, NAICS/SIC, technologies, funding and hierarchy.
+- name: Location
+  surface: rest
+  schema: openapi/leadiq-prospector-api-openapi.yml#/components/schemas/Location
+  fields: [streetLine1, streetLine2, city, state, zip, country, formatted]
+  value_object: true
+- name: CompanyLocation
+  surface: rest
+  schema: openapi/leadiq-prospector-api-openapi.yml#/components/schemas/CompanyLocation
+  fields: [streetLine1, streetLine2, city, state, zip, country, formatted]
+  value_object: true
+  note: Structurally identical to Location but declared separately — a duplication in the spec, not a semantic difference.
+- name: WhoAmI
+  surface: rest
+  schema: openapi/leadiq-prospector-api-openapi.yml#/components/schemas/WhoAmI
+  fields: [user, team]
+  note: Caller identity envelope returned by GET /v1/whoami.
+- name: SalesforceExportResult
+  surface: rest
+  schema: openapi/leadiq-prospector-api-openapi.yml#/components/schemas/SalesforceExportResult
+  fields: [status, entityId, entityType, savedAs, requestId, duplicates]
+  external_system: Salesforce
+  note: entityId/entityType/savedAs address a record in the CALLER's Salesforce org, not in LeadIQ.
+- name: SalesforceDuplicate
+  surface: rest
+  schema: openapi/leadiq-prospector-api-openapi.yml#/components/schemas/SalesforceDuplicate
+  fields: [id, entityType, name, email, company]
+- name: Person
+  surface: graphql
+  schema: graphql/leadiq.graphql#Person
+  note: >-
+    The canonical people record behind search and enrichment. Related GraphQL types:
+    PersonRecord, PersonCurrentPosition, PersonPreviousPosition, PersonJobChange,
+    NameInfo, LinkedinRecord, WorkEmailRecordType, PersonalEmailRecordType,
+    MobilePhoneRecord, WorkPhoneRecordType, EducationRecord, LocationRecord.
+- name: Account
+  surface: graphql
+  schema: graphql/leadiq.graphql#Account
+  note: 'Plan and credit state: Plan, DataHubPlan, UniversalPlan, UniversalCost, DataPointCost, SKU, UnlockableDataPoint, ConfigurableDataPoint.'
+relationships:
+- {from: List, to: Prospect, kind: has_many, via: 'GET /v1/lists/{listId}/prospects'}
+- {from: Prospect, to: List, kind: belongs_to_many, via: listIds}
+- {from: Prospect, to: Company, kind: has_one, via: company}
+- {from: Prospect, to: Person, kind: belongs_to, via: personId, note: foreign key into LeadIQ's canonical people graph}
+- {from: Prospect, to: Location, kind: has_one, via: location}
+- {from: Company, to: CompanyLocation, kind: has_one, via: location}
+- {from: PaginatedLists, to: List, kind: has_many, via: items}
+- {from: PaginatedProspects, to: Prospect, kind: has_many, via: items}
+- {from: BulkSaveResult, to: Prospect, kind: has_many, via: succeeded}
+- {from: BulkSaveResult, to: BulkSaveFailure, kind: has_many, via: failed}
+- {from: VerifyEmailResponse, to: Prospect, kind: has_one, via: prospect}
+- {from: SalesforceExportResult, to: SalesforceDuplicate, kind: has_many, via: duplicates}
+- {from: Person, to: PersonCurrentPosition, kind: has_many, via: currentPositions}
+- {from: PersonCurrentPosition, to: CompanyInfo, kind: has_one, via: companyInfo}
+- {from: Company, to: CompanyHierarchy, kind: has_one, via: hierarchy, note: 'GraphQL only — parent/subsidiary graph via CompanyHierarchyNode'}
+id_spaces:
+- {space: prospect_id, format: 24-char hex, example_pattern: '^[0-9a-fA-F]{24}$', surface: rest}
+- {space: list_id, format: 24-char hex, example_pattern: '^[0-9a-fA-F]{24}$', surface: rest}
+- {space: person_id, format: 'prefixed — PersonID-<uuid>', surface: graphql, evidence: 'cursor example in the pagination docs: PersonID-4d3e379c-3f40-4f90-b436-af9bf628f32f'}
+- {space: company_id, format: 'prefixed — MergedCompany-<hex>', surface: graphql, evidence: 'cursor example: MergedCompany-5a1d839824000024005e2b09'}
+findings:
+- >-
+  Two id conventions coexist. The saved-workspace objects (List, Prospect) use bare
+  24-char Mongo-style hex; the canonical data graph uses prefixed ids
+  (PersonID-<uuid>, MergedCompany-<hex>). An agent moving between search results and
+  saved prospects must not assume one id space.
+- Location and CompanyLocation are byte-identical schemas declared twice.
+coverage:
+  rest_schemas: 21
+  graphql_types: 216
+  relationships_mapped: 15

@@ -1,0 +1,77 @@
+generated: '2026-08-13'
+method: probed
+source: https://mcp.leadiq.com/.well-known/oauth-protected-resource
+docs: https://developer.leadiq.com/
+note: >-
+  LeadIQ's OpenAPI and GraphQL surfaces declare no oauth2 security scheme — they are
+  API-key surfaces (Basic for GraphQL, X-API-Key for Prospector REST). The only OAuth
+  surface on the estate is the MCP connector at mcp.leadiq.com, and its scopes are
+  published anonymously in RFC 9728 protected-resource metadata rather than in a spec
+  or a docs page. `derive-oauth-scopes.py` found zero oauth2 schemes across the specs;
+  everything below comes from the live well-known probe.
+schemes:
+- name: LeadIQ MCP OAuth 2.0
+  source: https://mcp.leadiq.com/.well-known/oauth-protected-resource
+  resource: https://mcp.leadiq.com/mcp
+  authorization_server: https://leadiq-mcp-prod.us.auth0.com/
+  bearer_methods_supported: [header]
+  dynamic_client_registration: true
+  registration_endpoint: https://leadiq-mcp-prod.us.auth0.com/oidc/register
+  flows:
+  - flow: authorizationCode
+    authorizationUrl: https://leadiq-mcp-prod.us.auth0.com/authorize
+    tokenUrl: https://leadiq-mcp-prod.us.auth0.com/oauth/token
+    pkce: [S256, plain]
+  - flow: clientCredentials
+    tokenUrl: https://leadiq-mcp-prod.us.auth0.com/oauth/token
+  - flow: deviceCode
+    deviceAuthorizationUrl: https://leadiq-mcp-prod.us.auth0.com/oauth/device/code
+    tokenUrl: https://leadiq-mcp-prod.us.auth0.com/oauth/token
+  revocation_endpoint: https://leadiq-mcp-prod.us.auth0.com/oauth/revoke
+  jwks_uri: https://leadiq-mcp-prod.us.auth0.com/.well-known/jwks.json
+scopes:
+- scope: leadiq:api
+  description: >-
+    The single LeadIQ resource scope. Grants an MCP client access to the LeadIQ API
+    surface behind mcp.leadiq.com/mcp with the signed-in user's own account
+    permissions and credit balance. LeadIQ publishes no finer-grained per-tool or
+    read/write split — all seventeen MCP tools, including the Salesforce export write,
+    sit behind this one scope.
+  flows: [authorizationCode]
+  sources: ['https://mcp.leadiq.com/.well-known/oauth-protected-resource']
+- scope: offline_access
+  description: Issues a refresh token so the MCP client can keep the connection alive without re-prompting the user.
+  flows: [authorizationCode]
+  sources: ['https://mcp.leadiq.com/.well-known/oauth-protected-resource']
+authorization_server_scopes_supported:
+- openid
+- profile
+- offline_access
+- name
+- given_name
+- family_name
+- nickname
+- email
+- email_verified
+- picture
+- created_at
+- identities
+- phone
+- address
+authorization_server_note: >-
+  Those are the Auth0 tenant's standard OIDC scopes advertised at
+  leadiq-mcp-prod.us.auth0.com/.well-known/oauth-authorization-server. They are
+  identity scopes, not LeadIQ resource scopes; only `leadiq:api` and `offline_access`
+  are named by the protected-resource document as required for the MCP resource.
+findings:
+- >-
+  Coarse authorization. One resource scope covers everything an agent can do,
+  including ExportProspectToSalesforce, which writes an irreversible record into the
+  customer's Salesforce org. There is no read-only scope an operator could grant to a
+  research agent.
+x-evidence:
+  fetched: '2026-08-13'
+  probes:
+  - {url: 'https://mcp.leadiq.com/.well-known/oauth-protected-resource', http_status: 200}
+  - {url: 'https://leadiq-mcp-prod.us.auth0.com/.well-known/oauth-authorization-server', http_status: 200}
+  - {url: 'https://mcp.leadiq.com/.well-known/oauth-authorization-server', http_status: 404}

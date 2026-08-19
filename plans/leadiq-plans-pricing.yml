@@ -1,0 +1,76 @@
+generated: '2026-08-13'
+method: searched
+source: https://leadiq.com/pricing
+sources:
+- https://leadiq.com/pricing
+- https://leadiqhelp.zendesk.com/hc/en-us/articles/35509840045083-LeadIQ-Public-API-Overview
+currency: USD
+plan_count: 3
+billing_periods: [monthly, annual]
+annual_discount: 25% off the monthly rate when billed annually
+plans:
+- name: Free
+  price: 0
+  currency: USD
+  period: month
+  commitment: none
+  seats: 1
+  included_quota: 50 credits per month
+  overage: null
+  api_access: true
+  features:
+  - People search
+  - API access
+  - Exporting
+  - Job tracking
+  - Chrome extension
+  - Limited database search
+  - AI message writer
+  - Signals
+  - Integrations
+  - CRM enrichment
+  - Webform enrichment
+  - Company search
+- name: Pro
+  price: 200
+  price_annual_monthly_equivalent: 150
+  currency: USD
+  period: month
+  seats: up to 5
+  included_quota: 200 credits per month
+  overage: not published
+  api_access: true
+  features:
+  - Everything in Free
+- name: Enterprise
+  price: null
+  price_model: contact-sales
+  currency: USD
+  period: annual only
+  seats: custom
+  included_quota: custom
+  overage: negotiated
+  api_access: true
+  features:
+  - Everything in Pro
+  - AI account prospecting
+  - Governance controls
+  - File enrichment (CSV)
+  - Advanced admin settings
+  - Salesforce duplicate detection
+  - Team analytics
+  - Custom field mappings
+  - Lando Agent
+  - SSO
+credit_costs:
+- {data_point: Email, credits: 1}
+- {data_point: Phone number, credits: 10}
+- {data_point: Email + phone, credits: 11}
+- {data_point: Account/company enrichment, credits: 3}
+- {data_point: Profile information, credits: 0.1}
+api_access_note: >-
+  Programmatic access is NOT tier-gated on the pricing page, but LeadIQ's own API
+  overview article draws a harder line than the pricing page does: "Users across all
+  plans can make up to 50 one-off, non-recurring calls to test the API. Beyond the free
+  tier, API access requires a direct sales discussion for enterprise-level agreements."
+  Treat sustained API or MCP use as sales-gated regardless of the plan shown here.

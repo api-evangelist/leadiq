@@ -1,0 +1,334 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Prospector API",
+    "version": "1.0.0"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "X-API-Key",
+      "value": "{{X-API-Key}}",
+      "placement": "header"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "lists",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "GET /v1/lists",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://prospector.leadiq.com/v1/lists",
+            "params": [
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "cursor",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "role",
+                "value": "",
+                "type": "query",
+                "description": "Filter to lists where the caller has this role. Omitted = both owner and collaborator."
+              }
+            ]
+          }
+        },
+        {
+          "info": {
+            "name": "POST /v1/lists",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://prospector.leadiq.com/v1/lists",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          }
+        },
+        {
+          "info": {
+            "name": "GET /v1/lists/{listId}",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://prospector.leadiq.com/v1/lists/:listId",
+            "params": [
+              {
+                "name": "listId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          }
+        },
+        {
+          "info": {
+            "name": "GET /v1/lists/{listId}/prospects",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://prospector.leadiq.com/v1/lists/:listId/prospects",
+            "params": [
+              {
+                "name": "listId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "cursor",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          }
+        },
+        {
+          "info": {
+            "name": "Create a prospect in a list",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://prospector.leadiq.com/v1/lists/:listId/prospects",
+            "params": [
+              {
+                "name": "listId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Creates a new prospect and attaches it to the given list.\n\n**This endpoint is not idempotent.** Each call creates a distinct prospect, even when the body is identical to a previous request — there is no deduplication by email, LinkedIn URL, or any other field. Clients that retry on network errors or 5xx responses must guard against double-create themselves (e.g. by tracking a stable client-side request id and only retrying when the previous attempt did not return a 2xx)."
+        },
+        {
+          "info": {
+            "name": "Create multiple prospects in a list (batch)",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://prospector.leadiq.com/v1/lists/:listId/prospects/batch",
+            "params": [
+              {
+                "name": "listId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Creates up to 100 prospects in one call and attaches them all to the given list.\n\n**Partial-success semantics:** the response always returns 200 if the request is well-formed and the caller owns the list. The body contains `succeeded[]` and `failed[]`. `failed[i].index` refers to the position of the failing item in the request body array. Successes appear in `succeeded[]` in input order; failures are sorted by `index`.\n\n**This endpoint is not idempotent.** Retrying after a network error or timeo"
+        },
+        {
+          "info": {
+            "name": "Attach an existing prospect to a list",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://prospector.leadiq.com/v1/lists/:listId/prospects/:prospectId",
+            "params": [
+              {
+                "name": "listId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "prospectId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Attaches an existing prospect to the given list. **Idempotent** — calling twice with the same `(listId, prospectId)` pair both return 200 and the resulting `listIds` array contains the list id once, not twice. The caller must be able to access the destination list (owner or collaborator). The prospect must either already be a member of one of the caller's accessible lists, or have been created standalone by the same caller via `POST /v1/prospects`. The 200 body is the post-update prospect with t"
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "prospects",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List or search prospects",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://prospector.leadiq.com/v1/prospects",
+            "params": [
+              {
+                "name": "email",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "firstName",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "lastName",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "cursor",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Find prospects across all of the caller's leads, regardless of list membership. Pass **either** `email` alone, **or** `firstName` + `lastName` together, **or** no criteria to list every prospect the caller owns. Half-name searches and combined email+name are rejected with 400."
+        },
+        {
+          "info": {
+            "name": "Create a prospect (no list)",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://prospector.leadiq.com/v1/prospects",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Creates a new prospect with no list membership. Use `POST /v1/lists/{listId}/prospects` instead to create-and-attach in a single call.\n\n**This endpoint is not idempotent.** See the same note on `POST /v1/lists/{listId}/prospects`."
+        },
+        {
+          "info": {
+            "name": "Verify a standalone email address",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://prospector.leadiq.com/v1/verify-email",
+            "params": [
+              {
+                "name": "email",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Verify any email without creating or modifying a lead. Useful as a pre-flight check before creating a prospect. The verdict is computed by EVS (Email Verification Service) and folded into our four-value status enum."
+        },
+        {
+          "info": {
+            "name": "GET /v1/prospects/{prospectId}",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://prospector.leadiq.com/v1/prospects/:prospectId",
+            "params": [
+              {
+                "name": "prospectId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          }
+        },
+        {
+          "info": {
+            "name": "Verify the email on an existing prospect",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://prospector.leadiq.com/v1/prospects/:prospectId/verify-email",
+            "params": [
+              {
+                "name": "prospectId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Verifies the email currently stored on the lead and persists the new status. The lead's `workEmail` field is **never** modified — this is a verify-what's-there operation, not a discover-and-replace one. Returns 409 with `code: \"no_email_to_verify\"` if the lead has no email (a state precondition, not a body-validation failure)."
+        },
+        {
+          "info": {
+            "name": "Export a prospect into the caller's Salesforce",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://prospector.leadiq.com/v1/prospects/:prospectId/export/salesforce",
+            "params": [
+              {
+                "name": "prospectId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Creates (or enriches) a Lead or Contact in the Salesforce org connected to the calling user, using the same export pipeline as the LeadIQ web app. Acts as the caller's connected Salesforce user, so their Salesforce permissions, validation rules and duplicate rules all still apply.\n\n**Writes to an external system of record and cannot be undone by this API.** There is no delete path, and this endpoint is **not idempotent** — retrying may create a second record.\n\nWhether the prospect is saved as a "
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "account",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Identify the caller",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://prospector.leadiq.com/v1/whoami"
+          },
+          "docs": "Returns the account behind the presented credentials: the user identity this API scopes ownership by, plus the team name and email domain. Useful for verifying which account an API key or token belongs to."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

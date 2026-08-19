@@ -1,0 +1,119 @@
+generated: '2026-08-13'
+method: searched
+source: https://developer.leadiq.com/
+sources:
+- https://developer.leadiq.com/
+- https://leadiqhelp.zendesk.com/hc/en-us/articles/29375289152795-LeadIQ-Public-API-Guide
+- openapi/leadiq-prospector-api-openapi.yml
+- graphql/leadiq.graphql
+surfaces:
+- {name: GraphQL Data API, base: 'https://api.leadiq.com/graphql', style: graphql}
+- {name: Prospector REST API, base: 'https://prospector.leadiq.com', style: rest}
+- {name: MCP connector, base: 'https://mcp.leadiq.com/mcp', style: mcp-streamable-http}
+authentication:
+  style: api-key (two encodings) + OAuth 2.0 on MCP
+  artifact: authentication/leadiq-authentication.yml
+  summary: >-
+    One issued "Secret Base64" key serves two surfaces in two different forms —
+    verbatim as `Authorization: Basic` on GraphQL, base64-DECODED in `X-API-Key` on
+    Prospector REST. The MCP connector uses OAuth 2.0 with dynamic client registration
+    and does not accept the API key at all.
+idempotency:
+  supported: false
+  mechanism: none
+  header: null
+  documented: true
+  detail: >-
+    LeadIQ publishes NO idempotency key mechanism — there is no Idempotency-Key header
+    or parameter anywhere in the OpenAPI or the docs. What it does publish, unusually
+    and to its credit, is explicit per-operation idempotency SEMANTICS in the spec
+    descriptions, so a client at least knows where the danger is.
+  idempotent_operations:
+  - operation: 'POST /v1/lists/{listId}/prospects/{prospectId}'
+    note: '"Idempotent — calling twice with the same (listId, prospectId) pair both return 200 and the resulting listIds array contains the list id once, not twice."'
+  non_idempotent_operations:
+  - operation: 'POST /v1/lists/{listId}/prospects'
+    note: '"This endpoint is not idempotent. Each call creates a distinct prospect, even when the body is identical — there is no deduplication by email, LinkedIn URL, or any other field."'
+  - operation: 'POST /v1/lists/{listId}/prospects/batch'
+    note: '"Retrying after a network error or timeout may create duplicates. Clients that retry must guard against double-create at their own layer."'
+  - operation: 'POST /v1/prospects'
+    note: '"This endpoint is not idempotent."'
+  - operation: 'POST /v1/prospects/{prospectId}/export/salesforce'
+    note: '"Writes to an external system of record and cannot be undone by this API. There is no delete path, and this endpoint is not idempotent — retrying may create a second record."'
+  client_guidance_published: >-
+    "Clients that retry on network errors or 5xx responses must guard against
+    double-create themselves (e.g. by tracking a stable client-side request id and only
+    retrying when the previous attempt did not return a 2xx)."
+  agent_risk: >-
+    Four of the five write paths are explicitly non-idempotent while also declaring a
+    502 "safe to retry". An autonomous agent that follows the 502 guidance on the
+    Salesforce export will write a duplicate Lead into the customer's CRM with no API
+    path to delete it. This is the highest-consequence gap on the estate.
+pagination:
+  rest:
+    style: cursor
+    request_params: [limit, cursor]
+    limit: {min: 1, max: 100, default: 25}
+    cursor_format: 24-character hex (^[0-9a-fA-F]{24}$)
+    response_fields: [items, nextCursor]
+    schemas: [PaginatedLists, PaginatedProspects]
+  graphql:
+    styles: [offset, cursor]
+    offset: {params: [skip, limit], ceiling: 'skip + limit may not exceed 10,000; beyond that the request is rejected'}
+    cursor: {param: after, response_field: after, terminates_when: 'the response returns no results, or `after` comes back null'}
+    guidance: >-
+      "Offset pagination lets you jump directly to any page, but it gets slower the
+      deeper you go... Cursor pagination returns each next page in roughly constant
+      time no matter how deep you are, and is the only way to read a result set larger
+      than 10,000. It is also the only method that guarantees you see every record
+      exactly once."
+    cursor_properties:
+    - Treat `after` as an opaque value; its keys depend on the sort requested.
+    - Cursors do not expire and hold no server-side state, so a paging job can be paused and resumed later.
+    - Cursors are NOT snapshots — if underlying data changes while you page, results can shift slightly.
+    - Request the total (totalCompanies / totalPeople) on the FIRST PAGE ONLY; it is expensive and approximate for large result sets.
+    applies_to: [groupedAdvancedSearch, flatAdvancedSearch]
+field_selection:
+  style: graphql-native
+  billing_coupled: true
+  detail: >-
+    On the GraphQL surface, field selection IS the billing contract: "A query only
+    charges for the data points you actually select." Selecting `emails` costs 1 UC per
+    person, `phones` costs 10 UC. Over-selecting is the single easiest way for an agent
+    to burn a customer's credit balance.
+  rest: No sparse-fieldset or expansion parameter on the Prospector REST API.
+metering:
+  unit: Universal Credits (UC)
+  artifact: rate-limits/leadiq-rate-limits.yml
+  free_operations: [list management, saved-prospect access, account/CheckCredits, whoami]
+  balance_query: 'GraphQL `account`'
+  exhaustion_status: 402
+request_tracing:
+  request_id_header: none
+  detail: >-
+    No X-Request-Id, no correlation-id header, and no request id in the error envelope.
+    The one exception is the Salesforce export, whose 200/202 bodies carry a
+    `requestId` scoped to that export job. There is no general way to quote a request
+    id to support.
+versioning:
+  rest: {scheme: uri-path, current: v1, base: 'https://prospector.leadiq.com/v1'}
+  graphql: {scheme: unversioned, note: 'Single /graphql endpoint; schema evolution only. No @deprecated directives are present on any of the 216 introspected types.'}
+  mcp: {scheme: unversioned, note: 'Tool names changed between generations — an earlier documented set used tool_-prefixed names (tool_SearchPeople); the current set does not. No version or deprecation notice accompanied the change.'}
+  artifact: lifecycle/leadiq-lifecycle.yml
+errors:
+  envelope: 'ErrorResponse {code, message, details}'
+  rfc9457: false
+  graphql_200_trap: 'GraphQL errors arrive in the `errors` array with HTTP 200 — never treat 200 as success on api.leadiq.com/graphql.'
+  artifact: errors/leadiq-problem-types.yml
+rate_limit_signaling:
+  headers: none
+  status: 429
+  retry_after: false
+  artifact: rate-limits/leadiq-rate-limits.yml
+  detail: An agent cannot read remaining quota or a retry delay from any LeadIQ response.
+conditional_requests:
+  etag: false
+  last_modified: false
+webhooks:
+  supported: false
+  detail: No webhook, callback, or event-subscription surface is published on any of the three interfaces. Job-change and champion-tracking signals are delivered through CRM integrations and the app, not to a customer-supplied endpoint.

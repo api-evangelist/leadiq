@@ -1,0 +1,148 @@
+generated: '2026-08-13'
+method: derived
+source: openapi/leadiq-prospector-api-openapi.yml
+docs: https://leadiqhelp.zendesk.com/hc/en-us/articles/29375289152795-LeadIQ-Public-API-Guide
+format: vendor-envelope
+rfc9457: false
+envelope:
+  rest:
+    schema: ErrorResponse
+    content_type: application/json
+    fields:
+    - {name: code, type: string, required: true, note: machine-readable slug, e.g. salesforce_not_connected}
+    - {name: message, type: string, required: true, note: human-readable text}
+    - {name: details, type: any, required: false, nullable: true}
+    note: >-
+      Not RFC 9457. No application/problem+json, no `type` URI, no `instance`. The
+      shape is consistent across all fourteen Prospector operations, which is worth
+      something, but an agent cannot resolve an error type to documentation.
+  graphql:
+    note: >-
+      GraphQL errors are returned in the `errors` array in the response body EVEN WHEN
+      the HTTP status is 200. The provider's guide is explicit: "Always check for this
+      field." Any agent treating HTTP 200 as success on api.leadiq.com/graphql will
+      silently swallow failures.
+    fields: [message, extensions.code]
+    observed_codes:
+    - {code: MISSING_QUERY_STRING, message: Must provide query string., observed_at: 'https://api.leadiq.com/graphql (anonymous GET, 2026-08-13)'}
+http_status_reference:
+  source: https://leadiqhelp.zendesk.com/hc/en-us/articles/29375289152795-LeadIQ-Public-API-Guide
+  statuses:
+  - {status: 200, meaning: 'Success (check for errors in the GraphQL response body)'}
+  - {status: 401, meaning: Invalid or missing API key}
+  - {status: 402, meaning: Insufficient credits}
+  - {status: 429, meaning: 'Rate limit exceeded — back off and retry'}
+  - {status: 500, meaning: 'Server error — contact support if persistent'}
+problems:
+- status: 400
+  title: Invalid request
+  meaning: Malformed body, malformed path id, missing or mixed query criteria, or a batch over 100 items.
+  retryable: false
+  source_operations:
+  - 'POST /v1/lists'
+  - 'POST /v1/lists/{listId}/prospects/batch'
+  - 'POST /v1/lists/{listId}/prospects/{prospectId}'
+  - 'GET /v1/prospects'
+  - 'POST /v1/prospects'
+  - 'GET /v1/verify-email'
+  - 'GET /v1/prospects/{prospectId}'
+  - 'POST /v1/prospects/{prospectId}/verify-email'
+  - 'POST /v1/prospects/{prospectId}/export/salesforce'
+- status: 401
+  title: Unauthorized
+  meaning: Missing or invalid credentials. Declared on all fourteen operations.
+  retryable: false
+  remediation: Check the X-API-Key header carries the DECODED key, not the Secret Base64 form.
+  source_operations: [all]
+- status: 402
+  title: Insufficient credits
+  meaning: The account's Universal Credit balance cannot cover the requested data points.
+  retryable: false
+  remediation: Check the balance with the GraphQL `account` query (free) before large unlocks.
+  source_operations: []
+  note: Documented in the API guide's status table; not declared in the Prospector OpenAPI.
+- status: 403
+  title: Salesforce export not permitted
+  meaning: 'Two distinct codes: `salesforce_export_disabled` (a LeadIQ admin disabled Salesforce export for this org) and `salesforce_export_not_enabled` (the feature is still rolling out and is not enabled for the caller''s team).'
+  retryable: false
+  codes: [salesforce_export_disabled, salesforce_export_not_enabled]
+  source_operations: ['POST /v1/prospects/{prospectId}/export/salesforce']
+- status: 404
+  title: Not found or not accessible to caller
+  meaning: The list or prospect does not exist, or the caller is neither owner nor collaborator. LeadIQ deliberately does not distinguish the two.
+  retryable: false
+  source_operations:
+  - 'GET /v1/lists/{listId}'
+  - 'GET /v1/lists/{listId}/prospects'
+  - 'POST /v1/lists/{listId}/prospects'
+  - 'POST /v1/lists/{listId}/prospects/batch'
+  - 'POST /v1/lists/{listId}/prospects/{prospectId}'
+  - 'GET /v1/prospects/{prospectId}'
+  - 'POST /v1/prospects/{prospectId}/verify-email'
+  - 'POST /v1/prospects/{prospectId}/export/salesforce'
+- status: 409
+  title: State precondition failed
+  meaning: 'Conflicting state. On POST /v1/lists: a list with this name already exists. On verify-email: the lead has no email to verify. On Salesforce export: one of six named state codes.'
+  retryable: false
+  codes:
+  - salesforce_not_connected
+  - salesforce_save_as_unsupported
+  - salesforce_account_required
+  - quality_skipped
+  - export_rejected
+  - salesforce_rejected_record
+  source_operations:
+  - 'POST /v1/lists'
+  - 'POST /v1/prospects/{prospectId}/verify-email'
+  - 'POST /v1/prospects/{prospectId}/export/salesforce'
+- status: 413
+  title: Body too large
+  meaning: Server-side request-body size cap exceeded. The cap value is not published.
+  retryable: false
+  source_operations:
+  - 'POST /v1/lists'
+  - 'POST /v1/lists/{listId}/prospects/batch'
+  - 'POST /v1/prospects'
+  - 'POST /v1/prospects/{prospectId}/export/salesforce'
+- status: 422
+  title: Invalid body
+  meaning: Semantically invalid prospect payload on single-prospect create-and-attach.
+  retryable: false
+  source_operations: ['POST /v1/lists/{listId}/prospects']
+  note: 'Inconsistency worth flagging: the sibling operations POST /v1/prospects and POST /v1/lists use 400 for the same class of failure, while this one uses 422.'
+- status: 429
+  title: Too Many Requests
+  meaning: Rate limit exceeded — back off and retry.
+  retryable: true
+  retry_signal: none
+  source_operations: [all]
+  note: No Retry-After or RateLimit-* header is defined anywhere. See rate-limits/leadiq-rate-limits.yml.
+- status: 500
+  title: Server error
+  meaning: Contact support if persistent.
+  retryable: true
+  source_operations: []
+  note: Documented in the API guide's status table; not declared in the Prospector OpenAPI.
+- status: 502
+  title: Temporary upstream error
+  meaning: 'A downstream LeadIQ service is unreachable — including EVS (the email verification service). The spec says explicitly "retry" / "safe to retry".'
+  retryable: true
+  source_operations:
+  - 'POST /v1/lists/{listId}/prospects'
+  - 'POST /v1/prospects'
+  - 'GET /v1/verify-email'
+  - 'POST /v1/prospects/{prospectId}/verify-email'
+  - 'POST /v1/prospects/{prospectId}/export/salesforce'
+  - 'GET /v1/whoami'
+  warning: >-
+    Retrying a 502 on POST /v1/prospects, POST /v1/lists/{listId}/prospects or the
+    Salesforce export is NOT safe from a duplication standpoint — the spec labels
+    those endpoints "not idempotent" and warns that a retry may create a second
+    record. The 502 description and the idempotency note contradict each other on the
+    Salesforce export in particular, where a duplicate is written into the customer's
+    CRM. See conventions/leadiq-conventions.yml.
+coverage:
+  rest_operations: 14
+  operations_with_4xx: 14
+  distinct_statuses: 10
+  named_error_codes: 8

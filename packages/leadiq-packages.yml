@@ -1,0 +1,83 @@
+generated: '2026-08-13'
+method: searched
+source: registry searches across npm, PyPI, RubyGems, crates.io + https://github.com/leadiq
+package_count: 0
+official_sdk_count: 0
+finding: >-
+  LeadIQ publishes NO first-party client library on any package registry. This is a
+  real, checked absence, not an untried one — see probes[] below. The nearest thing
+  LeadIQ ships is github.com/leadiq/api-samples, a private:true sample repository in
+  Bash, Python and TypeScript that calls the API with plain curl / requests / fetch and
+  is not distributable as a package (its own package.json is marked "private": true
+  with a single dotenv dependency). Because there is no official SDK, no `SDKs` pointer
+  is emitted for this provider.
+packages: []
+first_party_code:
+- name: leadiq/api-samples
+  kind: code-samples
+  official: true
+  registry: null
+  url: https://github.com/leadiq/api-samples
+  languages: [bash, python, typescript]
+  version: null
+  published: '2026-06-30'
+  published_note: Latest push to the default branch; the repo is not versioned or tagged and is not published to any registry.
+  contents:
+  - 'graphql/01_check_usage — verify the API key and view credit balance'
+  - 'graphql/02_advanced_search — search people by role, seniority, location'
+  - 'graphql/03_enrich_profiles — enrich each person with work email and direct phone'
+  - 'graphql/07_find_job_changes — people who recently changed jobs or were promoted'
+  - 'rest/04_create_prospector_list — create a Prospector list'
+  - 'rest/05_add_prospects_to_list — add enriched profiles to the list'
+  - 'rest/06_export_list_to_csv — fetch all prospects and write a CSV'
+  - 'full_pipeline — runs all six steps end to end'
+  - '_docker/ — Dockerfiles + compose for all three languages'
+  dependencies:
+    python: requests>=2.32
+    typescript: 'dotenv ^16.4.0 (runtime); tsx, @types/node (dev). Node >= 24.'
+- name: leadiq/dataiq-api-specs
+  kind: api-specification
+  official: true
+  registry: null
+  url: https://github.com/leadiq/dataiq-api-specs
+  version: null
+  published: '2021-11-11'
+  published_note: >-
+    Last pushed 2021-11-11 — nearly five years stale. Contains an API Blueprint
+    (apiary.apib) describing "LeadIQ Contact Search APIs" that predates the current
+    GraphQL Data API, the Prospector REST API and the MCP connector. Treat it as
+    historical; the live contracts are api.leadiq.com/graphql (introspectable) and
+    prospector.leadiq.com/openapi.json.
+third_party:
+- name: '@pipedream/leadiq'
+  registry: npm
+  url: https://www.npmjs.com/package/@pipedream/leadiq
+  official: false
+  owner: Pipedream (Workday)
+  version: 0.1.0
+  published: '2024-05-16'
+  note: Pipedream integration components, not a LeadIQ SDK.
+- name: '@keystrokehq/leadiq'
+  registry: npm
+  url: https://www.npmjs.com/package/@keystrokehq/leadiq
+  official: false
+  owner: Keystroke HQ
+  version: 0.1.6
+  published: '2026-07-18'
+  note: Third-party wrapper; not published or endorsed by LeadIQ.
+distribution_note: >-
+  The distribution channel LeadIQ actually invests in is the MCP connector
+  (mcp.leadiq.com/mcp) and certified marketplace listings — Microsoft's connector
+  gallery lists LeadIQ MCP as a certified connector across Copilot Studio, Power
+  Automate, Power Apps and Logic Apps. That is a remote surface, not an installable
+  package, so it is recorded in mcp/leadiq-mcp.yml rather than here.
+probes:
+- {registry: npm, query: leadiq, result: 'no first-party package; only @pipedream/leadiq and @keystrokehq/leadiq'}
+- {registry: npm, package: leadiq, http_status: 404}
+- {registry: npm, package: '@leadiq/sdk', http_status: 404}
+- {registry: npm, package: '@leadiq/mcp', http_status: 404}
+- {registry: npm, package: leadiq-mcp, http_status: 404}
+- {registry: pypi, package: leadiq, http_status: 404}
+- {registry: rubygems, package: leadiq, http_status: 404}
+- {registry: crates.io, query: leadiq, result: 0 crates}
+- {registry: github, org: leadiq, result: '5 public repos; only api-samples (2026-06-30) and dataiq-api-specs (2021-11-11) are API-related'}

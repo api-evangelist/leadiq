@@ -1,0 +1,105 @@
+generated: '2026-08-13'
+method: probed
+source: live HTTP probes of every LeadIQ host in apis.yml + OpenAPI servers[]
+note: >-
+  Only mcp.leadiq.com serves a real /.well-known/ document — the RFC 9728 OAuth
+  protected-resource metadata that fronts the LeadIQ MCP server. It names LeadIQ's
+  own Auth0 tenant (leadiq-mcp-prod.us.auth0.com) as the authorization server, whose
+  RFC 8414 metadata is captured alongside it. account.leadiq.com answers HTTP 200 with
+  the same 5,528-byte single-page-app HTML shell for EVERY /.well-known/* path
+  including paths that cannot exist — that is an SPA catch-all, not a served document,
+  and it is recorded as a miss. api.leadiq.com is a GraphQL-only endpoint that answers
+  400 MISSING_QUERY_STRING to any GET.
+hosts:
+- host: mcp.leadiq.com
+  documents:
+  - path: /.well-known/oauth-protected-resource
+    status: 200
+    content_type: application/json
+    file: leadiq-oauth-protected-resource.json
+    spec: RFC 9728 OAuth 2.0 Protected Resource Metadata
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/mcp.json
+    status: 404
+- host: leadiq-mcp-prod.us.auth0.com
+  note: >-
+    LeadIQ's own Auth0 tenant, named in the mcp.leadiq.com protected-resource document
+    as the authorization server for the MCP surface. Different domain, but the provider's
+    own metadata points here, which is the justification for capturing it.
+  documents:
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    content_type: application/json
+    file: leadiq-oauth-authorization-server.json
+    spec: RFC 8414 OAuth 2.0 Authorization Server Metadata
+  - path: /.well-known/openid-configuration
+    status: 200
+    note: identical payload to the RFC 8414 document; not saved twice
+- host: leadiq.com
+  documents:
+  - {path: /.well-known/security.txt, status: 404}
+  - {path: /.well-known/openid-configuration, status: 404}
+  - {path: /.well-known/oauth-authorization-server, status: 404}
+  - {path: /.well-known/oauth-protected-resource, status: 404}
+  - {path: /.well-known/api-catalog, status: 404}
+  - {path: /.well-known/ai-plugin.json, status: 404}
+  - {path: /.well-known/agent-card.json, status: 404}
+  - {path: /.well-known/agent.json, status: 404}
+  - {path: /security.txt, status: 404}
+- host: api.leadiq.com
+  note: GraphQL-only host; every GET returns 400 MISSING_QUERY_STRING
+  documents:
+  - {path: /.well-known/security.txt, status: 400}
+  - {path: /.well-known/openid-configuration, status: 400}
+  - {path: /.well-known/oauth-authorization-server, status: 400}
+  - {path: /.well-known/oauth-protected-resource, status: 400}
+  - {path: /.well-known/api-catalog, status: 400}
+  - {path: /.well-known/ai-plugin.json, status: 400}
+  - {path: /.well-known/agent-card.json, status: 400}
+  - {path: /.well-known/agent.json, status: 400}
+- host: prospector.leadiq.com
+  documents:
+  - {path: /.well-known/oauth-protected-resource, status: 404}
+  - {path: /.well-known/security.txt, status: 404}
+  - {path: /.well-known/agent-card.json, status: 404}
+  - {path: /.well-known/agent.json, status: 404}
+- host: developer.leadiq.com
+  documents:
+  - {path: /.well-known/security.txt, status: 404}
+  - {path: /.well-known/openid-configuration, status: 404}
+  - {path: /.well-known/oauth-authorization-server, status: 404}
+  - {path: /.well-known/oauth-protected-resource, status: 404}
+  - {path: /.well-known/api-catalog, status: 404}
+  - {path: /.well-known/ai-plugin.json, status: 404}
+  - {path: /.well-known/agent-card.json, status: 404}
+  - {path: /.well-known/agent.json, status: 404}
+- host: account.leadiq.com
+  note: >-
+    SPA catch-all. Every path returned 200 with an identical 5,528-byte text/html
+    body, including /.well-known/agent-card.json and /.well-known/ai-plugin.json.
+    Treated as a MISS on every path — a 200 that returns an HTML shell is not a document.
+  documents:
+  - {path: /.well-known/security.txt, status: 200, content_type: text/html, served: false}
+  - {path: /.well-known/openid-configuration, status: 200, content_type: text/html, served: false}
+  - {path: /.well-known/oauth-authorization-server, status: 200, content_type: text/html, served: false}
+  - {path: /.well-known/api-catalog, status: 200, content_type: text/html, served: false}
+  - {path: /.well-known/ai-plugin.json, status: 200, content_type: text/html, served: false}
+  - {path: /.well-known/agent-card.json, status: 200, content_type: text/html, served: false}
+  - {path: /.well-known/agent.json, status: 200, content_type: text/html, served: false}
+summary:
+  hosts_probed: 7
+  documents_served: 2
+  security_txt: false
+  api_catalog: false
+  agent_card: false
+  ai_plugin: false
+  oauth_metadata: true

@@ -1,0 +1,38 @@
+generated: '2026-08-13'
+method: generated
+source: >-
+  Grounded in real operations only — GraphQL root fields verified against the live
+  introspection schema at graphql/leadiq-introspection.json, REST operations verified
+  against the provider-served openapi/_original/leadiq-prospector-api-openapi.json,
+  and MCP tool names transcribed from LeadIQ's published tool table at
+  developer.leadiq.com. No operation, field, or tool name in these skills was invented.
+note: >-
+  The Prospector OpenAPI declares NO operationIds, so REST steps are addressed by
+  "METHOD path" — the only identifier LeadIQ actually publishes. API
+  Evangelist-assigned handles for the same operations live in
+  overlays/leadiq-prospector-api-overlay.yaml and are deliberately NOT used here.
+skills:
+- file: leadiq-enrich-known-contacts.md
+  name: Enrich known contacts with LeadIQ
+  description: Enrich people you can already identify, while controlling exactly how many credits the call spends.
+  api: graphql/leadiq.graphql
+  surface: https://api.leadiq.com/graphql
+  operations: [searchPeople, searchPeoplePreview, account]
+- file: leadiq-build-icp-prospect-list.md
+  name: Build an ICP prospect list
+  description: Advanced search, safe cursor paging, enrichment, and saving into a named Prospector list — LeadIQ's own six-step pipeline.
+  api: graphql/leadiq.graphql, openapi/leadiq-prospector-api-openapi.yml
+  surface: https://api.leadiq.com/graphql, https://prospector.leadiq.com
+  operations: [flatAdvancedSearch, groupedAdvancedSearch, searchPeople, 'POST /v1/lists', 'POST /v1/lists/{listId}/prospects', 'POST /v1/lists/{listId}/prospects/batch', 'GET /v1/lists/{listId}/prospects']
+- file: leadiq-save-and-export-prospects.md
+  name: Save, verify and export LeadIQ prospects
+  description: Save prospects, verify deliverability, and export to Salesforce with the duplicate-detection and non-idempotency guards that path requires.
+  api: openapi/leadiq-prospector-api-openapi.yml
+  surface: https://prospector.leadiq.com
+  operations: ['POST /v1/prospects', 'GET /v1/prospects', 'GET /v1/prospects/{prospectId}', 'GET /v1/verify-email', 'POST /v1/prospects/{prospectId}/verify-email', 'POST /v1/prospects/{prospectId}/export/salesforce', 'GET /v1/whoami']
+- file: leadiq-mcp-agent-operations.md
+  name: Operate LeadIQ over MCP
+  description: Connect over OAuth, pick the right one of seventeen tools, and disclose credit cost before spending a customer's balance.
+  api: mcp/leadiq-mcp.yml
+  surface: https://mcp.leadiq.com/mcp
+  operations: [EnrichPeople, EnrichCompanies, FindPeople, FindCompanies, FindJobChanges, BrowseProspectLists, CreateProspectList, GetProspectList, AddProspectToList, AttachProspectToList, GetProspect, CreateProspect, SearchProspects, VerifyEmail, VerifyProspectEmail, ExportProspectToSalesforce, CheckCredits]

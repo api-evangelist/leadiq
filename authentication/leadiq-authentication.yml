@@ -1,14 +1,87 @@
-generated: '2026-07-11'
-method: derived
-source: openapi/leadiq-data-api-openapi.yml
+generated: '2026-08-13'
+method: searched
+source: openapi/leadiq-graphql-api-openapi.yml, openapi/leadiq-prospector-api-openapi.yml
+docs: https://leadiqhelp.zendesk.com/hc/en-us/articles/29375289152795-LeadIQ-Public-API-Guide
+docs_additional:
+- https://developer.leadiq.com/
+- https://github.com/leadiq/api-samples
+- https://mcp.leadiq.com/.well-known/oauth-protected-resource
+key_issuance: LeadIQ app -> Settings -> API. LeadIQ calls it the "Secret Base64" key; it can be rotated from the same page.
 summary:
   types:
+  - apiKey
   - http
+  - oauth2
+  api_key_in:
+  - header
+  oauth2_flows:
+  - authorizationCode
+  note: >-
+    Three surfaces, three different credentials derived from ONE issued key. The
+    GraphQL Data API takes the Secret Base64 key verbatim as an HTTP Basic credential;
+    the Prospector REST API takes the SAME key base64-DECODED, in an X-API-Key header;
+    the MCP connector ignores API keys entirely and uses OAuth 2.0 against LeadIQ's
+    Auth0 tenant with dynamic client registration. LeadIQ's own bash sample pipes the
+    key through `base64 -d` when crossing from the GraphQL scripts to the REST ones,
+    which is the clearest published statement of that relationship.
 schemes:
 - name: BasicAuth
   type: http
   scheme: basic
-  description: HTTP Basic authentication. Use your LeadIQ API key as the username and leave
-    the password empty. API keys are issued in the LeadIQ dashboard under Settings > API Keys.
+  surface: GraphQL Data API (https://api.leadiq.com/graphql)
+  header: 'Authorization: Basic <your-secret-base64-api-key>'
+  description: >-
+    The Secret Base64 key issued in Settings -> API is sent verbatim as the Basic
+    credential — it is already the base64 payload, so it is NOT base64-encoded again.
+    Every request is a POST with Content-Type: application/json.
   sources:
-  - openapi/leadiq-data-api-openapi.yml
+  - openapi/leadiq-graphql-api-openapi.yml
+  - https://leadiqhelp.zendesk.com/hc/en-us/articles/29375289152795-LeadIQ-Public-API-Guide
+- name: apiKeyAuth
+  type: apiKey
+  in: header
+  parameter: X-API-Key
+  surface: Prospector REST API (https://prospector.leadiq.com)
+  description: >-
+    "Send your LeadIQ API key as the X-API-Key header value — no prefix, no encoding."
+    The value is the DECODED form of the Secret Base64 key; LeadIQ's own bash samples
+    run `printf '%s' "$LEADIQ_API_KEY" | base64 -d` to produce it.
+  sources:
+  - openapi/leadiq-prospector-api-openapi.yml
+  - https://leadiqhelp.zendesk.com/hc/en-us/articles/29375289152795-LeadIQ-Public-API-Guide
+- name: bearerAuth
+  type: http
+  scheme: bearer
+  bearerFormat: JWT
+  surface: Prospector REST API (https://prospector.leadiq.com)
+  description: >-
+    Alternative to the API key on the Prospector REST API — "OAuth2 access token (JWT)
+    issued for an audience accepted by this service." Declared as a second top-level
+    security option in the published OpenAPI. LeadIQ does not document how a caller
+    obtains this token outside the MCP flow.
+  sources:
+  - openapi/leadiq-prospector-api-openapi.yml
+- name: MCPOAuth2
+  type: oauth2
+  surface: MCP connector (https://mcp.leadiq.com/mcp)
+  description: >-
+    OAuth 2.0 with dynamic client registration — no client id or secret to configure.
+    The user signs in with their LeadIQ email/password or Google login and the token
+    carries their own account permissions and credit balance. Discovered from the RFC
+    9728 protected-resource document, not from a spec.
+  flows:
+  - flow: authorizationCode
+    authorizationUrl: https://leadiq-mcp-prod.us.auth0.com/authorize
+    tokenUrl: https://leadiq-mcp-prod.us.auth0.com/oauth/token
+    scopes: [leadiq:api, offline_access]
+  authorization_server: https://leadiq-mcp-prod.us.auth0.com/
+  artifact: scopes/leadiq-scopes.yml
+  sources:
+  - https://mcp.leadiq.com/.well-known/oauth-protected-resource
+  - https://developer.leadiq.com/
+failure_modes:
+- {status: 401, meaning: Invalid or missing API key}
+- {status: 402, meaning: Insufficient credits}
+notes:
+- Never commit the key; rotate it from Settings -> API if compromised (provider guidance).
+- Enterprise SSO orgs signing into the MCP connector should enter their email address directly rather than using "Sign in with Google", which errors when the org's Google domain is linked to LeadIQ.

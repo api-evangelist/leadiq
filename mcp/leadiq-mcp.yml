@@ -1,0 +1,154 @@
+generated: '2026-08-13'
+method: searched
+status: published
+source: https://developer.leadiq.com/
+sources:
+- https://developer.leadiq.com/
+- https://leadiqhelp.zendesk.com/hc/en-us/articles/46186818771611-Using-the-LeadIQ-MCP-Connector-AI-Powered-Prospecting-Enrichment
+- https://mcp.leadiq.com/.well-known/oauth-protected-resource
+deployment:
+  mode: remote
+  endpoint: https://mcp.leadiq.com/mcp
+  install: null
+  package: null
+  auth: oauth
+  verified: probed
+server:
+  name: LeadIQ MCP Connector
+  transport: streamable-http
+  url: https://mcp.leadiq.com/mcp
+  client_registration: dynamic
+  requirements: An active LeadIQ account and an MCP client that supports remote servers with OAuth.
+  clients_documented:
+  - Claude (Web, Desktop — Free, Pro, Teams; Settings -> Connectors -> Add custom connector)
+  - ChatGPT (paid plans only; Developer Mode -> Apps & Connectors -> Create App)
+  - Microsoft Copilot Studio / Power Automate / Power Apps / Logic Apps (certified connector; Premium in Copilot Studio/Power Apps/Power Automate, Standard in Logic Apps)
+  unsupported_regions:
+  - Microsoft government cloud (GCC, GCC High, DoD)
+  - Azure China
+authentication:
+  scheme: OAuth 2.0
+  challenge: 'WWW-Authenticate: Bearer realm="leadiq", resource_metadata="https://mcp.leadiq.com/.well-known/oauth-protected-resource"'
+  protected_resource_metadata: https://mcp.leadiq.com/.well-known/oauth-protected-resource
+  authorization_server: https://leadiq-mcp-prod.us.auth0.com/
+  scopes:
+  - leadiq:api
+  - offline_access
+  bearer_methods_supported:
+  - header
+  dynamic_client_registration: https://leadiq-mcp-prod.us.auth0.com/oidc/register
+  artifact: well-known/leadiq-well-known.yml
+prompts:
+- name: icp
+  description: >-
+    Guided prompt that walks through defining an ideal customer profile, running the
+    search, and saving the top matches into a prospect list, with the credit cost
+    disclosed and approved up front.
+tools:
+- name: EnrichPeople
+  description: Look up known people by LinkedIn URL, work email, or name + company. Returns verified work emails, phone numbers, title, seniority, and employer per person. Batch up to 10.
+  wraps: searchPeople
+  credits: 0.1 to 11 UC per person, plus 3 UC per company
+- name: EnrichCompanies
+  description: Look up known companies by domain, name, or LinkedIn. Returns firmographics, technology categories, revenue, funding, NAICS/SIC, parent company, and social profiles. Batch up to 10.
+  wraps: searchCompany
+  credits: 3 UC per company
+- name: FindPeople
+  description: ICP prospecting. Returns a paginated list of people matching contact and company filters.
+  wraps: flatAdvancedSearch
+  credits: 0.1 UC per result, or 3 UC with company data
+- name: FindCompanies
+  description: ICP account discovery. Returns companies with full firmographics and a count of matching contacts.
+  wraps: groupedAdvancedSearch
+  credits: 3 UC per company, or 0.1 UC for names only
+- name: FindJobChanges
+  description: People who recently changed jobs or were promoted, with the previous and current position.
+  wraps: flatAdvancedSearch (with job-change filters)
+  credits: 0.1 UC per result, or 3 UC with company data
+- name: BrowseProspectLists
+  description: List your saved prospect lists.
+  wraps: lists
+  credits: Free
+- name: CreateProspectList
+  description: Create a new prospect list.
+  wraps: createList
+  credits: Free
+- name: GetProspectList
+  description: View a list and the prospects saved in it.
+  wraps: list
+  credits: Free
+- name: AddProspectToList
+  description: Save a new prospect into a list.
+  wraps: addProspectToList
+  credits: Free
+- name: AttachProspectToList
+  description: Add an already-saved prospect to another list.
+  wraps: null
+  mcp_only: true
+  credits: Free
+- name: GetProspect
+  description: View a saved prospect's full record.
+  wraps: prospect
+  credits: Free
+- name: CreateProspect
+  description: Save a prospect without attaching it to a list.
+  wraps: null
+  mcp_only: true
+  credits: Free
+- name: SearchProspects
+  description: Search your saved prospects by name or email.
+  wraps: null
+  mcp_only: true
+  credits: Free
+- name: VerifyEmail
+  description: Verify any email address's deliverability.
+  wraps: null
+  mcp_only: true
+  credits: 0.1 UC per address
+- name: VerifyProspectEmail
+  description: Re-verify the email on a saved prospect and store the result.
+  wraps: null
+  mcp_only: true
+  credits: 0.1 UC per re-verification
+- name: ExportProspectToSalesforce
+  description: Export a saved prospect to Salesforce as a Lead or Contact, with duplicate detection and confirmation before writing.
+  wraps: null
+  mcp_only: true
+  credits: Free, unless it has to unlock company data for the Salesforce Account (3 UC)
+- name: CheckCredits
+  description: Credit balance, live per-field unlock costs, and the signed-in account.
+  wraps: account
+  credits: Free
+credit_model:
+  unit: Universal Credits (UC)
+  billing: per data point actually returned
+  rates:
+  - {data_point: 'Profile: name, title, seniority, LinkedIn URL, employer name', cost: 0.1 UC per record}
+  - {data_point: Verified work email, cost: 1 UC per person}
+  - {data_point: Direct phone, cost: 10 UC per person}
+  - {data_point: 'Company firmographics: domain, industry, size', cost: 3 UC per company}
+  - {data_point: Email verification / re-verification, cost: 0.1 UC per check}
+  notes:
+  - Larger unlocks replace the profile fee rather than stacking (email + phone = 11 UC, not 11.1).
+  - Company firmographics are charged per company, so a person with two current positions costs 6 UC of company data.
+  - A data point unlocked in the past year is free to look up again.
+  - List management and saved-prospect access never consume credits.
+  - The assistant states the estimated cost before a paid call and asks for consent before large ones.
+limits:
+  batch_enrichment: up to 10 contacts or companies per request
+x-evidence:
+  fetched: '2026-08-13'
+  probes:
+  - {url: 'https://mcp.leadiq.com/mcp', method: 'POST tools/list', http_status: 401, body: '{"code":"unauthorized","message":"Authentication required"}'}
+  - {url: 'https://mcp.leadiq.com/mcp', method: 'POST initialize', http_status: 401}
+  - {url: 'https://mcp.leadiq.com/.well-known/oauth-protected-resource', http_status: 200, content_type: application/json}
+  - {url: 'https://leadiq-mcp-prod.us.auth0.com/.well-known/oauth-authorization-server', http_status: 200, content_type: application/json}
+  note: >-
+    tools/list is OAuth-gated, so live inputSchema introspection was not possible
+    anonymously. The seventeen tool names, descriptions and credit costs above are
+    transcribed verbatim from LeadIQ's own published MCP tool table at
+    https://developer.leadiq.com/ (the "MCP tools" section). Input schemas require an
+    authenticated tools/list call. An older LeadIQ help-centre article
+    (updated 2026-07-14) documents an earlier fifteen-tool generation under
+    tool_-prefixed names (tool_SearchPeople, tool_SearchCompany, ...); the developer
+    portal list is the current one and is what is recorded here.

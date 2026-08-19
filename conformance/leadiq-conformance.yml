@@ -1,0 +1,101 @@
+generated: '2026-08-13'
+method: derived
+source: openapi/leadiq-prospector-api-openapi.yml, graphql/leadiq-introspection.json, well-known/leadiq-well-known.yml
+sources:
+- https://mcp.leadiq.com/.well-known/oauth-protected-resource
+- https://leadiq-mcp-prod.us.auth0.com/.well-known/oauth-authorization-server
+- https://developer.leadiq.com/
+- https://leadiq.com/legal/privacy-policy
+note: >-
+  Standards conformance derived from what the live surfaces actually implement, not
+  from marketing claims. LeadIQ publishes NO security certification or compliance
+  program page — leadiq.com/security, /trust, /trust-center, /compliance and
+  trust.leadiq.com were all probed and none resolves — so no `Compliance` pointer is
+  emitted for this provider.
+standards:
+- id: openapi-3.1
+  conforms: true
+  evidence: 'https://prospector.leadiq.com/openapi.json declares openapi: 3.1.0 and parses; 14 operations across 3 tags.'
+- id: graphql
+  conforms: true
+  evidence: 'Anonymous introspection at https://api.leadiq.com/graphql returns HTTP 200 with a full 216-type schema (18 Query fields, 11 Mutation fields).'
+- id: graphql-introspection-public
+  conforms: true
+  evidence: Introspection is not disabled in production; SDL captured to graphql/leadiq.graphql.
+- id: mcp
+  conforms: true
+  evidence: 'Remote MCP server at https://mcp.leadiq.com/mcp, Streamable HTTP transport, 17 published tools plus an `icp` prompt. tools/list returns 401 anonymously with a spec-correct WWW-Authenticate challenge.'
+- id: oauth2
+  conforms: true
+  evidence: 'MCP surface uses OAuth 2.0 authorization code with PKCE (S256) against https://leadiq-mcp-prod.us.auth0.com/.'
+- id: rfc9728-protected-resource-metadata
+  conforms: true
+  evidence: 'https://mcp.leadiq.com/.well-known/oauth-protected-resource returns 200 with resource, authorization_servers, scopes_supported and bearer_methods_supported.'
+- id: rfc9470-www-authenticate-resource-metadata
+  conforms: true
+  evidence: '401 carries WWW-Authenticate: Bearer realm="leadiq", resource_metadata="https://mcp.leadiq.com/.well-known/oauth-protected-resource" — the MCP-spec-mandated discovery hint.'
+- id: rfc8414-authorization-server-metadata
+  conforms: true
+  evidence: 'The named authorization server serves RFC 8414 metadata at https://leadiq-mcp-prod.us.auth0.com/.well-known/oauth-authorization-server (HTTP 200).'
+- id: rfc7591-dynamic-client-registration
+  conforms: true
+  evidence: 'registration_endpoint https://leadiq-mcp-prod.us.auth0.com/oidc/register advertised; LeadIQ docs state "Client registration: dynamic. No client ID or secret to configure."'
+- id: oidc
+  conforms: true
+  evidence: The MCP authorization server also serves an OpenID Connect discovery document with an identical payload.
+- id: rfc7636-pkce
+  conforms: true
+  evidence: 'code_challenge_methods_supported: [S256, plain]'
+- id: rfc9116-security-txt
+  conforms: false
+  evidence: /.well-known/security.txt returns 404 on every LeadIQ host (see well-known/leadiq-well-known.yml).
+- id: rfc9457-problem-details
+  conforms: false
+  evidence: 'Errors use a vendor envelope {code, message, details} with content-type application/json; no application/problem+json, no type URI.'
+- id: rfc8594-sunset-header
+  conforms: false
+  evidence: No Sunset or Deprecation header declared or documented; no deprecation policy published.
+- id: rfc9331-ratelimit-headers
+  conforms: false
+  evidence: 429 is declared on all 14 operations but no RateLimit-*, X-RateLimit-* or Retry-After header is defined anywhere.
+- id: rfc8615-well-known-api-catalog
+  conforms: false
+  evidence: /.well-known/api-catalog returns 404 on every host.
+- id: a2a-agent-card
+  conforms: false
+  evidence: '/.well-known/agent-card.json and /.well-known/agent.json probed on 6 hosts — 404 everywhere except an account.leadiq.com SPA catch-all that answers 200 HTML to any path.'
+- id: asyncapi
+  conforms: false
+  applicable: false
+  evidence: No event, streaming, or webhook surface is published, so AsyncAPI is not applicable rather than failed.
+- id: json-api
+  conforms: false
+  evidence: Plain JSON resource representations; no JSON:API document structure.
+- id: odata
+  conforms: false
+- id: scim
+  conforms: false
+- id: cursor-pagination
+  conforms: true
+  evidence: 'Both surfaces implement opaque-cursor pagination (REST: cursor/nextCursor; GraphQL: after). GraphQL additionally offers offset pagination with a documented 10,000 ceiling.'
+- id: idempotency
+  conforms: false
+  evidence: 'No Idempotency-Key mechanism. Four of five write paths are explicitly documented as NOT idempotent. See conventions/leadiq-conventions.yml.'
+compliance_program:
+  published: false
+  certifications: []
+  trust_center: null
+  probes:
+  - {url: 'https://leadiq.com/security', status: 404}
+  - {url: 'https://leadiq.com/trust', status: 404}
+  - {url: 'https://leadiq.com/trust-center', status: 404}
+  - {url: 'https://leadiq.com/compliance', status: 404}
+  - {url: 'https://trust.leadiq.com', status: 000, note: does not resolve}
+  - {url: 'https://leadiq.com/legal/privacy-policy', status: 200}
+  - {url: 'https://leadiq.com/privacy-center', status: 200}
+  note: >-
+    A privacy centre and a privacy policy are published — appropriate for a contact-data
+    company operating under GDPR/CCPA — but no SOC 2, ISO 27001, PCI DSS, HIPAA or
+    FedRAMP attestation is claimed on any public page, and there is no trust centre. For
+    a vendor whose entire product is third-party personal data, that absence is the
+    notable finding.

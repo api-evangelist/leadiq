@@ -1,0 +1,65 @@
+generated: '2026-08-13'
+method: searched
+source: https://leadiqhelp.zendesk.com/hc/en-us/articles/35509840045083-LeadIQ-Public-API-Overview
+sources:
+- https://leadiqhelp.zendesk.com/hc/en-us/articles/35509840045083-LeadIQ-Public-API-Overview
+- https://leadiqhelp.zendesk.com/hc/en-us/articles/29375289152795-LeadIQ-Public-API-Guide
+- https://developer.leadiq.com/
+- openapi/leadiq-prospector-api-openapi.yml
+limit_count: 2
+rate_limits:
+- scope: per-api-key
+  surface: GraphQL Data API (https://api.leadiq.com/graphql)
+  window: 1 minute
+  limit: 60
+  label: Standard
+  burst: null
+  source: https://leadiqhelp.zendesk.com/hc/en-us/articles/35509840045083-LeadIQ-Public-API-Overview
+  note: 'Published verbatim as "Rate Limits: Standard: 60 requests/min. Custom Limits: Evaluated on a case-by-case basis."'
+- scope: per-account
+  surface: All APIs
+  window: lifetime (trial)
+  limit: 50
+  label: Free trial calls
+  source: https://leadiqhelp.zendesk.com/hc/en-us/articles/35509840045083-LeadIQ-Public-API-Overview
+  note: >-
+    "Users across all plans can make up to 50 one-off, non-recurring calls to test the
+    API." Beyond that, API access requires a direct sales discussion for an
+    enterprise-level agreement.
+custom_limits: Evaluated on a case-by-case basis (enterprise agreements).
+exhaustion:
+  status: 429
+  meaning: Rate limit exceeded — back off and retry
+  source: https://leadiqhelp.zendesk.com/hc/en-us/articles/29375289152795-LeadIQ-Public-API-Guide
+  declared_on_operations: 14 of 14 operations in openapi/leadiq-prospector-api-openapi.yml declare a 429 response
+  body_schema: ErrorResponse {code, message, details}
+response_headers:
+  documented: []
+  observed: []
+  note: >-
+    NO rate-limit response headers are published or observable. The Prospector
+    OpenAPI declares a 429 on all fourteen operations but defines no response headers
+    at all — there is no X-RateLimit-*, no RateLimit-*, and no Retry-After anywhere in
+    the spec or the docs. An agent therefore cannot read remaining quota or a retry
+    delay from a LeadIQ response; it can only observe the 429 after the fact. This is
+    the single biggest runtime-semantics gap on the estate and it is a provider fix.
+quota_model:
+  unit: Universal Credits (UC)
+  reset: start of each billing period
+  docs: https://leadiqhelp.zendesk.com/hc/en-us/articles/32700544948507-Understanding-Universal-Credits
+  costs:
+  - {data_point: Email, cost_uc: 1}
+  - {data_point: Phone (work or personal), cost_uc: 10}
+  - {data_point: Company information, cost_uc: 3}
+  - {data_point: Profile information, cost_uc: 0.1}
+  - {data_point: Email verification / re-verification, cost_uc: 0.1}
+  billing_rule: A query only charges for the data points you actually select; larger unlocks replace the profile fee rather than stacking.
+  free_reuse: A data point unlocked in the past year is free to look up again.
+  exhaustion_status: 402 (Insufficient credits)
+  balance_check: 'GraphQL `account` query (free), or the CheckCredits MCP tool (free)'
+payload_limits:
+- {scope: 'POST /v1/lists/{listId}/prospects/batch', limit: 100 items per request, status_on_exceed: 400}
+- {scope: MCP EnrichPeople / EnrichCompanies, limit: 10 records per request}
+- {scope: 'GET /v1/prospects, GET /v1/lists/{listId}/prospects', limit: 'page size 1-100, default 25'}
+- {scope: 'Advanced search skip+limit', limit: 'may not exceed 10,000; beyond that the request is rejected — use cursor pagination'}
+- {scope: request body size, status_on_exceed: 413, note: 'Server-side body-size cap; 413 declared on four write operations'}

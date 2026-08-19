@@ -1,0 +1,87 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the LeadIQ Prospector REST API
+  version: 1.0.0
+extends: openapi/leadiq-prospector-api-openapi.yml
+x-provenance:
+  generated: '2026-08-13'
+  method: generated
+  source: openapi/_original/leadiq-prospector-api-openapi.json
+  note: >-
+    The published spec at https://prospector.leadiq.com/openapi.json declares NO
+    servers[] block and NO operationIds on any of its fourteen operations. This
+    overlay records both repairs plus our cross-links, without mutating the harvested
+    original. operationIds are API Evangelist-assigned handles derived from the
+    method + path + provider summary; they are NOT LeadIQ-published identifiers and
+    should not be quoted back to LeadIQ as such.
+actions:
+- target: $
+  update:
+    servers:
+    - url: https://prospector.leadiq.com
+      description: LeadIQ Prospector REST API production host
+  x-note: >-
+    Host taken from LeadIQ's own sources — the API guide ("The Prospector REST API
+    (list management) is at a separate base URL: https://prospector.leadiq.com") and
+    github.com/leadiq/api-samples, whose bash scripts set
+    PROSPECTOR_URL="https://prospector.leadiq.com". It is also the host the spec is
+    served from.
+- target: $.info
+  update:
+    x-apievangelist-provider: leadiq
+    x-apievangelist-harvested: '2026-08-13'
+    x-apievangelist-source: https://prospector.leadiq.com/openapi.json
+    contact:
+      name: LeadIQ API Support
+      email: api@leadiq.com
+      url: https://developer.leadiq.com/
+    termsOfService: https://leadiq.com/legal/terms-of-use
+- target: $
+  update:
+    tags:
+    - name: lists
+      description: Create and read prospect lists, and attach prospects to them.
+    - name: prospects
+      description: Create, search, read, email-verify and Salesforce-export saved prospects.
+    - name: account
+      description: Identify the calling user and team.
+- target: $.paths['/v1/lists'].post
+  update: {operationId: createList}
+- target: $.paths['/v1/lists'].get
+  update: {operationId: listLists}
+- target: $.paths['/v1/lists/{listId}'].get
+  update: {operationId: getList}
+- target: $.paths['/v1/lists/{listId}/prospects'].get
+  update: {operationId: listListProspects}
+- target: $.paths['/v1/lists/{listId}/prospects'].post
+  update: {operationId: createProspectInList}
+- target: $.paths['/v1/lists/{listId}/prospects/batch'].post
+  update: {operationId: createProspectsInListBatch}
+- target: $.paths['/v1/lists/{listId}/prospects/{prospectId}'].post
+  update: {operationId: attachProspectToList}
+- target: $.paths['/v1/prospects'].get
+  update: {operationId: searchProspects}
+- target: $.paths['/v1/prospects'].post
+  update: {operationId: createProspect}
+- target: $.paths['/v1/verify-email'].get
+  update: {operationId: verifyStandaloneEmail}
+- target: $.paths['/v1/prospects/{prospectId}'].get
+  update: {operationId: getProspect}
+- target: $.paths['/v1/prospects/{prospectId}/verify-email'].post
+  update: {operationId: verifyProspectEmail}
+- target: $.paths['/v1/prospects/{prospectId}/export/salesforce'].post
+  update:
+    operationId: exportProspectToSalesforce
+    x-apievangelist-consequence: irreversible-external-write
+    x-apievangelist-note: >-
+      Writes into the caller's Salesforce org, has no delete path, and is explicitly
+      not idempotent while also declaring a 502 "safe to retry". Highest-consequence
+      operation on the estate.
+- target: $.paths['/v1/whoami'].get
+  update: {operationId: whoami}
+- target: $.components.schemas.ErrorResponse
+  update:
+    x-apievangelist-note: >-
+      Vendor error envelope, not RFC 9457. See errors/leadiq-problem-types.yml for the
+      full status/code catalogue including the eight named codes on the Salesforce
+      export path.

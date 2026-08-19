@@ -1,0 +1,43 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the LeadIQ GraphQL Data API
+  version: 1.0.0
+extends: openapi/leadiq-graphql-api-openapi.yml
+x-provenance:
+  generated: '2026-08-13'
+  method: generated
+  source: graphql/leadiq-introspection.json
+  note: >-
+    LeadIQ publishes no OpenAPI for the GraphQL Data API; the extended document is an
+    API Evangelist-authored envelope for the single POST /graphql operation. The
+    authoritative machine-readable contract for this surface is the live introspection
+    schema captured at graphql/leadiq.graphql (216 types, 18 Query fields, 11 Mutation
+    fields), which anonymous introspection returns with HTTP 200.
+actions:
+- target: $.info
+  update:
+    x-apievangelist-provider: leadiq
+    x-apievangelist-graphql-sdl: graphql/leadiq.graphql
+    x-apievangelist-graphql-introspection: graphql/leadiq-introspection.json
+    x-apievangelist-introspection-public: true
+- target: $.paths['/graphql'].post
+  update:
+    x-apievangelist-root-fields:
+      queries: [account, searchPeople, searchPeoplePreview, searchCompany, groupedAdvancedSearch, flatAdvancedSearch, matchProfile, usage, regeneratedTime, workatoToken, trackedContacts, contactTrackingBalance, companyTrackingTask, trackedCompanies, icpDefinitions, lists, list, prospect]
+      mutations: [submitPersonFeedback, regenerate, trackContacts, abandonBatch, addTrackedCompanies, removeTrackedCompanies, removeAllTrackedCompanies, startCompanyTrackingTask, cancelCompanyTrackingTask, createList, addProspectToList]
+    x-apievangelist-note: >-
+      The live schema exposes nine more root fields than developer.leadiq.com
+      documents — the whole champion/company-tracking family (trackedContacts,
+      trackedCompanies, companyTrackingTask, addTrackedCompanies,
+      removeTrackedCompanies, removeAllTrackedCompanies, startCompanyTrackingTask,
+      cancelCompanyTrackingTask) plus matchProfile, searchPeoplePreview, usage,
+      regeneratedTime, regenerate, abandonBatch and icpDefinitions.
+    x-apievangelist-200-trap: >-
+      GraphQL errors are returned in the `errors` array with HTTP 200. Never treat a
+      200 from this endpoint as success without inspecting `errors`.
+- target: $.info
+  update:
+    x-apievangelist-metering: >-
+      Field selection IS the billing contract on this surface — selecting `emails`
+      costs 1 UC per person and `phones` costs 10 UC. See
+      rate-limits/leadiq-rate-limits.yml.
