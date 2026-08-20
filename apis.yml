@@ -52,6 +52,18 @@ tags:
 - CRM Enrichment
 - Sales Engagement
 - GraphQL
+- MCP
+- Revenue Operations
+- Go-To-Market
+tags_raw:
+- Sales Intelligence
+- B2B Data
+- Contact Data
+- Lead Generation
+- Prospecting
+- CRM Enrichment
+- Sales Engagement
+- GraphQL
 - Model Context Protocol
 - Revenue Operations
 - Go To Market
@@ -75,6 +87,10 @@ apis:
     and ChatGPT. Metering is credit-based and the assistant discloses estimated cost
     before paid calls.
   tags:
+  - MCP
+  - AI Agents
+  - Sales Intelligence
+  tags_raw:
   - Model Context Protocol
   - AI Agents
   - Sales Intelligence
