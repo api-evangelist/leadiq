@@ -75,17 +75,15 @@ apis:
 - aid: leadiq:leadiq-mcp-server
   name: LeadIQ MCP Server
   description: >-
-    Remote Model Context Protocol server at https://mcp.leadiq.com/mcp exposing LeadIQ's
-    verified B2B contact and company intelligence to AI agents over Streamable HTTP.
-    Seventeen tools — EnrichPeople, EnrichCompanies, FindPeople, FindCompanies,
-    FindJobChanges, seven prospect/list management tools, VerifyEmail,
-    VerifyProspectEmail, ExportProspectToSalesforce and CheckCredits — plus a guided
-    `icp` prompt. Authentication is OAuth 2.0 with dynamic client registration against
-    LeadIQ's Auth0 tenant (scopes leadiq:api and offline_access); no client id or secret
-    is configured and no API key is accepted. Certified as a Microsoft connector across
-    Copilot Studio, Power Automate, Power Apps and Logic Apps, and documented for Claude
-    and ChatGPT. Metering is credit-based and the assistant discloses estimated cost
-    before paid calls.
+    Remote Model Context Protocol server at https://mcp.leadiq.com/mcp exposing LeadIQ's verified B2B
+    contact and company intelligence to AI agents over Streamable HTTP. Seventeen tools — EnrichPeople,
+    EnrichCompanies, FindPeople, FindCompanies, FindJobChanges, seven prospect/list management tools,
+    VerifyEmail, VerifyProspectEmail, ExportProspectToSalesforce and CheckCredits — plus a guided `icp`
+    prompt. Authentication is OAuth 2.0 with dynamic client registration against LeadIQ's Auth0 tenant
+    (scopes leadiq:api and offline_access); no client id or secret is configured and no API key is accepted.
+    Certified as a Microsoft connector across Copilot Studio, Power Automate, Power Apps and Logic Apps,
+    and documented for Claude and ChatGPT. Metering is credit-based and the assistant discloses estimated
+    cost before paid calls.
   tags:
   - MCP
   - AI Agents
@@ -152,36 +150,62 @@ apis:
     url: graphql/leadiq-graphql.md
   - type: GraphQL
     url: graphql/leadiq.graphql
-- aid: leadiq:leadiq-prospector-api
-  name: LeadIQ Prospector REST API
-  description: >-
-    REST API for LeadIQ's saved prospecting workspace — create and read prospect lists,
-    create prospects singly or in batches of up to 100, search saved prospects, verify
-    email deliverability, and export a saved prospect into the caller's Salesforce as a
-    Lead or Contact with duplicate detection. Fourteen operations under /v1, described by
-    an OpenAPI 3.1.0 document LeadIQ serves publicly at
-    https://prospector.leadiq.com/openapi.json. Authenticates with the base64-DECODED
-    LeadIQ API key in an X-API-Key header (the GraphQL Data API takes the same key in its
-    encoded form), or with a bearer JWT. This is the surface LeadIQ's own MCP tools
-    AttachProspectToList, CreateProspect, SearchProspects, VerifyEmail,
-    VerifyProspectEmail and ExportProspectToSalesforce are built on.
-  humanURL: https://leadiqhelp.zendesk.com/hc/en-us/articles/29375289152795-LeadIQ-Public-API-Guide
-  baseURL: https://prospector.leadiq.com
+- aid: leadiq:leadiq-account-api
+  name: LeadIQ Account API
+  description: The account API from LeadIQ — 1 operation(s) for account.
+  humanURL: https://developer.leadiq.com/
+  baseURL: https://mcp.leadiq.com/mcp
   tags:
-  - REST
-  - Prospecting
-  - Contact Data
-  - CRM Enrichment
+  - account
   properties:
   - type: OpenAPI
-    url: openapi/leadiq-prospector-api-openapi.yml
-  - type: OpenAPI
-    url: openapi/_original/leadiq-prospector-api-openapi.json
-  - type: Overlay
-    url: overlays/leadiq-prospector-api-overlay.yaml
+    url: openapi/leadiq-account-api-openapi.yml
   - type: Documentation
-    url: >-
-      https://leadiqhelp.zendesk.com/hc/en-us/articles/29375289152795-LeadIQ-Public-API-Guide
+    url: https://leadiqhelp.zendesk.com/hc/en-us/articles/29375289152795-LeadIQ-Public-API-Guide
+  - type: Samples
+    url: https://github.com/leadiq/api-samples
+  - type: Authentication
+    url: authentication/leadiq-authentication.yml
+  - type: ErrorCatalog
+    url: errors/leadiq-problem-types.yml
+  - type: DataModel
+    url: data-model/leadiq-data-model.yml
+  - type: Contact
+    url: mailto:api@leadiq.com
+- aid: leadiq:leadiq-lists-api
+  name: LeadIQ Lists API
+  description: The lists API from LeadIQ — 5 operation(s) for lists.
+  humanURL: https://developer.leadiq.com/
+  baseURL: https://mcp.leadiq.com/mcp
+  tags:
+  - lists
+  properties:
+  - type: OpenAPI
+    url: openapi/leadiq-lists-api-openapi.yml
+  - type: Documentation
+    url: https://leadiqhelp.zendesk.com/hc/en-us/articles/29375289152795-LeadIQ-Public-API-Guide
+  - type: Samples
+    url: https://github.com/leadiq/api-samples
+  - type: Authentication
+    url: authentication/leadiq-authentication.yml
+  - type: ErrorCatalog
+    url: errors/leadiq-problem-types.yml
+  - type: DataModel
+    url: data-model/leadiq-data-model.yml
+  - type: Contact
+    url: mailto:api@leadiq.com
+- aid: leadiq:leadiq-prospects-api
+  name: LeadIQ Prospects API
+  description: The prospects API from LeadIQ — 5 operation(s) for prospects.
+  humanURL: https://developer.leadiq.com/
+  baseURL: https://mcp.leadiq.com/mcp
+  tags:
+  - prospects
+  properties:
+  - type: OpenAPI
+    url: openapi/leadiq-prospects-api-openapi.yml
+  - type: Documentation
+    url: https://leadiqhelp.zendesk.com/hc/en-us/articles/29375289152795-LeadIQ-Public-API-Guide
   - type: Samples
     url: https://github.com/leadiq/api-samples
   - type: Authentication
