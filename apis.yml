@@ -28,6 +28,19 @@ description: >-
   email costs 1 UC, a direct phone 10 UC, company firmographics 3 UC and a profile
   0.1 UC. All plans get 50 one-off test calls; sustained API access is sales-gated.
 type: Index
+deliveryModel:
+  model: unknown
+  open_source: unknown
+  commercial: true
+  callable_host: true
+  label: Delivery model not determined — needs a product licence on record
+  confidence: low
+  source:
+  - openapi
+  - pricing
+  - repository-unlicensed
+  generated: '2026-08-28'
+  method: derived
 accessModel:
   pricing: unknown
   onboarding: self-serve
