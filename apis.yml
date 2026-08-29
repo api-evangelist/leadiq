@@ -142,7 +142,7 @@ apis:
     url: https://github.com/leadiq/dataiq-api-specs/blob/master/apiary.apib
   - type: Repository
     url: https://github.com/leadiq/dataiq-api-specs
-  - type: Samples
+  - type: Examples
     url: https://github.com/leadiq/api-samples
   - type: GraphQL
     url: https://api.leadiq.com/graphql
@@ -175,7 +175,7 @@ apis:
     url: openapi/leadiq-account-api-openapi.yml
   - type: Documentation
     url: https://leadiqhelp.zendesk.com/hc/en-us/articles/29375289152795-LeadIQ-Public-API-Guide
-  - type: Samples
+  - type: Examples
     url: https://github.com/leadiq/api-samples
   - type: Authentication
     url: authentication/leadiq-authentication.yml
@@ -197,7 +197,7 @@ apis:
     url: openapi/leadiq-lists-api-openapi.yml
   - type: Documentation
     url: https://leadiqhelp.zendesk.com/hc/en-us/articles/29375289152795-LeadIQ-Public-API-Guide
-  - type: Samples
+  - type: Examples
     url: https://github.com/leadiq/api-samples
   - type: Authentication
     url: authentication/leadiq-authentication.yml
@@ -219,7 +219,7 @@ apis:
     url: openapi/leadiq-prospects-api-openapi.yml
   - type: Documentation
     url: https://leadiqhelp.zendesk.com/hc/en-us/articles/29375289152795-LeadIQ-Public-API-Guide
-  - type: Samples
+  - type: Examples
     url: https://github.com/leadiq/api-samples
   - type: Authentication
     url: authentication/leadiq-authentication.yml
