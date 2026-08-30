@@ -169,6 +169,8 @@ apis:
   humanURL: https://developer.leadiq.com/
   baseURL: https://mcp.leadiq.com/mcp
   tags:
+  - Account
+  tags_raw:
   - account
   properties:
   - type: OpenAPI
@@ -191,6 +193,8 @@ apis:
   humanURL: https://developer.leadiq.com/
   baseURL: https://mcp.leadiq.com/mcp
   tags:
+  - List
+  tags_raw:
   - lists
   properties:
   - type: OpenAPI
@@ -213,6 +217,8 @@ apis:
   humanURL: https://developer.leadiq.com/
   baseURL: https://mcp.leadiq.com/mcp
   tags:
+  - Prospects
+  tags_raw:
   - prospects
   properties:
   - type: OpenAPI
