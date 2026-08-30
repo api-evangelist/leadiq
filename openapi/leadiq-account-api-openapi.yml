@@ -1,0 +1,103 @@
+openapi: 3.2.0
+info:
+  title: Prospector Account API
+  version: 1.0.0
+  description: External REST API for LeadIQ prospector lists and prospects.
+servers:
+- url: https://prospector.leadiq.com
+  description: LeadIQ Prospector REST API production host
+security:
+- apiKeyAuth: []
+- bearerAuth: []
+tags:
+- name: account
+paths:
+  /v1/whoami:
+    get:
+      tags:
+      - account
+      summary: Identify the caller
+      description: 'Returns the account behind the presented credentials: the user identity this API scopes ownership by, plus the team name and email domain. Useful for verifying which account an API key or token belongs to.'
+      responses:
+        '200':
+          description: The caller's account details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WhoAmI'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Temporary upstream error — retry
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          nullable: true
+      required:
+      - code
+      - message
+    WhoAmI:
+      type: object
+      properties:
+        user:
+          type: object
+          properties:
+            email:
+              type: string
+              example: jane@acme.com
+            name:
+              type: string
+              example: Jane Doe
+            firstName:
+              type: string
+              example: Jane
+            lastName:
+              type: string
+              example: Doe
+          required:
+          - email
+        team:
+          type: object
+          properties:
+            name:
+              type: string
+              example: Acme Inc
+            domain:
+              type: string
+              example: acme.com
+              description: The email domain of the members of this team.
+      required:
+      - user
+      - team
+  securitySchemes:
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Send your LeadIQ API key as the `X-API-Key` header value — no prefix, no encoding.
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: OAuth2 access token (JWT) issued for an audience accepted by this service.

@@ -1,0 +1,692 @@
+openapi: 3.2.0
+info:
+  title: Prospector Lists API
+  version: 1.0.0
+  description: External REST API for LeadIQ prospector lists and prospects.
+servers:
+- url: https://prospector.leadiq.com
+  description: LeadIQ Prospector REST API production host
+security:
+- apiKeyAuth: []
+- bearerAuth: []
+tags:
+- name: lists
+paths:
+  /v1/lists:
+    post:
+      tags:
+      - lists
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListInput'
+      responses:
+        '201':
+          description: List created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/List'
+        '400':
+          description: Invalid body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: A list with this name already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: Body too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags:
+      - lists
+      parameters:
+      - schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 25
+          example: 25
+        required: false
+        name: limit
+        in: query
+      - schema:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+        required: false
+        name: cursor
+        in: query
+      - schema:
+          allOf:
+          - $ref: '#/components/schemas/ListRole'
+          - description: Filter to lists where the caller has this role. Omitted = both owner and collaborator.
+        required: false
+        description: Filter to lists where the caller has this role. Omitted = both owner and collaborator.
+        name: role
+        in: query
+      responses:
+        '200':
+          description: Lists accessible to the caller (as owner or collaborator).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLists'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/lists/{listId}:
+    get:
+      tags:
+      - lists
+      parameters:
+      - schema:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+        required: true
+        name: listId
+        in: path
+      responses:
+        '200':
+          description: List detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/List'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found or not accessible to caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/lists/{listId}/prospects:
+    get:
+      tags:
+      - lists
+      parameters:
+      - schema:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+        required: true
+        name: listId
+        in: path
+      - schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 25
+          example: 25
+        required: false
+        name: limit
+        in: query
+      - schema:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+        required: false
+        name: cursor
+        in: query
+      responses:
+        '200':
+          description: Prospects in list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProspects'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found or not accessible to caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+      - lists
+      summary: Create a prospect in a list
+      description: 'Creates a new prospect and attaches it to the given list.
+
+
+        **This endpoint is not idempotent.** Each call creates a distinct prospect, even when the body is identical to a previous request — there is no deduplication by email, LinkedIn URL, or any other field. Clients that retry on network errors or 5xx responses must guard against double-create themselves (e.g. by tracking a stable client-side request id and only retrying when the previous attempt did not return a 2xx).'
+      parameters:
+      - schema:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+        required: true
+        name: listId
+        in: path
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProspectInput'
+      responses:
+        '201':
+          description: Prospect created and attached
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prospect'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: List not found or not accessible to caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Invalid body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Temporary upstream error — retry
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/lists/{listId}/prospects/batch:
+    post:
+      tags:
+      - lists
+      summary: Create multiple prospects in a list (batch)
+      description: 'Creates up to 100 prospects in one call and attaches them all to the given list.
+
+
+        **Partial-success semantics:** the response always returns 200 if the request is well-formed and the caller owns the list. The body contains `succeeded[]` and `failed[]`. `failed[i].index` refers to the position of the failing item in the request body array. Successes appear in `succeeded[]` in input order; failures are sorted by `index`.
+
+
+        **This endpoint is not idempotent.** Retrying after a network error or timeout may create duplicates. Clients that retry must guard against double-create at their own layer.'
+      parameters:
+      - schema:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+        required: true
+        name: listId
+        in: path
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkProspectInput'
+      responses:
+        '200':
+          description: Per-item result; check failed[] for partial failures
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkSaveResult'
+        '400':
+          description: Invalid body (e.g. > 100 items, invalid email)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: List not found or not accessible to caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: Body too large (server-side body-size cap)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/lists/{listId}/prospects/{prospectId}:
+    post:
+      tags:
+      - lists
+      summary: Attach an existing prospect to a list
+      description: Attaches an existing prospect to the given list. **Idempotent** — calling twice with the same `(listId, prospectId)` pair both return 200 and the resulting `listIds` array contains the list id once, not twice. The caller must be able to access the destination list (owner or collaborator). The prospect must either already be a member of one of the caller's accessible lists, or have been created standalone by the same caller via `POST /v1/prospects`. The 200 body is the post-update prospect with the new `listIds`.
+      parameters:
+      - schema:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+        required: true
+        name: listId
+        in: path
+      - schema:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+        required: true
+        name: prospectId
+        in: path
+      responses:
+        '200':
+          description: Prospect attached (or already attached)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prospect'
+        '400':
+          description: Malformed `listId` or `prospectId`
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: List or prospect not found or not accessible to caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    PaginatedLists:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/List'
+        nextCursor:
+          type: string
+          nullable: true
+          pattern: ^[0-9a-fA-F]{24}$
+      required:
+      - items
+      - nextCursor
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          nullable: true
+      required:
+      - code
+      - message
+    Company:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        domain:
+          type: string
+        industry:
+          type: string
+        employees:
+          type: integer
+        location:
+          $ref: '#/components/schemas/CompanyLocation'
+        phone:
+          type: string
+    PaginatedProspects:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Prospect'
+        nextCursor:
+          type: string
+          nullable: true
+          pattern: ^[0-9a-fA-F]{24}$
+      required:
+      - items
+      - nextCursor
+    CompanyLocation:
+      type: object
+      properties:
+        streetLine1:
+          type: string
+        streetLine2:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zip:
+          type: string
+        country:
+          type: string
+        formatted:
+          type: string
+    Prospect:
+      type: object
+      properties:
+        id:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+        personId:
+          type: string
+        linkedinId:
+          type: string
+        linkedinUrl:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        name:
+          type: string
+        picture:
+          type: string
+        title:
+          type: string
+        seniority:
+          type: string
+        function:
+          type: string
+        workEmail:
+          type: string
+        emailStatus:
+          type: string
+        personalEmails:
+          type: array
+          items:
+            type: string
+        mobilePhones:
+          type: array
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+              status:
+                type: string
+                enum:
+                - Verified
+            required:
+            - value
+        location:
+          $ref: '#/components/schemas/Location'
+        company:
+          $ref: '#/components/schemas/Company'
+        listIds:
+          type: array
+          items:
+            type: string
+            pattern: ^[0-9a-fA-F]{24}$
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+          example: '2025-01-15T12:34:56.789Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2025-01-15T12:34:56.789Z'
+      required:
+      - id
+      - listIds
+      - createdAt
+      - updatedAt
+    List:
+      type: object
+      properties:
+        id:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+        name:
+          type: string
+        role:
+          $ref: '#/components/schemas/ListRole'
+        description:
+          type: string
+        status:
+          type: string
+        visibility:
+          type: string
+        startDate:
+          type: string
+          format: date-time
+          example: '2025-01-15T12:34:56.789Z'
+        endDate:
+          type: string
+          format: date-time
+          example: '2025-01-15T12:34:56.789Z'
+        createdAt:
+          type: string
+          format: date-time
+          example: '2025-01-15T12:34:56.789Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2025-01-15T12:34:56.789Z'
+      required:
+      - id
+      - name
+      - role
+      - createdAt
+      - updatedAt
+    BulkSaveFailure:
+      type: object
+      properties:
+        index:
+          type: integer
+          minimum: 0
+        reason:
+          type: string
+      required:
+      - index
+      - reason
+    ListInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 2000
+      required:
+      - name
+      additionalProperties: false
+    BulkSaveResult:
+      type: object
+      properties:
+        succeeded:
+          type: array
+          items:
+            $ref: '#/components/schemas/Prospect'
+        failed:
+          type: array
+          items:
+            $ref: '#/components/schemas/BulkSaveFailure'
+      required:
+      - succeeded
+      - failed
+    BulkProspectInput:
+      type: array
+      items:
+        $ref: '#/components/schemas/ProspectInput'
+      minItems: 1
+      maxItems: 100
+    ListRole:
+      type: string
+      enum:
+      - owner
+      - collaborator
+      description: Caller's relationship to the list. `owner` means the caller created it; `collaborator` means another member granted them edit access.
+    Location:
+      type: object
+      properties:
+        streetLine1:
+          type: string
+        streetLine2:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zip:
+          type: string
+        country:
+          type: string
+        formatted:
+          type: string
+    ProspectInput:
+      type: object
+      properties:
+        firstName:
+          type: string
+          minLength: 1
+        lastName:
+          type: string
+          minLength: 1
+        workEmail:
+          type: string
+          format: email
+        phone:
+          type: string
+          minLength: 1
+        title:
+          type: string
+          minLength: 1
+        seniority:
+          type: string
+          enum:
+          - VP
+          - Manager
+          - Director
+          - Executive
+          - SeniorIndividualContributor
+          - Other
+        function:
+          type: string
+          minLength: 1
+        company:
+          type: string
+          minLength: 1
+        companyDomain:
+          type: string
+          minLength: 1
+        companyIndustry:
+          type: string
+          minLength: 1
+        companyId:
+          type: string
+          minLength: 1
+          description: DataIQ company id. Provide it to link the lead to the company and enrich company data
+        linkedinUrl:
+          type: string
+          format: uri
+        emailStatus:
+          type: string
+          enum:
+          - Unverified
+          - Verified
+          - VerifiedLikely
+        location:
+          $ref: '#/components/schemas/Location'
+        notes:
+          type: string
+          maxLength: 5000
+        personId:
+          type: string
+          minLength: 1
+          description: DataIQ ID. Provide it for better matching and deduplication
+      required:
+      - firstName
+      - lastName
+      additionalProperties: false
+  securitySchemes:
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Send your LeadIQ API key as the `X-API-Key` header value — no prefix, no encoding.
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: OAuth2 access token (JWT) issued for an audience accepted by this service.
