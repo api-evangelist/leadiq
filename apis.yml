@@ -199,6 +199,8 @@ apis:
   humanURL: https://developer.leadiq.com/
   baseURL: https://mcp.leadiq.com/mcp
   tags:
+  - GraphQL
+  tags_raw:
   - Graph QL
   properties:
   - type: OpenAPI
