@@ -3,19 +3,16 @@ info:
   title: Prospector Lists API
   version: 1.0.0
   description: External REST API for LeadIQ prospector lists and prospects.
-servers:
-- url: https://prospector.leadiq.com
-  description: LeadIQ Prospector REST API production host
 security:
 - apiKeyAuth: []
 - bearerAuth: []
 tags:
-- name: lists
+- name: Lists
 paths:
   /v1/lists:
     post:
       tags:
-      - lists
+      - Lists
       requestBody:
         required: true
         content:
@@ -59,9 +56,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+      summary: Create lists
+      x-summary-source: derived
+      operationId: postV1Lists
+      x-operation-id-source: derived
     get:
       tags:
-      - lists
+      - Lists
       parameters:
       - schema:
           type: integer
@@ -105,10 +106,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+      summary: Get lists
+      x-summary-source: derived
+      operationId: getV1Lists
+      x-operation-id-source: derived
   /v1/lists/{listId}:
     get:
       tags:
-      - lists
+      - Lists
       parameters:
       - schema:
           type: string
@@ -141,10 +146,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+      summary: Get lists by list id
+      x-summary-source: derived
+      operationId: getV1ListsByListId
+      x-operation-id-source: derived
   /v1/lists/{listId}/prospects:
     get:
       tags:
-      - lists
+      - Lists
       parameters:
       - schema:
           type: string
@@ -192,9 +201,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+      summary: Get lists by list id prospects
+      x-summary-source: derived
+      operationId: getV1ListsByListIdProspects
+      x-operation-id-source: derived
     post:
       tags:
-      - lists
+      - Lists
       summary: Create a prospect in a list
       description: 'Creates a new prospect and attaches it to the given list.
 
@@ -250,10 +263,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+      operationId: postV1ListsByListIdProspects
+      x-operation-id-source: derived
   /v1/lists/{listId}/prospects/batch:
     post:
       tags:
-      - lists
+      - Lists
       summary: Create multiple prospects in a list (batch)
       description: 'Creates up to 100 prospects in one call and attaches them all to the given list.
 
@@ -312,10 +327,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+      operationId: postV1ListsByListIdProspectsBatch
+      x-operation-id-source: derived
   /v1/lists/{listId}/prospects/{prospectId}:
     post:
       tags:
-      - lists
+      - Lists
       summary: Attach an existing prospect to a list
       description: Attaches an existing prospect to the given list. **Idempotent** — calling twice with the same `(listId, prospectId)` pair both return 200 and the resulting `listIds` array contains the list id once, not twice. The caller must be able to access the destination list (owner or collaborator). The prospect must either already be a member of one of the caller's accessible lists, or have been created standalone by the same caller via `POST /v1/prospects`. The 200 body is the post-update prospect with the new `listIds`.
       parameters:
@@ -362,8 +379,39 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+      operationId: postV1ListsByListIdProspectsByProspectId
+      x-operation-id-source: derived
 components:
   schemas:
+    CompanyLocation:
+      type: object
+      properties:
+        streetLine1:
+          type: string
+        streetLine2:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zip:
+          type: string
+        country:
+          type: string
+        formatted:
+          type: string
+    ListRole:
+      type: string
+      enum:
+      - owner
+      - collaborator
+      description: Caller's relationship to the list. `owner` means the caller created it; `collaborator` means another member granted them edit access.
+    BulkProspectInput:
+      type: array
+      items:
+        $ref: '#/components/schemas/ProspectInput'
+      minItems: 1
+      maxItems: 100
     PaginatedLists:
       type: object
       properties:
@@ -378,6 +426,136 @@ components:
       required:
       - items
       - nextCursor
+    ProspectInput:
+      type: object
+      properties:
+        firstName:
+          type: string
+          minLength: 1
+        lastName:
+          type: string
+          minLength: 1
+        workEmail:
+          type: string
+          format: email
+        phone:
+          type: string
+          minLength: 1
+        title:
+          type: string
+          minLength: 1
+        seniority:
+          type: string
+          enum:
+          - VP
+          - Manager
+          - Director
+          - Executive
+          - SeniorIndividualContributor
+          - Other
+        function:
+          type: string
+          minLength: 1
+        company:
+          type: string
+          minLength: 1
+        companyDomain:
+          type: string
+          minLength: 1
+        companyIndustry:
+          type: string
+          minLength: 1
+        companyId:
+          type: string
+          minLength: 1
+          description: DataIQ company id. Provide it to link the lead to the company and enrich company data
+        linkedinUrl:
+          type: string
+          format: uri
+        emailStatus:
+          type: string
+          enum:
+          - Unverified
+          - Verified
+          - VerifiedLikely
+        location:
+          $ref: '#/components/schemas/Location'
+        notes:
+          type: string
+          maxLength: 5000
+        personId:
+          type: string
+          minLength: 1
+          description: DataIQ ID. Provide it for better matching and deduplication
+      required:
+      - firstName
+      - lastName
+      additionalProperties: false
+    List:
+      type: object
+      properties:
+        id:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+        name:
+          type: string
+        role:
+          $ref: '#/components/schemas/ListRole'
+        description:
+          type: string
+        status:
+          type: string
+        visibility:
+          type: string
+        startDate:
+          type: string
+          format: date-time
+          example: '2025-01-15T12:34:56.789Z'
+        endDate:
+          type: string
+          format: date-time
+          example: '2025-01-15T12:34:56.789Z'
+        createdAt:
+          type: string
+          format: date-time
+          example: '2025-01-15T12:34:56.789Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2025-01-15T12:34:56.789Z'
+      required:
+      - id
+      - name
+      - role
+      - createdAt
+      - updatedAt
+    ListInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 2000
+      required:
+      - name
+      additionalProperties: false
+    BulkSaveResult:
+      type: object
+      properties:
+        succeeded:
+          type: array
+          items:
+            $ref: '#/components/schemas/Prospect'
+        failed:
+          type: array
+          items:
+            $ref: '#/components/schemas/BulkSaveFailure'
+      required:
+      - succeeded
+      - failed
     ErrorResponse:
       type: object
       properties:
@@ -406,37 +584,6 @@ components:
         location:
           $ref: '#/components/schemas/CompanyLocation'
         phone:
-          type: string
-    PaginatedProspects:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Prospect'
-        nextCursor:
-          type: string
-          nullable: true
-          pattern: ^[0-9a-fA-F]{24}$
-      required:
-      - items
-      - nextCursor
-    CompanyLocation:
-      type: object
-      properties:
-        streetLine1:
-          type: string
-        streetLine2:
-          type: string
-        city:
-          type: string
-        state:
-          type: string
-        zip:
-          type: string
-        country:
-          type: string
-        formatted:
           type: string
     Prospect:
       type: object
@@ -509,44 +656,6 @@ components:
       - listIds
       - createdAt
       - updatedAt
-    List:
-      type: object
-      properties:
-        id:
-          type: string
-          pattern: ^[0-9a-fA-F]{24}$
-        name:
-          type: string
-        role:
-          $ref: '#/components/schemas/ListRole'
-        description:
-          type: string
-        status:
-          type: string
-        visibility:
-          type: string
-        startDate:
-          type: string
-          format: date-time
-          example: '2025-01-15T12:34:56.789Z'
-        endDate:
-          type: string
-          format: date-time
-          example: '2025-01-15T12:34:56.789Z'
-        createdAt:
-          type: string
-          format: date-time
-          example: '2025-01-15T12:34:56.789Z'
-        updatedAt:
-          type: string
-          format: date-time
-          example: '2025-01-15T12:34:56.789Z'
-      required:
-      - id
-      - name
-      - role
-      - createdAt
-      - updatedAt
     BulkSaveFailure:
       type: object
       properties:
@@ -558,45 +667,20 @@ components:
       required:
       - index
       - reason
-    ListInput:
+    PaginatedProspects:
       type: object
       properties:
-        name:
-          type: string
-          minLength: 1
-          maxLength: 200
-        description:
-          type: string
-          maxLength: 2000
-      required:
-      - name
-      additionalProperties: false
-    BulkSaveResult:
-      type: object
-      properties:
-        succeeded:
+        items:
           type: array
           items:
             $ref: '#/components/schemas/Prospect'
-        failed:
-          type: array
-          items:
-            $ref: '#/components/schemas/BulkSaveFailure'
+        nextCursor:
+          type: string
+          nullable: true
+          pattern: ^[0-9a-fA-F]{24}$
       required:
-      - succeeded
-      - failed
-    BulkProspectInput:
-      type: array
-      items:
-        $ref: '#/components/schemas/ProspectInput'
-      minItems: 1
-      maxItems: 100
-    ListRole:
-      type: string
-      enum:
-      - owner
-      - collaborator
-      description: Caller's relationship to the list. `owner` means the caller created it; `collaborator` means another member granted them edit access.
+      - items
+      - nextCursor
     Location:
       type: object
       properties:
@@ -614,71 +698,6 @@ components:
           type: string
         formatted:
           type: string
-    ProspectInput:
-      type: object
-      properties:
-        firstName:
-          type: string
-          minLength: 1
-        lastName:
-          type: string
-          minLength: 1
-        workEmail:
-          type: string
-          format: email
-        phone:
-          type: string
-          minLength: 1
-        title:
-          type: string
-          minLength: 1
-        seniority:
-          type: string
-          enum:
-          - VP
-          - Manager
-          - Director
-          - Executive
-          - SeniorIndividualContributor
-          - Other
-        function:
-          type: string
-          minLength: 1
-        company:
-          type: string
-          minLength: 1
-        companyDomain:
-          type: string
-          minLength: 1
-        companyIndustry:
-          type: string
-          minLength: 1
-        companyId:
-          type: string
-          minLength: 1
-          description: DataIQ company id. Provide it to link the lead to the company and enrich company data
-        linkedinUrl:
-          type: string
-          format: uri
-        emailStatus:
-          type: string
-          enum:
-          - Unverified
-          - Verified
-          - VerifiedLikely
-        location:
-          $ref: '#/components/schemas/Location'
-        notes:
-          type: string
-          maxLength: 5000
-        personId:
-          type: string
-          minLength: 1
-          description: DataIQ ID. Provide it for better matching and deduplication
-      required:
-      - firstName
-      - lastName
-      additionalProperties: false
   securitySchemes:
     apiKeyAuth:
       type: apiKey

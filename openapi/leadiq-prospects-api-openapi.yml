@@ -3,19 +3,16 @@ info:
   title: Prospector Prospects API
   version: 1.0.0
   description: External REST API for LeadIQ prospector lists and prospects.
-servers:
-- url: https://prospector.leadiq.com
-  description: LeadIQ Prospector REST API production host
 security:
 - apiKeyAuth: []
 - bearerAuth: []
 tags:
-- name: prospects
+- name: Prospects
 paths:
   /v1/prospects:
     get:
       tags:
-      - prospects
+      - Prospects
       summary: List or search prospects
       description: Find prospects across all of the caller's leads, regardless of list membership. Pass **either** `email` alone, **or** `firstName` + `lastName` together, **or** no criteria to list every prospect the caller owns. Half-name searches and combined email+name are rejected with 400.
       parameters:
@@ -77,9 +74,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+      operationId: getV1Prospects
+      x-operation-id-source: derived
     post:
       tags:
-      - prospects
+      - Prospects
       summary: Create a prospect (no list)
       description: 'Creates a new prospect with no list membership. Use `POST /v1/lists/{listId}/prospects` instead to create-and-attach in a single call.
 
@@ -128,10 +127,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+      operationId: postV1Prospects
+      x-operation-id-source: derived
   /v1/verify-email:
     get:
       tags:
-      - prospects
+      - Prospects
       summary: Verify a standalone email address
       description: Verify any email without creating or modifying a lead. Useful as a pre-flight check before creating a prospect. The verdict is computed by EVS (Email Verification Service) and folded into our four-value status enum.
       parameters:
@@ -173,10 +174,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+      operationId: getV1VerifyEmail
+      x-operation-id-source: derived
   /v1/prospects/{prospectId}:
     get:
       tags:
-      - prospects
+      - Prospects
       parameters:
       - schema:
           type: string
@@ -215,10 +218,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+      summary: Get prospects by prospect id
+      x-summary-source: derived
+      operationId: getV1ProspectsByProspectId
+      x-operation-id-source: derived
   /v1/prospects/{prospectId}/verify-email:
     post:
       tags:
-      - prospects
+      - Prospects
       summary: Verify the email on an existing prospect
       description: 'Verifies the email currently stored on the lead and persists the new status. The lead''s `workEmail` field is **never** modified — this is a verify-what''s-there operation, not a discover-and-replace one. Returns 409 with `code: "no_email_to_verify"` if the lead has no email (a state precondition, not a body-validation failure).'
       parameters:
@@ -271,10 +278,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+      operationId: postV1ProspectsByProspectIdVerifyEmail
+      x-operation-id-source: derived
   /v1/prospects/{prospectId}/export/salesforce:
     post:
       tags:
-      - prospects
+      - Prospects
       summary: Export a prospect into the caller's Salesforce
       description: 'Creates (or enriches) a Lead or Contact in the Salesforce org connected to the calling user, using the same export pipeline as the LeadIQ web app. Acts as the caller''s connected Salesforce user, so their Salesforce permissions, validation rules and duplicate rules all still apply.
 
@@ -363,67 +372,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+      operationId: postV1ProspectsByProspectIdExportSalesforce
+      x-operation-id-source: derived
 components:
   schemas:
-    ErrorResponse:
-      type: object
-      properties:
-        code:
-          type: string
-        message:
-          type: string
-        details:
-          nullable: true
-      required:
-      - code
-      - message
-    Company:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        domain:
-          type: string
-        industry:
-          type: string
-        employees:
-          type: integer
-        location:
-          $ref: '#/components/schemas/CompanyLocation'
-        phone:
-          type: string
-    SalesforceExportAccepted:
-      type: object
-      properties:
-        status:
-          type: string
-          enum:
-          - submitted
-        requestId:
-          type: string
-        savedAs:
-          type: string
-        message:
-          type: string
-      required:
-      - status
-      - message
-    PaginatedProspects:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Prospect'
-        nextCursor:
-          type: string
-          nullable: true
-          pattern: ^[0-9a-fA-F]{24}$
-      required:
-      - items
-      - nextCursor
     CompanyLocation:
       type: object
       properties:
@@ -441,77 +393,6 @@ components:
           type: string
         formatted:
           type: string
-    Prospect:
-      type: object
-      properties:
-        id:
-          type: string
-          pattern: ^[0-9a-fA-F]{24}$
-        personId:
-          type: string
-        linkedinId:
-          type: string
-        linkedinUrl:
-          type: string
-        firstName:
-          type: string
-        lastName:
-          type: string
-        name:
-          type: string
-        picture:
-          type: string
-        title:
-          type: string
-        seniority:
-          type: string
-        function:
-          type: string
-        workEmail:
-          type: string
-        emailStatus:
-          type: string
-        personalEmails:
-          type: array
-          items:
-            type: string
-        mobilePhones:
-          type: array
-          items:
-            type: object
-            properties:
-              value:
-                type: string
-              status:
-                type: string
-                enum:
-                - Verified
-            required:
-            - value
-        location:
-          $ref: '#/components/schemas/Location'
-        company:
-          $ref: '#/components/schemas/Company'
-        listIds:
-          type: array
-          items:
-            type: string
-            pattern: ^[0-9a-fA-F]{24}$
-        notes:
-          type: string
-        createdAt:
-          type: string
-          format: date-time
-          example: '2025-01-15T12:34:56.789Z'
-        updatedAt:
-          type: string
-          format: date-time
-          example: '2025-01-15T12:34:56.789Z'
-      required:
-      - id
-      - listIds
-      - createdAt
-      - updatedAt
     VerifyEmailResponse:
       type: object
       properties:
@@ -527,18 +408,6 @@ components:
       required:
       - status
       - prospect
-    VerifyStandaloneEmailResponse:
-      type: object
-      properties:
-        status:
-          type: string
-          enum:
-          - Verified
-          - VerifiedLikely
-          - Unverified
-          - Invalid
-      required:
-      - status
     SalesforceExportResult:
       type: object
       properties:
@@ -567,32 +436,6 @@ components:
           description: Present on `duplicates_found`.
       required:
       - status
-    SalesforceExportRequest:
-      type: object
-      properties:
-        force:
-          type: boolean
-          default: false
-          description: 'Create the record even though Salesforce reported possible duplicates. Only send `true` after a previous call returned `status: "duplicates_found"` and a human confirmed none of the candidates is the same person. Forcing blindly is the main way duplicate Leads get into a customer CRM.'
-          example: false
-      additionalProperties: false
-    Location:
-      type: object
-      properties:
-        streetLine1:
-          type: string
-        streetLine2:
-          type: string
-        city:
-          type: string
-        state:
-          type: string
-        zip:
-          type: string
-        country:
-          type: string
-        formatted:
-          type: string
     SalesforceDuplicate:
       type: object
       properties:
@@ -676,6 +519,174 @@ components:
       - firstName
       - lastName
       additionalProperties: false
+    SalesforceExportRequest:
+      type: object
+      properties:
+        force:
+          type: boolean
+          default: false
+          description: 'Create the record even though Salesforce reported possible duplicates. Only send `true` after a previous call returned `status: "duplicates_found"` and a human confirmed none of the candidates is the same person. Forcing blindly is the main way duplicate Leads get into a customer CRM.'
+          example: false
+      additionalProperties: false
+    VerifyStandaloneEmailResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - Verified
+          - VerifiedLikely
+          - Unverified
+          - Invalid
+      required:
+      - status
+    Company:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        domain:
+          type: string
+        industry:
+          type: string
+        employees:
+          type: integer
+        location:
+          $ref: '#/components/schemas/CompanyLocation'
+        phone:
+          type: string
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          nullable: true
+      required:
+      - code
+      - message
+    Prospect:
+      type: object
+      properties:
+        id:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+        personId:
+          type: string
+        linkedinId:
+          type: string
+        linkedinUrl:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        name:
+          type: string
+        picture:
+          type: string
+        title:
+          type: string
+        seniority:
+          type: string
+        function:
+          type: string
+        workEmail:
+          type: string
+        emailStatus:
+          type: string
+        personalEmails:
+          type: array
+          items:
+            type: string
+        mobilePhones:
+          type: array
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+              status:
+                type: string
+                enum:
+                - Verified
+            required:
+            - value
+        location:
+          $ref: '#/components/schemas/Location'
+        company:
+          $ref: '#/components/schemas/Company'
+        listIds:
+          type: array
+          items:
+            type: string
+            pattern: ^[0-9a-fA-F]{24}$
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+          example: '2025-01-15T12:34:56.789Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2025-01-15T12:34:56.789Z'
+      required:
+      - id
+      - listIds
+      - createdAt
+      - updatedAt
+    Location:
+      type: object
+      properties:
+        streetLine1:
+          type: string
+        streetLine2:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zip:
+          type: string
+        country:
+          type: string
+        formatted:
+          type: string
+    PaginatedProspects:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Prospect'
+        nextCursor:
+          type: string
+          nullable: true
+          pattern: ^[0-9a-fA-F]{24}$
+      required:
+      - items
+      - nextCursor
+    SalesforceExportAccepted:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - submitted
+        requestId:
+          type: string
+        savedAs:
+          type: string
+        message:
+          type: string
+      required:
+      - status
+      - message
   securitySchemes:
     apiKeyAuth:
       type: apiKey

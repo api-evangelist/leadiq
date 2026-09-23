@@ -1,0 +1,1 @@
+{"resource":"https://mcp.leadiq.com/mcp","authorization_servers":["https://leadiq-mcp-prod.us.auth0.com/"],"scopes_supported":["leadiq:api","offline_access"],"bearer_methods_supported":["header"]}

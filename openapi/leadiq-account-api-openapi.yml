@@ -3,19 +3,16 @@ info:
   title: Prospector Account API
   version: 1.0.0
   description: External REST API for LeadIQ prospector lists and prospects.
-servers:
-- url: https://prospector.leadiq.com
-  description: LeadIQ Prospector REST API production host
 security:
 - apiKeyAuth: []
 - bearerAuth: []
 tags:
-- name: account
+- name: Account
 paths:
   /v1/whoami:
     get:
       tags:
-      - account
+      - Account
       summary: Identify the caller
       description: 'Returns the account behind the presented credentials: the user identity this API scopes ownership by, plus the team name and email domain. Useful for verifying which account an API key or token belongs to.'
       responses:
@@ -43,6 +40,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+      operationId: getV1Whoami
+      x-operation-id-source: derived
 components:
   schemas:
     ErrorResponse:

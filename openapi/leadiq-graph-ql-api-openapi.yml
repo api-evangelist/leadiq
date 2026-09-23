@@ -1,7 +1,7 @@
-openapi: 3.0.3
+openapi: 3.2.0
 info:
-  title: LeadIQ Data GraphQL API
-  description: 'LeadIQ''s public GraphQL Data API for B2B sales intelligence: verified contact data, company firmographics, prospect-list management, account usage, and closed-loop data feedback. All operations are POSTed to the single `/graphql` endpoint with a GraphQL document in the request body. Authentication is HTTP Basic with the API key as the username and an empty password. Default rate limits are 10 requests/minute on Free and 60 requests/minute on paid plans, with credit-based metering (1 credit per email, 10 credits per phone, 3 credits per account enrichment).'
+  title: LeadIQ Data Graph QL API
+  description: 'LeadIQ''s public GraphQL Data API for B2B sales intelligence: verified contact data, company firmographics, prospect-list management, account usage, and closed-loop data feedback.'
   version: '1.0'
   contact:
     name: LeadIQ API Support
@@ -16,13 +16,13 @@ servers:
 security:
 - BasicAuth: []
 tags:
-- name: GraphQL
+- name: Graph QL
   description: Single GraphQL endpoint exposing all LeadIQ queries and mutations.
 paths:
   /graphql:
     post:
       tags:
-      - GraphQL
+      - Graph QL
       summary: Execute GraphQL Operation
       description: Execute any LeadIQ GraphQL query or mutation. Supported root queries include searchPeople, searchCompany, flatAdvancedSearch, groupedAdvancedSearch, account, prospect, list, lists, usage, and workatoToken. Supported mutations include createList, addProspectToList, submitPersonFeedback, and markAsInvalid.
       operationId: executeGraphQL
@@ -107,36 +107,13 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
-    GraphQLRequest:
-      type: object
-      required:
-      - query
-      properties:
-        query:
-          type: string
-          description: A GraphQL query or mutation document.
-        variables:
-          type: object
-          additionalProperties: true
-          description: Variables referenced by the query document.
-        operationName:
-          type: string
-          description: Name of the operation to execute when the document contains multiple.
-    GraphQLResponse:
+    Error:
       type: object
       properties:
-        data:
-          type: object
-          additionalProperties: true
-          nullable: true
-          description: Operation result data, shaped per the query.
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/GraphQLError'
-        extensions:
-          type: object
-          additionalProperties: true
+        message:
+          type: string
+        code:
+          type: string
     GraphQLError:
       type: object
       properties:
@@ -158,13 +135,37 @@ components:
         extensions:
           type: object
           additionalProperties: true
-    Error:
+    GraphQLResponse:
       type: object
       properties:
-        message:
+        data:
+          type:
+          - object
+          - 'null'
+          additionalProperties: true
+          description: Operation result data, shaped per the query.
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/GraphQLError'
+        extensions:
+          type: object
+          additionalProperties: true
+    GraphQLRequest:
+      type: object
+      required:
+      - query
+      properties:
+        query:
           type: string
-        code:
+          description: A GraphQL query or mutation document.
+        variables:
+          type: object
+          additionalProperties: true
+          description: Variables referenced by the query document.
+        operationName:
           type: string
+          description: Name of the operation to execute when the document contains multiple.
   securitySchemes:
     BasicAuth:
       type: http

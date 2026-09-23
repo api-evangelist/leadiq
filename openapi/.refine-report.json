@@ -1,14 +1,36 @@
 {
   "provider": "leadiq",
   "sources": [
-    "leadiq-graphql-api-openapi.yml"
+    "_original/leadiq-data-api-openapi.yml",
+    "_original/leadiq-prospector-api-openapi.json"
   ],
   "outputs": [
-    "leadiq-graphql-api-openapi.yml"
+    "leadiq-graphql-api-openapi.yml",
+    "leadiq-account-api-openapi.yml",
+    "leadiq-lists-api-openapi.yml",
+    "leadiq-prospects-api-openapi.yml"
   ],
-  "archived": [],
+  "archived": [
+    "deleted 1 superseded output(s) from the previous generation"
+  ],
   "errors": [],
   "warnings": [],
-  "notes": [],
-  "skipped": []
+  "notes": [
+    "1 archived document(s) dropped as subsets of other archived documents",
+    "sourced from openapi/_original/ (2 archived document(s)); previously refined output at the top level was skipped rather than re-split",
+    "leadiq-data-api-openapi.yml: upgraded openapi 3.0.3 -> OpenAPI 3.2.0",
+    "leadiq-prospector-api-openapi.json: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "leadiq-prospector-api-openapi.json: declared missing tag: account",
+    "leadiq-prospector-api-openapi.json: declared missing tag: lists",
+    "leadiq-prospector-api-openapi.json: declared missing tag: prospects",
+    "superseded outputs removed: leadiq-graph-ql-api-openapi.yml",
+    "apis.yml register: written (+1 apis, 5 total)"
+  ],
+  "skipped": [
+    "_original/leadiq-prospector-api-openapi.yml: archived document superseded by a larger archived document",
+    "leadiq-account-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "leadiq-graph-ql-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "leadiq-lists-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "leadiq-prospects-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
 }
