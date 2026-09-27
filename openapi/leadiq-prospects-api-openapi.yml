@@ -376,66 +376,27 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    CompanyLocation:
+    ErrorResponse:
       type: object
       properties:
-        streetLine1:
+        code:
           type: string
-        streetLine2:
+        message:
           type: string
-        city:
-          type: string
-        state:
-          type: string
-        zip:
-          type: string
-        country:
-          type: string
-        formatted:
-          type: string
-    VerifyEmailResponse:
-      type: object
-      properties:
-        status:
-          type: string
-          enum:
-          - Verified
-          - VerifiedLikely
-          - Unverified
-          - Invalid
-        prospect:
-          $ref: '#/components/schemas/Prospect'
+        details:
+          nullable: true
       required:
-      - status
-      - prospect
-    SalesforceExportResult:
+      - code
+      - message
+    SalesforceExportRequest:
       type: object
       properties:
-        status:
-          type: string
-          enum:
-          - created
-          - updated
-          - duplicates_found
-          description: '`created` — a new Salesforce record exists. `updated` — an existing record was enriched; **not currently returned** — this endpoint always attempts an insert and cannot target an existing Salesforce record, so the value is reserved for when that becomes possible. `duplicates_found` — **nothing was written**; see `duplicates`.'
-        entityId:
-          type: string
-          description: Salesforce id of the created/updated record. Absent on `duplicates_found`, and possible to be absent on `updated`.
-        entityType:
-          type: string
-        savedAs:
-          type: string
-          description: Which Salesforce object the export targeted, decided by the member's `Save to` setting and the org's governance — not by this API.
-        requestId:
-          type: string
-          description: Correlation id for the export, for support lookups.
-        duplicates:
-          type: array
-          items:
-            $ref: '#/components/schemas/SalesforceDuplicate'
-          description: Present on `duplicates_found`.
-      required:
-      - status
+        force:
+          type: boolean
+          default: false
+          description: 'Create the record even though Salesforce reported possible duplicates. Only send `true` after a previous call returned `status: "duplicates_found"` and a human confirmed none of the candidates is the same person. Forcing blindly is the main way duplicate Leads get into a customer CRM.'
+          example: false
+      additionalProperties: false
     SalesforceDuplicate:
       type: object
       properties:
@@ -454,92 +415,39 @@ components:
       required:
       - id
       - entityType
-    ProspectInput:
-      type: object
-      properties:
-        firstName:
-          type: string
-          minLength: 1
-        lastName:
-          type: string
-          minLength: 1
-        workEmail:
-          type: string
-          format: email
-        phone:
-          type: string
-          minLength: 1
-        title:
-          type: string
-          minLength: 1
-        seniority:
-          type: string
-          enum:
-          - VP
-          - Manager
-          - Director
-          - Executive
-          - SeniorIndividualContributor
-          - Other
-        function:
-          type: string
-          minLength: 1
-        company:
-          type: string
-          minLength: 1
-        companyDomain:
-          type: string
-          minLength: 1
-        companyIndustry:
-          type: string
-          minLength: 1
-        companyId:
-          type: string
-          minLength: 1
-          description: DataIQ company id. Provide it to link the lead to the company and enrich company data
-        linkedinUrl:
-          type: string
-          format: uri
-        emailStatus:
-          type: string
-          enum:
-          - Unverified
-          - Verified
-          - VerifiedLikely
-        location:
-          $ref: '#/components/schemas/Location'
-        notes:
-          type: string
-          maxLength: 5000
-        personId:
-          type: string
-          minLength: 1
-          description: DataIQ ID. Provide it for better matching and deduplication
-      required:
-      - firstName
-      - lastName
-      additionalProperties: false
-    SalesforceExportRequest:
-      type: object
-      properties:
-        force:
-          type: boolean
-          default: false
-          description: 'Create the record even though Salesforce reported possible duplicates. Only send `true` after a previous call returned `status: "duplicates_found"` and a human confirmed none of the candidates is the same person. Forcing blindly is the main way duplicate Leads get into a customer CRM.'
-          example: false
-      additionalProperties: false
-    VerifyStandaloneEmailResponse:
+    SalesforceExportAccepted:
       type: object
       properties:
         status:
           type: string
           enum:
-          - Verified
-          - VerifiedLikely
-          - Unverified
-          - Invalid
+          - submitted
+        requestId:
+          type: string
+        savedAs:
+          type: string
+        message:
+          type: string
       required:
       - status
+      - message
+    CompanyLocation:
+      type: object
+      properties:
+        streetLine1:
+          type: string
+        streetLine2:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zip:
+          type: string
+        country:
+          type: string
+        formatted:
+          type: string
     Company:
       type: object
       properties:
@@ -557,18 +465,6 @@ components:
           $ref: '#/components/schemas/CompanyLocation'
         phone:
           type: string
-    ErrorResponse:
-      type: object
-      properties:
-        code:
-          type: string
-        message:
-          type: string
-        details:
-          nullable: true
-      required:
-      - code
-      - message
     Prospect:
       type: object
       properties:
@@ -640,6 +536,20 @@ components:
       - listIds
       - createdAt
       - updatedAt
+    PaginatedProspects:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Prospect'
+        nextCursor:
+          type: string
+          nullable: true
+          pattern: ^[0-9a-fA-F]{24}$
+      required:
+      - items
+      - nextCursor
     Location:
       type: object
       properties:
@@ -657,36 +567,126 @@ components:
           type: string
         formatted:
           type: string
-    PaginatedProspects:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Prospect'
-        nextCursor:
-          type: string
-          nullable: true
-          pattern: ^[0-9a-fA-F]{24}$
-      required:
-      - items
-      - nextCursor
-    SalesforceExportAccepted:
+    VerifyEmailResponse:
       type: object
       properties:
         status:
           type: string
           enum:
-          - submitted
-        requestId:
+          - Verified
+          - VerifiedLikely
+          - Unverified
+          - Invalid
+        prospect:
+          $ref: '#/components/schemas/Prospect'
+      required:
+      - status
+      - prospect
+    ProspectInput:
+      type: object
+      properties:
+        firstName:
+          type: string
+          minLength: 1
+        lastName:
+          type: string
+          minLength: 1
+        workEmail:
+          type: string
+          format: email
+        phone:
+          type: string
+          minLength: 1
+        title:
+          type: string
+          minLength: 1
+        seniority:
+          type: string
+          enum:
+          - VP
+          - Manager
+          - Director
+          - Executive
+          - SeniorIndividualContributor
+          - Other
+        function:
+          type: string
+          minLength: 1
+        company:
+          type: string
+          minLength: 1
+        companyDomain:
+          type: string
+          minLength: 1
+        companyIndustry:
+          type: string
+          minLength: 1
+        companyId:
+          type: string
+          minLength: 1
+          description: DataIQ company id. Provide it to link the lead to the company and enrich company data
+        linkedinUrl:
+          type: string
+          format: uri
+        emailStatus:
+          type: string
+          enum:
+          - Unverified
+          - Verified
+          - VerifiedLikely
+        location:
+          $ref: '#/components/schemas/Location'
+        notes:
+          type: string
+          maxLength: 5000
+        personId:
+          type: string
+          minLength: 1
+          description: DataIQ ID. Provide it for better matching and deduplication
+      required:
+      - firstName
+      - lastName
+      additionalProperties: false
+    SalesforceExportResult:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - created
+          - updated
+          - duplicates_found
+          description: '`created` — a new Salesforce record exists. `updated` — an existing record was enriched; **not currently returned** — this endpoint always attempts an insert and cannot target an existing Salesforce record, so the value is reserved for when that becomes possible. `duplicates_found` — **nothing was written**; see `duplicates`.'
+        entityId:
+          type: string
+          description: Salesforce id of the created/updated record. Absent on `duplicates_found`, and possible to be absent on `updated`.
+        entityType:
           type: string
         savedAs:
           type: string
-        message:
+          description: Which Salesforce object the export targeted, decided by the member's `Save to` setting and the org's governance — not by this API.
+        requestId:
           type: string
+          description: Correlation id for the export, for support lookups.
+        duplicates:
+          type: array
+          items:
+            $ref: '#/components/schemas/SalesforceDuplicate'
+          description: Present on `duplicates_found`.
       required:
       - status
-      - message
+    VerifyStandaloneEmailResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - Verified
+          - VerifiedLikely
+          - Unverified
+          - Invalid
+      required:
+      - status
   securitySchemes:
     apiKeyAuth:
       type: apiKey

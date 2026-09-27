@@ -383,6 +383,176 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          nullable: true
+      required:
+      - code
+      - message
+    BulkSaveResult:
+      type: object
+      properties:
+        succeeded:
+          type: array
+          items:
+            $ref: '#/components/schemas/Prospect'
+        failed:
+          type: array
+          items:
+            $ref: '#/components/schemas/BulkSaveFailure'
+      required:
+      - succeeded
+      - failed
+    ListRole:
+      type: string
+      enum:
+      - owner
+      - collaborator
+      description: Caller's relationship to the list. `owner` means the caller created it; `collaborator` means another member granted them edit access.
+    Company:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        domain:
+          type: string
+        industry:
+          type: string
+        employees:
+          type: integer
+        location:
+          $ref: '#/components/schemas/CompanyLocation'
+        phone:
+          type: string
+    ListInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 2000
+      required:
+      - name
+      additionalProperties: false
+    Prospect:
+      type: object
+      properties:
+        id:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+        personId:
+          type: string
+        linkedinId:
+          type: string
+        linkedinUrl:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        name:
+          type: string
+        picture:
+          type: string
+        title:
+          type: string
+        seniority:
+          type: string
+        function:
+          type: string
+        workEmail:
+          type: string
+        emailStatus:
+          type: string
+        personalEmails:
+          type: array
+          items:
+            type: string
+        mobilePhones:
+          type: array
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+              status:
+                type: string
+                enum:
+                - Verified
+            required:
+            - value
+        location:
+          $ref: '#/components/schemas/Location'
+        company:
+          $ref: '#/components/schemas/Company'
+        listIds:
+          type: array
+          items:
+            type: string
+            pattern: ^[0-9a-fA-F]{24}$
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+          example: '2025-01-15T12:34:56.789Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2025-01-15T12:34:56.789Z'
+      required:
+      - id
+      - listIds
+      - createdAt
+      - updatedAt
+    BulkProspectInput:
+      type: array
+      items:
+        $ref: '#/components/schemas/ProspectInput'
+      minItems: 1
+      maxItems: 100
+    PaginatedProspects:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Prospect'
+        nextCursor:
+          type: string
+          nullable: true
+          pattern: ^[0-9a-fA-F]{24}$
+      required:
+      - items
+      - nextCursor
+    Location:
+      type: object
+      properties:
+        streetLine1:
+          type: string
+        streetLine2:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zip:
+          type: string
+        country:
+          type: string
+        formatted:
+          type: string
     CompanyLocation:
       type: object
       properties:
@@ -400,32 +570,17 @@ components:
           type: string
         formatted:
           type: string
-    ListRole:
-      type: string
-      enum:
-      - owner
-      - collaborator
-      description: Caller's relationship to the list. `owner` means the caller created it; `collaborator` means another member granted them edit access.
-    BulkProspectInput:
-      type: array
-      items:
-        $ref: '#/components/schemas/ProspectInput'
-      minItems: 1
-      maxItems: 100
-    PaginatedLists:
+    BulkSaveFailure:
       type: object
       properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/List'
-        nextCursor:
+        index:
+          type: integer
+          minimum: 0
+        reason:
           type: string
-          nullable: true
-          pattern: ^[0-9a-fA-F]{24}$
       required:
-      - items
-      - nextCursor
+      - index
+      - reason
     ProspectInput:
       type: object
       properties:
@@ -529,151 +684,13 @@ components:
       - role
       - createdAt
       - updatedAt
-    ListInput:
-      type: object
-      properties:
-        name:
-          type: string
-          minLength: 1
-          maxLength: 200
-        description:
-          type: string
-          maxLength: 2000
-      required:
-      - name
-      additionalProperties: false
-    BulkSaveResult:
-      type: object
-      properties:
-        succeeded:
-          type: array
-          items:
-            $ref: '#/components/schemas/Prospect'
-        failed:
-          type: array
-          items:
-            $ref: '#/components/schemas/BulkSaveFailure'
-      required:
-      - succeeded
-      - failed
-    ErrorResponse:
-      type: object
-      properties:
-        code:
-          type: string
-        message:
-          type: string
-        details:
-          nullable: true
-      required:
-      - code
-      - message
-    Company:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        domain:
-          type: string
-        industry:
-          type: string
-        employees:
-          type: integer
-        location:
-          $ref: '#/components/schemas/CompanyLocation'
-        phone:
-          type: string
-    Prospect:
-      type: object
-      properties:
-        id:
-          type: string
-          pattern: ^[0-9a-fA-F]{24}$
-        personId:
-          type: string
-        linkedinId:
-          type: string
-        linkedinUrl:
-          type: string
-        firstName:
-          type: string
-        lastName:
-          type: string
-        name:
-          type: string
-        picture:
-          type: string
-        title:
-          type: string
-        seniority:
-          type: string
-        function:
-          type: string
-        workEmail:
-          type: string
-        emailStatus:
-          type: string
-        personalEmails:
-          type: array
-          items:
-            type: string
-        mobilePhones:
-          type: array
-          items:
-            type: object
-            properties:
-              value:
-                type: string
-              status:
-                type: string
-                enum:
-                - Verified
-            required:
-            - value
-        location:
-          $ref: '#/components/schemas/Location'
-        company:
-          $ref: '#/components/schemas/Company'
-        listIds:
-          type: array
-          items:
-            type: string
-            pattern: ^[0-9a-fA-F]{24}$
-        notes:
-          type: string
-        createdAt:
-          type: string
-          format: date-time
-          example: '2025-01-15T12:34:56.789Z'
-        updatedAt:
-          type: string
-          format: date-time
-          example: '2025-01-15T12:34:56.789Z'
-      required:
-      - id
-      - listIds
-      - createdAt
-      - updatedAt
-    BulkSaveFailure:
-      type: object
-      properties:
-        index:
-          type: integer
-          minimum: 0
-        reason:
-          type: string
-      required:
-      - index
-      - reason
-    PaginatedProspects:
+    PaginatedLists:
       type: object
       properties:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/Prospect'
+            $ref: '#/components/schemas/List'
         nextCursor:
           type: string
           nullable: true
@@ -681,23 +698,6 @@ components:
       required:
       - items
       - nextCursor
-    Location:
-      type: object
-      properties:
-        streetLine1:
-          type: string
-        streetLine2:
-          type: string
-        city:
-          type: string
-        state:
-          type: string
-        zip:
-          type: string
-        country:
-          type: string
-        formatted:
-          type: string
   securitySchemes:
     apiKeyAuth:
       type: apiKey

@@ -29,17 +29,20 @@ description: >-
   0.1 UC. All plans get 50 one-off test calls; sustained API access is sales-gated.
 type: Index
 deliveryModel:
-  model: unknown
+  model: saas
+  license_evidence:
+    not_product:
+    - leadiq/dataiq-api-specs
   open_source: unknown
   commercial: true
   callable_host: true
-  label: Delivery model not determined — needs a product licence on record
+  label: Hosted service · you call their endpoint
   confidence: low
   source:
   - openapi
   - pricing
-  - repository-unlicensed
-  generated: '2026-08-28'
+  - repository-not-product
+  generated: '2026-09-25'
   method: derived
 accessModel:
   pricing: unknown
@@ -199,8 +202,6 @@ apis:
   humanURL: https://developer.leadiq.com/
   baseURL: https://mcp.leadiq.com/mcp
   tags:
-  - GraphQL
-  tags_raw:
   - Graph QL
   properties:
   - type: OpenAPI

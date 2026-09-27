@@ -1,6 +1,6 @@
 openapi: 3.2.0
 info:
-  title: LeadIQ Data Graph QL API
+  title: LeadIQ Data GraphQL API
   description: 'LeadIQ''s public GraphQL Data API for B2B sales intelligence: verified contact data, company firmographics, prospect-list management, account usage, and closed-loop data feedback.'
   version: '1.0'
   contact:
@@ -107,13 +107,22 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
-    Error:
+    GraphQLResponse:
       type: object
       properties:
-        message:
-          type: string
-        code:
-          type: string
+        data:
+          type:
+          - object
+          - 'null'
+          additionalProperties: true
+          description: Operation result data, shaped per the query.
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/GraphQLError'
+        extensions:
+          type: object
+          additionalProperties: true
     GraphQLError:
       type: object
       properties:
@@ -135,22 +144,6 @@ components:
         extensions:
           type: object
           additionalProperties: true
-    GraphQLResponse:
-      type: object
-      properties:
-        data:
-          type:
-          - object
-          - 'null'
-          additionalProperties: true
-          description: Operation result data, shaped per the query.
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/GraphQLError'
-        extensions:
-          type: object
-          additionalProperties: true
     GraphQLRequest:
       type: object
       required:
@@ -166,6 +159,13 @@ components:
         operationName:
           type: string
           description: Name of the operation to execute when the document contains multiple.
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+        code:
+          type: string
   securitySchemes:
     BasicAuth:
       type: http
