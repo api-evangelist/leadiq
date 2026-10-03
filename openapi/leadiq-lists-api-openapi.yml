@@ -383,38 +383,86 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    ErrorResponse:
+    CompanyLocation:
       type: object
       properties:
-        code:
+        streetLine1:
           type: string
-        message:
+        streetLine2:
           type: string
-        details:
-          nullable: true
+        city:
+          type: string
+        state:
+          type: string
+        zip:
+          type: string
+        country:
+          type: string
+        formatted:
+          type: string
+    List:
+      type: object
+      properties:
+        id:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+        name:
+          type: string
+        role:
+          $ref: '#/components/schemas/ListRole'
+        description:
+          type: string
+        status:
+          type: string
+        visibility:
+          type: string
+        startDate:
+          type: string
+          format: date-time
+          example: '2025-01-15T12:34:56.789Z'
+        endDate:
+          type: string
+          format: date-time
+          example: '2025-01-15T12:34:56.789Z'
+        createdAt:
+          type: string
+          format: date-time
+          example: '2025-01-15T12:34:56.789Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2025-01-15T12:34:56.789Z'
       required:
-      - code
-      - message
-    BulkSaveResult:
+      - id
+      - name
+      - role
+      - createdAt
+      - updatedAt
+    BulkSaveFailure:
       type: object
       properties:
-        succeeded:
+        index:
+          type: integer
+          minimum: 0
+        reason:
+          type: string
+      required:
+      - index
+      - reason
+    PaginatedProspects:
+      type: object
+      properties:
+        items:
           type: array
           items:
             $ref: '#/components/schemas/Prospect'
-        failed:
-          type: array
-          items:
-            $ref: '#/components/schemas/BulkSaveFailure'
+        nextCursor:
+          type: string
+          nullable: true
+          pattern: ^[0-9a-fA-F]{24}$
       required:
-      - succeeded
-      - failed
-    ListRole:
-      type: string
-      enum:
-      - owner
-      - collaborator
-      description: Caller's relationship to the list. `owner` means the caller created it; `collaborator` means another member granted them edit access.
+      - items
+      - nextCursor
     Company:
       type: object
       properties:
@@ -432,19 +480,94 @@ components:
           $ref: '#/components/schemas/CompanyLocation'
         phone:
           type: string
-    ListInput:
+    ProspectInput:
       type: object
       properties:
-        name:
+        firstName:
           type: string
           minLength: 1
-          maxLength: 200
-        description:
+        lastName:
           type: string
-          maxLength: 2000
+          minLength: 1
+        workEmail:
+          type: string
+          format: email
+        phone:
+          type: string
+          minLength: 1
+        title:
+          type: string
+          minLength: 1
+        seniority:
+          type: string
+          enum:
+          - VP
+          - Manager
+          - Director
+          - Executive
+          - SeniorIndividualContributor
+          - Other
+        function:
+          type: string
+          minLength: 1
+        company:
+          type: string
+          minLength: 1
+        companyDomain:
+          type: string
+          minLength: 1
+        companyIndustry:
+          type: string
+          minLength: 1
+        companyId:
+          type: string
+          minLength: 1
+          description: DataIQ company id. Provide it to link the lead to the company and enrich company data
+        linkedinUrl:
+          type: string
+          format: uri
+        emailStatus:
+          type: string
+          enum:
+          - Unverified
+          - Verified
+          - VerifiedLikely
+        location:
+          $ref: '#/components/schemas/Location'
+        notes:
+          type: string
+          maxLength: 5000
+        personId:
+          type: string
+          minLength: 1
+          description: DataIQ ID. Provide it for better matching and deduplication
       required:
-      - name
+      - firstName
+      - lastName
       additionalProperties: false
+    Location:
+      type: object
+      properties:
+        streetLine1:
+          type: string
+        streetLine2:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zip:
+          type: string
+        country:
+          type: string
+        formatted:
+          type: string
+    ListRole:
+      type: string
+      enum:
+      - owner
+      - collaborator
+      description: Caller's relationship to the list. `owner` means the caller created it; `collaborator` means another member granted them edit access.
     Prospect:
       type: object
       properties:
@@ -522,168 +645,33 @@ components:
         $ref: '#/components/schemas/ProspectInput'
       minItems: 1
       maxItems: 100
-    PaginatedProspects:
+    ListInput:
       type: object
       properties:
-        items:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 2000
+      required:
+      - name
+      additionalProperties: false
+    BulkSaveResult:
+      type: object
+      properties:
+        succeeded:
           type: array
           items:
             $ref: '#/components/schemas/Prospect'
-        nextCursor:
-          type: string
-          nullable: true
-          pattern: ^[0-9a-fA-F]{24}$
+        failed:
+          type: array
+          items:
+            $ref: '#/components/schemas/BulkSaveFailure'
       required:
-      - items
-      - nextCursor
-    Location:
-      type: object
-      properties:
-        streetLine1:
-          type: string
-        streetLine2:
-          type: string
-        city:
-          type: string
-        state:
-          type: string
-        zip:
-          type: string
-        country:
-          type: string
-        formatted:
-          type: string
-    CompanyLocation:
-      type: object
-      properties:
-        streetLine1:
-          type: string
-        streetLine2:
-          type: string
-        city:
-          type: string
-        state:
-          type: string
-        zip:
-          type: string
-        country:
-          type: string
-        formatted:
-          type: string
-    BulkSaveFailure:
-      type: object
-      properties:
-        index:
-          type: integer
-          minimum: 0
-        reason:
-          type: string
-      required:
-      - index
-      - reason
-    ProspectInput:
-      type: object
-      properties:
-        firstName:
-          type: string
-          minLength: 1
-        lastName:
-          type: string
-          minLength: 1
-        workEmail:
-          type: string
-          format: email
-        phone:
-          type: string
-          minLength: 1
-        title:
-          type: string
-          minLength: 1
-        seniority:
-          type: string
-          enum:
-          - VP
-          - Manager
-          - Director
-          - Executive
-          - SeniorIndividualContributor
-          - Other
-        function:
-          type: string
-          minLength: 1
-        company:
-          type: string
-          minLength: 1
-        companyDomain:
-          type: string
-          minLength: 1
-        companyIndustry:
-          type: string
-          minLength: 1
-        companyId:
-          type: string
-          minLength: 1
-          description: DataIQ company id. Provide it to link the lead to the company and enrich company data
-        linkedinUrl:
-          type: string
-          format: uri
-        emailStatus:
-          type: string
-          enum:
-          - Unverified
-          - Verified
-          - VerifiedLikely
-        location:
-          $ref: '#/components/schemas/Location'
-        notes:
-          type: string
-          maxLength: 5000
-        personId:
-          type: string
-          minLength: 1
-          description: DataIQ ID. Provide it for better matching and deduplication
-      required:
-      - firstName
-      - lastName
-      additionalProperties: false
-    List:
-      type: object
-      properties:
-        id:
-          type: string
-          pattern: ^[0-9a-fA-F]{24}$
-        name:
-          type: string
-        role:
-          $ref: '#/components/schemas/ListRole'
-        description:
-          type: string
-        status:
-          type: string
-        visibility:
-          type: string
-        startDate:
-          type: string
-          format: date-time
-          example: '2025-01-15T12:34:56.789Z'
-        endDate:
-          type: string
-          format: date-time
-          example: '2025-01-15T12:34:56.789Z'
-        createdAt:
-          type: string
-          format: date-time
-          example: '2025-01-15T12:34:56.789Z'
-        updatedAt:
-          type: string
-          format: date-time
-          example: '2025-01-15T12:34:56.789Z'
-      required:
-      - id
-      - name
-      - role
-      - createdAt
-      - updatedAt
+      - succeeded
+      - failed
     PaginatedLists:
       type: object
       properties:
@@ -698,6 +686,18 @@ components:
       required:
       - items
       - nextCursor
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          nullable: true
+      required:
+      - code
+      - message
   securitySchemes:
     apiKeyAuth:
       type: apiKey

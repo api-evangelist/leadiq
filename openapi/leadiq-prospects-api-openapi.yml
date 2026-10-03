@@ -376,18 +376,54 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    ErrorResponse:
+    CompanyLocation:
       type: object
       properties:
-        code:
+        streetLine1:
           type: string
-        message:
+        streetLine2:
           type: string
-        details:
+        city:
+          type: string
+        state:
+          type: string
+        zip:
+          type: string
+        country:
+          type: string
+        formatted:
+          type: string
+    PaginatedProspects:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Prospect'
+        nextCursor:
+          type: string
           nullable: true
+          pattern: ^[0-9a-fA-F]{24}$
       required:
-      - code
-      - message
+      - items
+      - nextCursor
+    Company:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        domain:
+          type: string
+        industry:
+          type: string
+        employees:
+          type: integer
+        location:
+          $ref: '#/components/schemas/CompanyLocation'
+        phone:
+          type: string
     SalesforceExportRequest:
       type: object
       properties:
@@ -397,6 +433,22 @@ components:
           description: 'Create the record even though Salesforce reported possible duplicates. Only send `true` after a previous call returned `status: "duplicates_found"` and a human confirmed none of the candidates is the same person. Forcing blindly is the main way duplicate Leads get into a customer CRM.'
           example: false
       additionalProperties: false
+    SalesforceExportAccepted:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - submitted
+        requestId:
+          type: string
+        savedAs:
+          type: string
+        message:
+          type: string
+      required:
+      - status
+      - message
     SalesforceDuplicate:
       type: object
       properties:
@@ -415,158 +467,6 @@ components:
       required:
       - id
       - entityType
-    SalesforceExportAccepted:
-      type: object
-      properties:
-        status:
-          type: string
-          enum:
-          - submitted
-        requestId:
-          type: string
-        savedAs:
-          type: string
-        message:
-          type: string
-      required:
-      - status
-      - message
-    CompanyLocation:
-      type: object
-      properties:
-        streetLine1:
-          type: string
-        streetLine2:
-          type: string
-        city:
-          type: string
-        state:
-          type: string
-        zip:
-          type: string
-        country:
-          type: string
-        formatted:
-          type: string
-    Company:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        domain:
-          type: string
-        industry:
-          type: string
-        employees:
-          type: integer
-        location:
-          $ref: '#/components/schemas/CompanyLocation'
-        phone:
-          type: string
-    Prospect:
-      type: object
-      properties:
-        id:
-          type: string
-          pattern: ^[0-9a-fA-F]{24}$
-        personId:
-          type: string
-        linkedinId:
-          type: string
-        linkedinUrl:
-          type: string
-        firstName:
-          type: string
-        lastName:
-          type: string
-        name:
-          type: string
-        picture:
-          type: string
-        title:
-          type: string
-        seniority:
-          type: string
-        function:
-          type: string
-        workEmail:
-          type: string
-        emailStatus:
-          type: string
-        personalEmails:
-          type: array
-          items:
-            type: string
-        mobilePhones:
-          type: array
-          items:
-            type: object
-            properties:
-              value:
-                type: string
-              status:
-                type: string
-                enum:
-                - Verified
-            required:
-            - value
-        location:
-          $ref: '#/components/schemas/Location'
-        company:
-          $ref: '#/components/schemas/Company'
-        listIds:
-          type: array
-          items:
-            type: string
-            pattern: ^[0-9a-fA-F]{24}$
-        notes:
-          type: string
-        createdAt:
-          type: string
-          format: date-time
-          example: '2025-01-15T12:34:56.789Z'
-        updatedAt:
-          type: string
-          format: date-time
-          example: '2025-01-15T12:34:56.789Z'
-      required:
-      - id
-      - listIds
-      - createdAt
-      - updatedAt
-    PaginatedProspects:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Prospect'
-        nextCursor:
-          type: string
-          nullable: true
-          pattern: ^[0-9a-fA-F]{24}$
-      required:
-      - items
-      - nextCursor
-    Location:
-      type: object
-      properties:
-        streetLine1:
-          type: string
-        streetLine2:
-          type: string
-        city:
-          type: string
-        state:
-          type: string
-        zip:
-          type: string
-        country:
-          type: string
-        formatted:
-          type: string
     VerifyEmailResponse:
       type: object
       properties:
@@ -647,6 +547,106 @@ components:
       - firstName
       - lastName
       additionalProperties: false
+    Location:
+      type: object
+      properties:
+        streetLine1:
+          type: string
+        streetLine2:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zip:
+          type: string
+        country:
+          type: string
+        formatted:
+          type: string
+    Prospect:
+      type: object
+      properties:
+        id:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+        personId:
+          type: string
+        linkedinId:
+          type: string
+        linkedinUrl:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        name:
+          type: string
+        picture:
+          type: string
+        title:
+          type: string
+        seniority:
+          type: string
+        function:
+          type: string
+        workEmail:
+          type: string
+        emailStatus:
+          type: string
+        personalEmails:
+          type: array
+          items:
+            type: string
+        mobilePhones:
+          type: array
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+              status:
+                type: string
+                enum:
+                - Verified
+            required:
+            - value
+        location:
+          $ref: '#/components/schemas/Location'
+        company:
+          $ref: '#/components/schemas/Company'
+        listIds:
+          type: array
+          items:
+            type: string
+            pattern: ^[0-9a-fA-F]{24}$
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+          example: '2025-01-15T12:34:56.789Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2025-01-15T12:34:56.789Z'
+      required:
+      - id
+      - listIds
+      - createdAt
+      - updatedAt
+    VerifyStandaloneEmailResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - Verified
+          - VerifiedLikely
+          - Unverified
+          - Invalid
+      required:
+      - status
     SalesforceExportResult:
       type: object
       properties:
@@ -675,18 +675,18 @@ components:
           description: Present on `duplicates_found`.
       required:
       - status
-    VerifyStandaloneEmailResponse:
+    ErrorResponse:
       type: object
       properties:
-        status:
+        code:
           type: string
-          enum:
-          - Verified
-          - VerifiedLikely
-          - Unverified
-          - Invalid
+        message:
+          type: string
+        details:
+          nullable: true
       required:
-      - status
+      - code
+      - message
   securitySchemes:
     apiKeyAuth:
       type: apiKey

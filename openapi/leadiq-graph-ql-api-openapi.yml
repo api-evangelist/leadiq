@@ -107,22 +107,13 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
-    GraphQLResponse:
+    Error:
       type: object
       properties:
-        data:
-          type:
-          - object
-          - 'null'
-          additionalProperties: true
-          description: Operation result data, shaped per the query.
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/GraphQLError'
-        extensions:
-          type: object
-          additionalProperties: true
+        message:
+          type: string
+        code:
+          type: string
     GraphQLError:
       type: object
       properties:
@@ -144,6 +135,22 @@ components:
         extensions:
           type: object
           additionalProperties: true
+    GraphQLResponse:
+      type: object
+      properties:
+        data:
+          type:
+          - object
+          - 'null'
+          additionalProperties: true
+          description: Operation result data, shaped per the query.
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/GraphQLError'
+        extensions:
+          type: object
+          additionalProperties: true
     GraphQLRequest:
       type: object
       required:
@@ -159,13 +166,6 @@ components:
         operationName:
           type: string
           description: Name of the operation to execute when the document contains multiple.
-    Error:
-      type: object
-      properties:
-        message:
-          type: string
-        code:
-          type: string
   securitySchemes:
     BasicAuth:
       type: http
