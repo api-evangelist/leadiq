@@ -71,6 +71,7 @@ tags:
 - MCP
 - Revenue Operations
 - Go-To-Market
+- Data Enrichment
 tags_raw:
 - Sales Intelligence
 - B2B Data
@@ -83,6 +84,7 @@ tags_raw:
 - Model Context Protocol
 - Revenue Operations
 - Go To Market
+- Data Enrichment
 url: https://raw.githubusercontent.com/api-evangelist/leadiq/refs/heads/main/apis.yml
 created: '2026-05-25'
 modified: '2026-08-13'
@@ -202,6 +204,8 @@ apis:
   humanURL: https://developer.leadiq.com/
   baseURL: https://mcp.leadiq.com/mcp
   tags:
+  - GraphQL
+  tags_raw:
   - Graph QL
   properties:
   - type: OpenAPI
@@ -239,6 +243,9 @@ apis:
   - type: GraphQL
     url: graphql/leadiq.graphql
 common:
+- type: CapabilityMap
+  url: capabilities/leadiq-capability-edges.yml
+  name: LeadIQ Business Capability Map
 - type: IssueTracker
   url: https://github.com/leadiq/dataiq-api-specs/issues
 - type: AgenticAccess
