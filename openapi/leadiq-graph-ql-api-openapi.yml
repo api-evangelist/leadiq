@@ -114,27 +114,6 @@ components:
           type: string
         code:
           type: string
-    GraphQLError:
-      type: object
-      properties:
-        message:
-          type: string
-        path:
-          type: array
-          items:
-            type: string
-        locations:
-          type: array
-          items:
-            type: object
-            properties:
-              line:
-                type: integer
-              column:
-                type: integer
-        extensions:
-          type: object
-          additionalProperties: true
     GraphQLResponse:
       type: object
       properties:
@@ -166,6 +145,27 @@ components:
         operationName:
           type: string
           description: Name of the operation to execute when the document contains multiple.
+    GraphQLError:
+      type: object
+      properties:
+        message:
+          type: string
+        path:
+          type: array
+          items:
+            type: string
+        locations:
+          type: array
+          items:
+            type: object
+            properties:
+              line:
+                type: integer
+              column:
+                type: integer
+        extensions:
+          type: object
+          additionalProperties: true
   securitySchemes:
     BasicAuth:
       type: http

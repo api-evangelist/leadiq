@@ -383,23 +383,20 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    CompanyLocation:
+    BulkSaveResult:
       type: object
       properties:
-        streetLine1:
-          type: string
-        streetLine2:
-          type: string
-        city:
-          type: string
-        state:
-          type: string
-        zip:
-          type: string
-        country:
-          type: string
-        formatted:
-          type: string
+        succeeded:
+          type: array
+          items:
+            $ref: '#/components/schemas/Prospect'
+        failed:
+          type: array
+          items:
+            $ref: '#/components/schemas/BulkSaveFailure'
+      required:
+      - succeeded
+      - failed
     List:
       type: object
       properties:
@@ -438,17 +435,6 @@ components:
       - role
       - createdAt
       - updatedAt
-    BulkSaveFailure:
-      type: object
-      properties:
-        index:
-          type: integer
-          minimum: 0
-        reason:
-          type: string
-      required:
-      - index
-      - reason
     PaginatedProspects:
       type: object
       properties:
@@ -463,23 +449,60 @@ components:
       required:
       - items
       - nextCursor
-    Company:
+    BulkSaveFailure:
       type: object
       properties:
-        id:
-          type: string
-        name:
-          type: string
-        domain:
-          type: string
-        industry:
-          type: string
-        employees:
+        index:
           type: integer
-        location:
-          $ref: '#/components/schemas/CompanyLocation'
-        phone:
+          minimum: 0
+        reason:
           type: string
+      required:
+      - index
+      - reason
+    CompanyLocation:
+      type: object
+      properties:
+        streetLine1:
+          type: string
+        streetLine2:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zip:
+          type: string
+        country:
+          type: string
+        formatted:
+          type: string
+    ListRole:
+      type: string
+      enum:
+      - owner
+      - collaborator
+      description: Caller's relationship to the list. `owner` means the caller created it; `collaborator` means another member granted them edit access.
+    PaginatedLists:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/List'
+        nextCursor:
+          type: string
+          nullable: true
+          pattern: ^[0-9a-fA-F]{24}$
+      required:
+      - items
+      - nextCursor
+    BulkProspectInput:
+      type: array
+      items:
+        $ref: '#/components/schemas/ProspectInput'
+      minItems: 1
+      maxItems: 100
     ProspectInput:
       type: object
       properties:
@@ -545,6 +568,36 @@ components:
       - firstName
       - lastName
       additionalProperties: false
+    ListInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 2000
+      required:
+      - name
+      additionalProperties: false
+    Company:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        domain:
+          type: string
+        industry:
+          type: string
+        employees:
+          type: integer
+        location:
+          $ref: '#/components/schemas/CompanyLocation'
+        phone:
+          type: string
     Location:
       type: object
       properties:
@@ -562,12 +615,6 @@ components:
           type: string
         formatted:
           type: string
-    ListRole:
-      type: string
-      enum:
-      - owner
-      - collaborator
-      description: Caller's relationship to the list. `owner` means the caller created it; `collaborator` means another member granted them edit access.
     Prospect:
       type: object
       properties:
@@ -639,53 +686,6 @@ components:
       - listIds
       - createdAt
       - updatedAt
-    BulkProspectInput:
-      type: array
-      items:
-        $ref: '#/components/schemas/ProspectInput'
-      minItems: 1
-      maxItems: 100
-    ListInput:
-      type: object
-      properties:
-        name:
-          type: string
-          minLength: 1
-          maxLength: 200
-        description:
-          type: string
-          maxLength: 2000
-      required:
-      - name
-      additionalProperties: false
-    BulkSaveResult:
-      type: object
-      properties:
-        succeeded:
-          type: array
-          items:
-            $ref: '#/components/schemas/Prospect'
-        failed:
-          type: array
-          items:
-            $ref: '#/components/schemas/BulkSaveFailure'
-      required:
-      - succeeded
-      - failed
-    PaginatedLists:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/List'
-        nextCursor:
-          type: string
-          nullable: true
-          pattern: ^[0-9a-fA-F]{24}$
-      required:
-      - items
-      - nextCursor
     ErrorResponse:
       type: object
       properties:

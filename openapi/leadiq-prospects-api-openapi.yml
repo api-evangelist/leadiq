@@ -376,6 +376,51 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    PaginatedProspects:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Prospect'
+        nextCursor:
+          type: string
+          nullable: true
+          pattern: ^[0-9a-fA-F]{24}$
+      required:
+      - items
+      - nextCursor
+    VerifyEmailResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - Verified
+          - VerifiedLikely
+          - Unverified
+          - Invalid
+        prospect:
+          $ref: '#/components/schemas/Prospect'
+      required:
+      - status
+      - prospect
+    SalesforceExportAccepted:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - submitted
+        requestId:
+          type: string
+        savedAs:
+          type: string
+        message:
+          type: string
+      required:
+      - status
+      - message
     CompanyLocation:
       type: object
       properties:
@@ -393,81 +438,7 @@ components:
           type: string
         formatted:
           type: string
-    PaginatedProspects:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Prospect'
-        nextCursor:
-          type: string
-          nullable: true
-          pattern: ^[0-9a-fA-F]{24}$
-      required:
-      - items
-      - nextCursor
-    Company:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        domain:
-          type: string
-        industry:
-          type: string
-        employees:
-          type: integer
-        location:
-          $ref: '#/components/schemas/CompanyLocation'
-        phone:
-          type: string
-    SalesforceExportRequest:
-      type: object
-      properties:
-        force:
-          type: boolean
-          default: false
-          description: 'Create the record even though Salesforce reported possible duplicates. Only send `true` after a previous call returned `status: "duplicates_found"` and a human confirmed none of the candidates is the same person. Forcing blindly is the main way duplicate Leads get into a customer CRM.'
-          example: false
-      additionalProperties: false
-    SalesforceExportAccepted:
-      type: object
-      properties:
-        status:
-          type: string
-          enum:
-          - submitted
-        requestId:
-          type: string
-        savedAs:
-          type: string
-        message:
-          type: string
-      required:
-      - status
-      - message
-    SalesforceDuplicate:
-      type: object
-      properties:
-        id:
-          type: string
-          description: Salesforce record id.
-        entityType:
-          type: string
-          description: Salesforce object of the candidate, e.g. `Lead`.
-        name:
-          type: string
-        email:
-          type: string
-        company:
-          type: string
-      required:
-      - id
-      - entityType
-    VerifyEmailResponse:
+    VerifyStandaloneEmailResponse:
       type: object
       properties:
         status:
@@ -477,11 +448,8 @@ components:
           - VerifiedLikely
           - Unverified
           - Invalid
-        prospect:
-          $ref: '#/components/schemas/Prospect'
       required:
       - status
-      - prospect
     ProspectInput:
       type: object
       properties:
@@ -547,6 +515,23 @@ components:
       - firstName
       - lastName
       additionalProperties: false
+    Company:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        domain:
+          type: string
+        industry:
+          type: string
+        employees:
+          type: integer
+        location:
+          $ref: '#/components/schemas/CompanyLocation'
+        phone:
+          type: string
     Location:
       type: object
       properties:
@@ -635,18 +620,27 @@ components:
       - listIds
       - createdAt
       - updatedAt
-    VerifyStandaloneEmailResponse:
+    ErrorResponse:
       type: object
       properties:
-        status:
+        code:
           type: string
-          enum:
-          - Verified
-          - VerifiedLikely
-          - Unverified
-          - Invalid
+        message:
+          type: string
+        details:
+          nullable: true
       required:
-      - status
+      - code
+      - message
+    SalesforceExportRequest:
+      type: object
+      properties:
+        force:
+          type: boolean
+          default: false
+          description: 'Create the record even though Salesforce reported possible duplicates. Only send `true` after a previous call returned `status: "duplicates_found"` and a human confirmed none of the candidates is the same person. Forcing blindly is the main way duplicate Leads get into a customer CRM.'
+          example: false
+      additionalProperties: false
     SalesforceExportResult:
       type: object
       properties:
@@ -675,18 +669,24 @@ components:
           description: Present on `duplicates_found`.
       required:
       - status
-    ErrorResponse:
+    SalesforceDuplicate:
       type: object
       properties:
-        code:
+        id:
           type: string
-        message:
+          description: Salesforce record id.
+        entityType:
           type: string
-        details:
-          nullable: true
+          description: Salesforce object of the candidate, e.g. `Lead`.
+        name:
+          type: string
+        email:
+          type: string
+        company:
+          type: string
       required:
-      - code
-      - message
+      - id
+      - entityType
   securitySchemes:
     apiKeyAuth:
       type: apiKey

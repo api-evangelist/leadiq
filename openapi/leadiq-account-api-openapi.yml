@@ -44,6 +44,18 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          nullable: true
+      required:
+      - code
+      - message
     WhoAmI:
       type: object
       properties:
@@ -77,18 +89,6 @@ components:
       required:
       - user
       - team
-    ErrorResponse:
-      type: object
-      properties:
-        code:
-          type: string
-        message:
-          type: string
-        details:
-          nullable: true
-      required:
-      - code
-      - message
   securitySchemes:
     apiKeyAuth:
       type: apiKey
