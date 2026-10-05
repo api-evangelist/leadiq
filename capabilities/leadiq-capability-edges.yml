@@ -1,0 +1,34 @@
+slug: leadiq
+provider: LeadIQ
+generated_by: planning/capability-mapping/scripts/classify_capabilities.py
+model: claude-opus-5
+frame:
+- Software & Technology
+min_confidence: 0.7
+capability_model:
+  source: https://github.com/vincentmakes/turbo-ea-capabilities
+  license: CC-BY-4.0
+  attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
+    CC BY 4.0
+  notice: NOTICE
+edge_count: 2
+edges:
+- tag: Prospects
+  spec_file: leadiq-prospects-api-openapi.yml
+  capability_id: BC-410.30
+  capability_id_l1: BC-410
+  capability_name: Opportunity & Pipeline Management
+  confidence: 0.75
+  evidence: GET /v1/prospects  List or search prospects ... POST /v1/prospects/{prospectId}/export/salesforce  Export
+    a prospect into the caller's Salesforce
+  reason: Prospect records are created, searched, email-verified and pushed into CRM — lead/prospect lifecycle
+    management feeding the sales pipeline.
+- tag: Lists
+  spec_file: leadiq-lists-api-openapi.yml
+  capability_id: BC-410.30
+  capability_id_l1: BC-410
+  capability_name: Opportunity & Pipeline Management
+  confidence: 0.7
+  evidence: POST /v1/lists/{listId}/prospects  Create a prospect in a list
+  reason: Operations create and manage prospect lists and the prospects within them — early-stage lead/prospect
+    lifecycle for outbound sales, which sits under Opportunity & Pipeline Management (lead lifecycle).
