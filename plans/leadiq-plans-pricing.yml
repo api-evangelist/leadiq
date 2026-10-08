@@ -74,3 +74,33 @@ api_access_note: >-
   plans can make up to 50 one-off, non-recurring calls to test the API. Beyond the free
   tier, API access requires a direct sales discussion for enterprise-level agreements."
   Treat sustained API or MCP use as sales-gated regardless of the plan shown here.
+x-canonical:
+  generated: '2026-10-08'
+  vocabulary: all/0-working/economics/plans-canonical.yml
+  models:
+  - free
+  - hybrid
+  - metered
+  units: []
+  plans:
+  - name: Free
+    access: other
+    model: free
+    model_how: derived
+    units: []
+    periods:
+    - month
+  - name: Pro
+    access: other
+    model: hybrid
+    model_how: derived
+    units: []
+    periods:
+    - month
+  - name: Enterprise
+    access: other
+    model: metered
+    model_how: derived
+    units: []
+    periods:
+    - other
