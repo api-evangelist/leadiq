@@ -172,3 +172,19 @@ x-evidence:
     require an authenticated tools/list call. An older LeadIQ help-centre article (updated 2026-07-14)
     documents an earlier fifteen-tool generation under tool_-prefixed names (tool_SearchPeople, tool_SearchCompany,
     ...); the developer portal list is the current one and is what is recorded here.
+rfc9728:
+  endpoint: https://mcp.leadiq.com/mcp
+  metadata_url: https://mcp.leadiq.com/.well-known/oauth-protected-resource
+  discovered_via: WWW-Authenticate resource_metadata on an anonymous POST initialize
+  fetched: '2026-09-25'
+  http_status: 200
+  content_type: application/json
+  document:
+    resource: https://mcp.leadiq.com/mcp
+    authorization_servers:
+    - https://leadiq-mcp-prod.us.auth0.com/
+    scopes_supported:
+    - leadiq:api
+    - offline_access
+    bearer_methods_supported:
+    - header
