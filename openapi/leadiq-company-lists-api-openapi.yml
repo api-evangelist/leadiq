@@ -1,0 +1,731 @@
+openapi: 3.2.0
+info:
+  title: Prospector Company Lists API
+  version: 1.0.0
+  description: External REST API for LeadIQ prospector lists and prospects.
+security:
+- apiKeyAuth: []
+- bearerAuth: []
+tags:
+- name: company-lists
+paths:
+  /v1/company-lists:
+    get:
+      tags:
+      - company-lists
+      parameters:
+      - schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 25
+          example: 25
+        required: false
+        name: limit
+        in: query
+      - schema:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+        required: false
+        name: cursor
+        in: query
+      responses:
+        '200':
+          description: Company lists owned by the caller.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCompanyLists'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: Get company lists
+      x-summary-source: derived
+      operationId: getV1CompanyLists
+      x-operation-id-source: derived
+    post:
+      tags:
+      - company-lists
+      summary: Create a company list
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompanyListInput'
+      responses:
+        '201':
+          description: Company list created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompanyList'
+        '400':
+          description: Invalid body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: A company list with this name already exists (`conflict`), or the caller already has 500 company lists (`company_list_limit_reached`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: Body too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      operationId: postV1CompanyLists
+      x-operation-id-source: derived
+  /v1/company-lists/{listId}:
+    get:
+      tags:
+      - company-lists
+      parameters:
+      - schema:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+        required: true
+        name: listId
+        in: path
+      responses:
+        '200':
+          description: Company list detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompanyList'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found or not accessible to caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: Get company lists by list id
+      x-summary-source: derived
+      operationId: getV1CompanyListsByListId
+      x-operation-id-source: derived
+    patch:
+      tags:
+      - company-lists
+      summary: Rename a company list or change its description
+      description: 'Partial update: send only the fields to change. `name` must stay unique among the caller''s lists (case-insensitive), the same rule as on create. `description` set to `null` or to an empty string clears it; leaving it out keeps the current value.'
+      parameters:
+      - schema:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+        required: true
+        name: listId
+        in: path
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCompanyListInput'
+      responses:
+        '200':
+          description: Company list updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompanyList'
+        '400':
+          description: Invalid body (empty, unknown fields, or blank name)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found or not accessible to caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Another company list of the caller already has this name (`conflict`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: Body too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      operationId: patchV1CompanyListsByListId
+      x-operation-id-source: derived
+    delete:
+      tags:
+      - company-lists
+      summary: Delete a company list (owner only)
+      description: 'Permanently deletes the list and removes every company from it. This cannot be undone. The companies themselves are not affected: they stay captured for the organization and in any other lists. A list that contains prospects is refused with 409, so this can never destroy a prospect list.'
+      parameters:
+      - schema:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+        required: true
+        name: listId
+        in: path
+      responses:
+        '200':
+          description: List deleted; `deletedCompanies` counts the removed entries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeletedCompanyList'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found or not accessible to caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: The list contains prospects (`list_has_prospects`). Company-list calls never delete a list that holds people; remove them in the app first.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      operationId: deleteV1CompanyListsByListId
+      x-operation-id-source: derived
+  /v1/company-lists/{listId}/companies:
+    get:
+      tags:
+      - company-lists
+      parameters:
+      - schema:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+        required: true
+        name: listId
+        in: path
+      - schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 25
+          example: 25
+        required: false
+        name: limit
+        in: query
+      - schema:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+        required: false
+        name: cursor
+        in: query
+      responses:
+        '200':
+          description: Companies in the list, newest first
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCompanyListEntries'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: No organization could be resolved for the caller (`org_required`). Companies in lists are stored per organization.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found or not accessible to caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: Get company lists by list id companies
+      x-summary-source: derived
+      operationId: getV1CompanyListsByListIdCompanies
+      x-operation-id-source: derived
+    post:
+      tags:
+      - company-lists
+      summary: Save a company to a list (create, or partial-update on match)
+      description: 'Saves a company into the given list. If it matches an entry already in the list — by `companyId`, then `domain`, then `linkedinUrl`, then exact `name` — that entry is **partially updated** (only sent fields are written; absent fields keep their stored values) and the response is `200`. Otherwise a new entry is created and the response is `201`. Re-saving the same company is therefore safe and never duplicates.
+
+
+        Companies can come from a company search (send the result `id` as `companyId` — the strongest match key) or be added manually by `name`, `domain`, and/or `linkedinUrl`. The save stores what you send verbatim (`domain` lowercased): it never resolves, enriches, or spends credits.'
+      parameters:
+      - schema:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+        required: true
+        name: listId
+        in: path
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompanyEntryInput'
+      responses:
+        '200':
+          description: Existing entry partially updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompanyListEntry'
+        '201':
+          description: Company added to the list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompanyListEntry'
+        '400':
+          description: Invalid body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: No organization could be resolved for the caller (`org_required`). Companies in lists are stored per organization.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: List not found or not accessible to caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: The list already holds 10000 companies (`company_list_full`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: Body too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      operationId: postV1CompanyListsByListIdCompanies
+      x-operation-id-source: derived
+  /v1/company-lists/{listId}/companies/batch:
+    post:
+      tags:
+      - company-lists
+      summary: Save multiple companies to a list (batch)
+      description: 'Saves up to 100 companies in one call. Each item follows the same rule as the single-save endpoint: a match on an existing entry (by `companyId` → `domain` → `linkedinUrl` → exact `name`) partially updates it, everything else creates a new entry. Items are processed in order and each item sees the writes of earlier items, so two items for the same company within one batch converge onto a single entry.
+
+
+        **Partial-success semantics:** a well-formed request against an accessible list always returns 200. `succeeded[]` preserves input order and interleaves created and updated entries (`created`/`updated` count them); `failed[i].index` refers to the request array position.'
+      parameters:
+      - schema:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+        required: true
+        name: listId
+        in: path
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkCompanyEntryInput'
+      responses:
+        '200':
+          description: Per-item result; check failed[] for partial failures
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkCompanyEntrySaveResult'
+        '400':
+          description: Invalid body (e.g. > 100 items)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: No organization could be resolved for the caller (`org_required`). Companies in lists are stored per organization.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: List not found or not accessible to caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: Body too large (server-side body-size cap)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      operationId: postV1CompanyListsByListIdCompaniesBatch
+      x-operation-id-source: derived
+  /v1/company-lists/{listId}/companies/{companyEntryId}:
+    delete:
+      tags:
+      - company-lists
+      summary: Remove a company from a list
+      description: Removes one entry from the list. `companyEntryId` is the entry `id` returned when listing the companies in a list (not the DataIQ `companyId`). Returns the removed entry, which can be re-added later.
+      parameters:
+      - schema:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+        required: true
+        name: listId
+        in: path
+      - schema:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+        required: true
+        name: companyEntryId
+        in: path
+      responses:
+        '200':
+          description: Entry removed; body is the removed entry
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompanyListEntry'
+        '400':
+          description: Malformed `listId` or `companyEntryId`
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: No organization could be resolved for the caller (`org_required`). Companies in lists are stored per organization.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: List or entry not found, or not accessible to caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      operationId: deleteV1CompanyListsByListIdCompaniesByCompanyEntryId
+      x-operation-id-source: derived
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          nullable: true
+      required:
+      - code
+      - message
+    CompanyList:
+      type: object
+      properties:
+        id:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+        name:
+          type: string
+        description:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+          example: '2025-01-15T12:34:56.789Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2025-01-15T12:34:56.789Z'
+      required:
+      - id
+      - name
+      - createdAt
+      - updatedAt
+    UpdateCompanyListInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          nullable: true
+          maxLength: 2000
+      additionalProperties: false
+    CompanyEntryInput:
+      type: object
+      properties:
+        companyId:
+          type: string
+          minLength: 1
+          maxLength: 120
+          pattern: ^[A-Za-z][A-Za-z0-9]*-[0-9a-f]{24}$
+          description: DataIQ company id in the flattened "<sourceType>-<objectId>" form, as returned by company search results. The strongest match key — send it whenever the company came from a search.
+        name:
+          type: string
+          minLength: 1
+          maxLength: 300
+        domain:
+          type: string
+          minLength: 1
+          maxLength: 253
+          description: Company website domain, e.g. "acme.com".
+        linkedinUrl:
+          type: string
+          maxLength: 500
+          pattern: ^https?:\/\//i
+        notes:
+          type: string
+          maxLength: 2000
+      additionalProperties: false
+    PaginatedCompanyLists:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CompanyList'
+        nextCursor:
+          type: string
+          nullable: true
+          pattern: ^[0-9a-fA-F]{24}$
+      required:
+      - items
+      - nextCursor
+    DeletedCompanyList:
+      type: object
+      properties:
+        id:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+        name:
+          type: string
+        deletedCompanies:
+          type: integer
+      required:
+      - id
+      - name
+      - deletedCompanies
+    CompanyListInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 2000
+      required:
+      - name
+      additionalProperties: false
+    CompanyListEntry:
+      type: object
+      properties:
+        id:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+        companyId:
+          type: string
+          description: DataIQ company id (the flattened `"<sourceType>-<objectId>"` form, e.g. from a company search result). Absent on entries added manually by name/domain/linkedinUrl only.
+        name:
+          type: string
+        domain:
+          type: string
+        linkedinUrl:
+          type: string
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+          example: '2025-01-15T12:34:56.789Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2025-01-15T12:34:56.789Z'
+      required:
+      - id
+      - createdAt
+      - updatedAt
+    PaginatedCompanyListEntries:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CompanyListEntry'
+        nextCursor:
+          type: string
+          nullable: true
+          pattern: ^[0-9a-fA-F]{24}$
+      required:
+      - items
+      - nextCursor
+    BulkCompanyEntryInput:
+      anyOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/CompanyEntryInput'
+        minItems: 1
+        maxItems: 100
+      - type: object
+        properties:
+          companies:
+            type: array
+            items:
+              $ref: '#/components/schemas/CompanyEntryInput'
+            minItems: 1
+            maxItems: 100
+        required:
+        - companies
+        additionalProperties: false
+    BulkCompanyEntrySaveResult:
+      type: object
+      properties:
+        succeeded:
+          type: array
+          items:
+            $ref: '#/components/schemas/CompanyListEntry'
+        created:
+          type: integer
+        updated:
+          type: integer
+        failed:
+          type: array
+          items:
+            type: object
+            properties:
+              index:
+                type: integer
+              reason:
+                type: string
+            required:
+            - index
+            - reason
+      required:
+      - succeeded
+      - created
+      - updated
+      - failed
+  securitySchemes:
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Send your LeadIQ API key as the `X-API-Key` header value — no prefix, no encoding.
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: OAuth2 access token (JWT) issued for an audience accepted by this service.

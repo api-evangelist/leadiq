@@ -208,11 +208,14 @@ paths:
     post:
       tags:
       - Lists
-      summary: Create a prospect in a list
-      description: 'Creates a new prospect and attaches it to the given list.
+      summary: Save a prospect to a list (create, or partial-update on match)
+      description: 'Saves a prospect to the given list. If the body matches a prospect the caller already owns — by `personId`, then `workEmail`, then exact `firstName`+`lastName`+`company` — that prospect is **partially updated** and attached to the list, and the response is `200`. Otherwise a new prospect is created and attached, and the response is `201`.
 
 
-        **This endpoint is not idempotent.** Each call creates a distinct prospect, even when the body is identical to a previous request — there is no deduplication by email, LinkedIn URL, or any other field. Clients that retry on network errors or 5xx responses must guard against double-create themselves (e.g. by tracking a stable client-side request id and only retrying when the previous attempt did not return a 2xx).'
+        **Partial-update semantics on match:** only fields present in the body are written; absent fields keep their stored values (a previously verified email, location, or company data is never cleared by a save that omits it). Sent fields are stored verbatim — `title` is not normalized, and `seniority`/`function` are not re-derived from it. There is currently no way to clear a field through this endpoint.
+
+
+        **Retries:** re-sending the same body is safe on match (it updates the same prospect). A retry after a network error can still double-create when the first attempt succeeded but carried no `personId`/`workEmail` and a differing name/company; clients that retry should prefer sending a `personId`.'
       parameters:
       - schema:
           type: string
@@ -227,6 +230,12 @@ paths:
             schema:
               $ref: '#/components/schemas/ProspectInput'
       responses:
+        '200':
+          description: Existing prospect partially updated and attached to the list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prospect'
         '201':
           description: Prospect created and attached
           content:
@@ -263,20 +272,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '504':
+          description: Save timed out with the outcome unconfirmed — the prospect may exist; check before retrying
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
       operationId: postV1ListsByListIdProspects
       x-operation-id-source: derived
   /v1/lists/{listId}/prospects/batch:
     post:
       tags:
       - Lists
-      summary: Create multiple prospects in a list (batch)
-      description: 'Creates up to 100 prospects in one call and attaches them all to the given list.
+      summary: Save multiple prospects to a list (batch)
+      description: 'Saves up to 100 prospects in one call and attaches them all to the given list. Each item follows the same rule as the single-save endpoint: an item matching a prospect the caller already owns (by `personId`, `workEmail`, or exact name+company) partially updates that prospect — absent fields keep their stored values — while non-matching items create new prospects. Two items for the same person within one batch are not cross-checked; send one item per person.
 
 
         **Partial-success semantics:** the response always returns 200 if the request is well-formed and the caller owns the list. The body contains `succeeded[]` and `failed[]`. `failed[i].index` refers to the position of the failing item in the request body array. Successes appear in `succeeded[]` in input order; failures are sorted by `index`.
 
 
-        **This endpoint is not idempotent.** Retrying after a network error or timeout may create duplicates. Clients that retry must guard against double-create at their own layer.'
+        **Retries** are safe for items that match existing prospects (they update in place); items without a `personId`/`workEmail` match can still double-create.'
       parameters:
       - schema:
           type: string
@@ -383,100 +398,18 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    BulkSaveResult:
+    ErrorResponse:
       type: object
       properties:
-        succeeded:
-          type: array
-          items:
-            $ref: '#/components/schemas/Prospect'
-        failed:
-          type: array
-          items:
-            $ref: '#/components/schemas/BulkSaveFailure'
-      required:
-      - succeeded
-      - failed
-    List:
-      type: object
-      properties:
-        id:
+        code:
           type: string
-          pattern: ^[0-9a-fA-F]{24}$
-        name:
+        message:
           type: string
-        role:
-          $ref: '#/components/schemas/ListRole'
-        description:
-          type: string
-        status:
-          type: string
-        visibility:
-          type: string
-        startDate:
-          type: string
-          format: date-time
-          example: '2025-01-15T12:34:56.789Z'
-        endDate:
-          type: string
-          format: date-time
-          example: '2025-01-15T12:34:56.789Z'
-        createdAt:
-          type: string
-          format: date-time
-          example: '2025-01-15T12:34:56.789Z'
-        updatedAt:
-          type: string
-          format: date-time
-          example: '2025-01-15T12:34:56.789Z'
-      required:
-      - id
-      - name
-      - role
-      - createdAt
-      - updatedAt
-    PaginatedProspects:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Prospect'
-        nextCursor:
-          type: string
+        details:
           nullable: true
-          pattern: ^[0-9a-fA-F]{24}$
       required:
-      - items
-      - nextCursor
-    BulkSaveFailure:
-      type: object
-      properties:
-        index:
-          type: integer
-          minimum: 0
-        reason:
-          type: string
-      required:
-      - index
-      - reason
-    CompanyLocation:
-      type: object
-      properties:
-        streetLine1:
-          type: string
-        streetLine2:
-          type: string
-        city:
-          type: string
-        state:
-          type: string
-        zip:
-          type: string
-        country:
-          type: string
-        formatted:
-          type: string
+      - code
+      - message
     ListRole:
       type: string
       enum:
@@ -497,107 +430,17 @@ components:
       required:
       - items
       - nextCursor
-    BulkProspectInput:
-      type: array
-      items:
-        $ref: '#/components/schemas/ProspectInput'
-      minItems: 1
-      maxItems: 100
-    ProspectInput:
+    BulkSaveFailure:
       type: object
       properties:
-        firstName:
-          type: string
-          minLength: 1
-        lastName:
-          type: string
-          minLength: 1
-        workEmail:
-          type: string
-          format: email
-        phone:
-          type: string
-          minLength: 1
-        title:
-          type: string
-          minLength: 1
-        seniority:
-          type: string
-          enum:
-          - VP
-          - Manager
-          - Director
-          - Executive
-          - SeniorIndividualContributor
-          - Other
-        function:
-          type: string
-          minLength: 1
-        company:
-          type: string
-          minLength: 1
-        companyDomain:
-          type: string
-          minLength: 1
-        companyIndustry:
-          type: string
-          minLength: 1
-        companyId:
-          type: string
-          minLength: 1
-          description: DataIQ company id. Provide it to link the lead to the company and enrich company data
-        linkedinUrl:
-          type: string
-          format: uri
-        emailStatus:
-          type: string
-          enum:
-          - Unverified
-          - Verified
-          - VerifiedLikely
-        location:
-          $ref: '#/components/schemas/Location'
-        notes:
-          type: string
-          maxLength: 5000
-        personId:
-          type: string
-          minLength: 1
-          description: DataIQ ID. Provide it for better matching and deduplication
-      required:
-      - firstName
-      - lastName
-      additionalProperties: false
-    ListInput:
-      type: object
-      properties:
-        name:
-          type: string
-          minLength: 1
-          maxLength: 200
-        description:
-          type: string
-          maxLength: 2000
-      required:
-      - name
-      additionalProperties: false
-    Company:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        domain:
-          type: string
-        industry:
-          type: string
-        employees:
+        index:
           type: integer
-        location:
-          $ref: '#/components/schemas/CompanyLocation'
-        phone:
+          minimum: 0
+        reason:
           type: string
+      required:
+      - index
+      - reason
     Location:
       type: object
       properties:
@@ -615,6 +458,29 @@ components:
           type: string
         formatted:
           type: string
+    Company:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        domain:
+          type: string
+        industry:
+          type: string
+        employees:
+          type: integer
+        location:
+          $ref: '#/components/schemas/CompanyLocation'
+        phone:
+          type: string
+    BulkProspectInput:
+      type: array
+      items:
+        $ref: '#/components/schemas/ProspectInput'
+      minItems: 1
+      maxItems: 100
     Prospect:
       type: object
       properties:
@@ -686,18 +552,178 @@ components:
       - listIds
       - createdAt
       - updatedAt
-    ErrorResponse:
+    ProspectInput:
       type: object
       properties:
-        code:
+        firstName:
           type: string
-        message:
+          minLength: 1
+        lastName:
           type: string
-        details:
-          nullable: true
+          minLength: 1
+        workEmail:
+          type: string
+          format: email
+        phone:
+          type: string
+          minLength: 1
+          description: Single mobile phone. Use phones, which takes precedence
+          deprecated: true
+        phones:
+          type: array
+          items:
+            type: string
+            minLength: 1
+          minItems: 1
+          maxItems: 10
+          description: Mobile phone numbers, best first
+        title:
+          type: string
+          minLength: 1
+        seniority:
+          type: string
+          enum:
+          - VP
+          - Manager
+          - Director
+          - Executive
+          - SeniorIndividualContributor
+          - Other
+        function:
+          type: string
+          minLength: 1
+        company:
+          type: string
+          minLength: 1
+        companyDomain:
+          type: string
+          minLength: 1
+        companyIndustry:
+          type: string
+          minLength: 1
+        companyId:
+          type: string
+          minLength: 1
+          pattern: ^[A-Za-z][A-Za-z0-9]*-[0-9a-f]{24}$
+          description: 'DataIQ company id (a search result''s `companyId`). Send it whenever the person came from a search: it links the prospect to the company record, so the company is captured once instead of twice.'
+        linkedinUrl:
+          type: string
+          format: uri
+        emailStatus:
+          type: string
+          enum:
+          - Unverified
+          - Verified
+          - VerifiedLikely
+        location:
+          $ref: '#/components/schemas/Location'
+        notes:
+          type: string
+          maxLength: 5000
+        personId:
+          type: string
+          minLength: 1
+          description: DataIQ ID. Provide it for better matching and deduplication
       required:
-      - code
-      - message
+      - firstName
+      - lastName
+      additionalProperties: false
+    CompanyLocation:
+      type: object
+      properties:
+        streetLine1:
+          type: string
+        streetLine2:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zip:
+          type: string
+        country:
+          type: string
+        formatted:
+          type: string
+    List:
+      type: object
+      properties:
+        id:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+        name:
+          type: string
+        role:
+          $ref: '#/components/schemas/ListRole'
+        description:
+          type: string
+        status:
+          type: string
+        visibility:
+          type: string
+        startDate:
+          type: string
+          format: date-time
+          example: '2025-01-15T12:34:56.789Z'
+        endDate:
+          type: string
+          format: date-time
+          example: '2025-01-15T12:34:56.789Z'
+        createdAt:
+          type: string
+          format: date-time
+          example: '2025-01-15T12:34:56.789Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2025-01-15T12:34:56.789Z'
+      required:
+      - id
+      - name
+      - role
+      - createdAt
+      - updatedAt
+    ListInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 2000
+      required:
+      - name
+      additionalProperties: false
+    PaginatedProspects:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Prospect'
+        nextCursor:
+          type: string
+          nullable: true
+          pattern: ^[0-9a-fA-F]{24}$
+      required:
+      - items
+      - nextCursor
+    BulkSaveResult:
+      type: object
+      properties:
+        succeeded:
+          type: array
+          items:
+            $ref: '#/components/schemas/Prospect'
+        failed:
+          type: array
+          items:
+            $ref: '#/components/schemas/BulkSaveFailure'
+      required:
+      - succeeded
+      - failed
   securitySchemes:
     apiKeyAuth:
       type: apiKey

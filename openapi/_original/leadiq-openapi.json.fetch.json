@@ -1,0 +1,12 @@
+{
+ "url": "https://prospector.leadiq.com/openapi.json",
+ "final": "https://prospector.leadiq.com/openapi.json",
+ "status": 200,
+ "content_type": "application/json",
+ "bytes": 54160,
+ "sha256": "33f945987c59be041d992c4e0586e0a33e4ec2de2aa4ee60d50030373ffc7c26",
+ "fetched_at": "2026-10-19",
+ "fetched_by": "APIEvangelist-Harvest/1.0 (+https://apievangelist.com)",
+ "match": "byte-identical",
+ "note": "re-archived: the provider's current document replaced a stale archive (roadmap#793); the old files are in openapi/_superseded/2026-10-19-stale"
+}

@@ -1,0 +1,169 @@
+openapi: 3.2.0
+info:
+  title: Prospector Salesforce API
+  version: 1.0.0
+  description: External REST API for LeadIQ prospector lists and prospects.
+security:
+- apiKeyAuth: []
+- bearerAuth: []
+tags:
+- name: Salesforce
+paths:
+  /v1/salesforce/find-duplicates:
+    post:
+      tags:
+      - Salesforce
+      summary: Check people against the caller's connected Salesforce for duplicates
+      description: 'Read-only: for each submitted person, reports whether they already exist as a Lead or Contact in the caller''s connected Salesforce. **Duplicates-only** — a person not present in the response is net-new; the response never echoes non-duplicates. **Spends no credits.** The optional batch `strict` flag controls matching: `false` (default) first enriches any missing match fields before checking Salesforce, for better recall; `true` matches only on the fields supplied, with no enrichment. Free either way. Side-effect-free and safe to retry.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SalesforceDuplicateCheckRequest'
+      responses:
+        '200':
+          description: Duplicates found among the submitted people (may be empty)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalesforceDuplicateCheckResult'
+        '400':
+          description: Invalid body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 'State precondition: `salesforce_not_connected` — this LeadIQ user has no connected Salesforce account; or `member_not_in_team` — this LeadIQ user is not in a team, so Salesforce field mappings cannot be resolved'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Transient upstream/Salesforce-check failure — safe to retry
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      operationId: postV1SalesforceFindDuplicates
+      x-operation-id-source: derived
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          nullable: true
+      required:
+      - code
+      - message
+    SalesforceDuplicateCheckResult:
+      type: object
+      properties:
+        duplicates:
+          type: array
+          items:
+            $ref: '#/components/schemas/SalesforcePersonDuplicate'
+      required:
+      - duplicates
+    SalesforcePersonDuplicate:
+      type: object
+      properties:
+        ref:
+          type: string
+          description: Echoes the input person's `ref`.
+        matches:
+          type: array
+          items:
+            $ref: '#/components/schemas/SalesforceMatchCandidate'
+          description: Never empty — a ref only appears here when at least one candidate matched.
+      required:
+      - ref
+      - matches
+    SalesforcePersonToCheck:
+      type: object
+      properties:
+        ref:
+          type: string
+          description: Caller-assigned correlation id, echoed back on the matching duplicate entry.
+        name:
+          type: string
+        personId:
+          type: string
+          description: Mapped to the Salesforce record's `IQ_Person_Id__c`.
+        companyName:
+          type: string
+        companyDomain:
+          type: string
+        linkedinUrl:
+          type: string
+          description: Mapped to the Salesforce record's `LinkedIn_URL__c`.
+        email:
+          type: string
+      required:
+      - ref
+    SalesforceMatchCandidate:
+      type: object
+      properties:
+        salesforceId:
+          type: string
+          description: Salesforce record id.
+        entityType:
+          type: string
+          description: Salesforce object of the candidate, e.g. `Lead`.
+        name:
+          type: string
+        personId:
+          type: string
+          description: The record's mapped `IQ_Person_Id__c` (a LeadIQ id), not the Salesforce id.
+        email:
+          type: string
+        companyName:
+          type: string
+      required:
+      - salesforceId
+      - entityType
+      - name
+    SalesforceDuplicateCheckRequest:
+      type: object
+      properties:
+        people:
+          type: array
+          items:
+            $ref: '#/components/schemas/SalesforcePersonToCheck'
+          minItems: 1
+          maxItems: 100
+        strict:
+          type: boolean
+          description: Default false. When false, LeadIQ first enriches any missing match fields (e.g. email) before checking Salesforce, improving recall. When true, only the fields you supply are used, with no enrichment. Spends no credits in either mode.
+      required:
+      - people
+      additionalProperties: false
+  securitySchemes:
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Send your LeadIQ API key as the `X-API-Key` header value — no prefix, no encoding.
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: OAuth2 access token (JWT) issued for an audience accepted by this service.

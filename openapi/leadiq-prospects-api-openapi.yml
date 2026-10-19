@@ -79,11 +79,11 @@ paths:
     post:
       tags:
       - Prospects
-      summary: Create a prospect (no list)
-      description: 'Creates a new prospect with no list membership. Use `POST /v1/lists/{listId}/prospects` instead to create-and-attach in a single call.
+      summary: Save a prospect without a list (create, or partial-update on match)
+      description: 'Saves a prospect with no list membership. Use `POST /v1/lists/{listId}/prospects` instead to save-and-attach in a single call.
 
 
-        **This endpoint is not idempotent.** See the same note on `POST /v1/lists/{listId}/prospects`.'
+        Follows the same save semantics as that endpoint: a body matching a prospect the caller already owns (by `personId`, then `workEmail`, then exact `firstName`+`lastName`+`company`) **partially updates** it — absent fields keep their stored values — and returns `200`; otherwise a new prospect is created and returned with `201`.'
       requestBody:
         required: true
         content:
@@ -91,6 +91,12 @@ paths:
             schema:
               $ref: '#/components/schemas/ProspectInput'
       responses:
+        '200':
+          description: Existing prospect partially updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prospect'
         '201':
           description: Prospect created
           content:
@@ -123,6 +129,12 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '502':
           description: Temporary upstream error — retry
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '504':
+          description: Save timed out with the outcome unconfirmed — the prospect may exist; check before retrying
           content:
             application/json:
               schema:
@@ -349,7 +361,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '409':
-          description: 'State precondition: `salesforce_not_connected`, `salesforce_save_as_unsupported`, `salesforce_account_required`, `quality_skipped`, `export_rejected`, or `salesforce_rejected_record`'
+          description: 'State precondition: `salesforce_not_connected`, `salesforce_account_required`, `quality_skipped`, `export_rejected`, or `salesforce_rejected_record`'
           content:
             application/json:
               schema:
@@ -376,20 +388,36 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    PaginatedProspects:
+    ErrorResponse:
       type: object
       properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Prospect'
-        nextCursor:
+        code:
           type: string
+        message:
+          type: string
+        details:
           nullable: true
-          pattern: ^[0-9a-fA-F]{24}$
       required:
-      - items
-      - nextCursor
+      - code
+      - message
+    SalesforceDuplicate:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Salesforce record id.
+        entityType:
+          type: string
+          description: Salesforce object of the candidate, e.g. `Lead`.
+        name:
+          type: string
+        email:
+          type: string
+        company:
+          type: string
+      required:
+      - id
+      - entityType
     VerifyEmailResponse:
       type: object
       properties:
@@ -405,133 +433,30 @@ components:
       required:
       - status
       - prospect
-    SalesforceExportAccepted:
+    SalesforceExportRequest:
       type: object
       properties:
-        status:
+        force:
+          type: boolean
+          default: false
+          description: 'Create the record even though Salesforce reported possible duplicates. Only send `true` after a previous call returned `status: "duplicates_found"` and a human confirmed none of the candidates is the same person. Forcing blindly is the main way duplicate Leads get into a customer CRM.'
+          example: false
+        accountId:
           type: string
-          enum:
-          - submitted
-        requestId:
+          pattern: ^001[a-zA-Z0-9]{12}([a-zA-Z0-9]{3})?$
+          description: 'The Salesforce Account to file this prospect under as a Contact. Only meaningful for orgs whose "Save to" is "Create Contact if Account Exists, Otherwise Lead". Send it after a previous call returned `status: "account_choice_required"` and a human picked one of the `accounts`. Sending it skips the Account search entirely, so an id from anywhere else will be used as given. Resend it on every follow-up call for the same prospect (e.g. a `force: true` after `duplicates_found`); inputs are not remembered between calls.'
+          example: 0015000000ABCDEAX3
+        recordId:
           type: string
-        savedAs:
-          type: string
-        message:
-          type: string
-      required:
-      - status
-      - message
-    CompanyLocation:
-      type: object
-      properties:
-        streetLine1:
-          type: string
-        streetLine2:
-          type: string
-        city:
-          type: string
-        state:
-          type: string
-        zip:
-          type: string
-        country:
-          type: string
-        formatted:
-          type: string
-    VerifyStandaloneEmailResponse:
-      type: object
-      properties:
-        status:
-          type: string
-          enum:
-          - Verified
-          - VerifiedLikely
-          - Unverified
-          - Invalid
-      required:
-      - status
-    ProspectInput:
-      type: object
-      properties:
-        firstName:
-          type: string
-          minLength: 1
-        lastName:
-          type: string
-          minLength: 1
-        workEmail:
-          type: string
-          format: email
-        phone:
-          type: string
-          minLength: 1
-        title:
-          type: string
-          minLength: 1
-        seniority:
-          type: string
-          enum:
-          - VP
-          - Manager
-          - Director
-          - Executive
-          - SeniorIndividualContributor
-          - Other
-        function:
-          type: string
-          minLength: 1
-        company:
-          type: string
-          minLength: 1
-        companyDomain:
-          type: string
-          minLength: 1
-        companyIndustry:
-          type: string
-          minLength: 1
-        companyId:
-          type: string
-          minLength: 1
-          description: DataIQ company id. Provide it to link the lead to the company and enrich company data
-        linkedinUrl:
-          type: string
-          format: uri
-        emailStatus:
-          type: string
-          enum:
-          - Unverified
-          - Verified
-          - VerifiedLikely
-        location:
-          $ref: '#/components/schemas/Location'
-        notes:
-          type: string
-          maxLength: 5000
-        personId:
-          type: string
-          minLength: 1
-          description: DataIQ ID. Provide it for better matching and deduplication
-      required:
-      - firstName
-      - lastName
+          pattern: ^(00Q|003)[a-zA-Z0-9]{12}([a-zA-Z0-9]{3})?$
+          description: 'Enrich this existing Salesforce Lead or Contact instead of creating a new record. Send it after a previous call returned `status: "record_choice_required"` and a human picked one of the `records`. Sending it skips the duplicate search entirely, so a record id from anywhere else will be updated as given.'
+          example: 00Q5000000ABCDEAX3
+        updateExisting:
+          type: boolean
+          default: false
+          description: Allow this export to update a Salesforce record that already matches this person, instead of only ever inserting. Mirrors the LeadIQ web app's "Update existing and create new" vs "Only export new" choice. Left false the export is insert-only, which is how this endpoint has always behaved. When true and exactly one record matches it is enriched; when several match you get `record_choice_required`.
+          example: false
       additionalProperties: false
-    Company:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        domain:
-          type: string
-        industry:
-          type: string
-        employees:
-          type: integer
-        location:
-          $ref: '#/components/schemas/CompanyLocation'
-        phone:
-          type: string
     Location:
       type: object
       properties:
@@ -549,6 +474,91 @@ components:
           type: string
         formatted:
           type: string
+    Company:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        domain:
+          type: string
+        industry:
+          type: string
+        employees:
+          type: integer
+        location:
+          $ref: '#/components/schemas/CompanyLocation'
+        phone:
+          type: string
+    SalesforceExportResult:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - created
+          - updated
+          - duplicates_found
+          - account_choice_required
+          - record_choice_required
+          description: '`created` — a new Salesforce record exists. `updated` — an existing record was enriched instead; only possible when the request carried `updateExisting: true` or `recordId`. `duplicates_found` — **nothing was written**; see `duplicates`. `account_choice_required` — **nothing was written**; several Accounts matched, see `accounts`, then call again with `accountId`. `record_choice_required` — **nothing was written**; several existing records could be this person, see `records`, then call again with `recordId`.'
+        entityId:
+          type: string
+          description: Salesforce id of the created/updated record. Absent on `duplicates_found`, and possible to be absent on `updated`.
+        entityType:
+          type: string
+        savedAs:
+          type: string
+          description: Which Salesforce object the export targeted, decided by the member's `Save to` setting and the org's governance — not by this API.
+        requestId:
+          type: string
+          description: Correlation id for the export, for support lookups.
+        duplicates:
+          type: array
+          items:
+            $ref: '#/components/schemas/SalesforceDuplicate'
+          description: Present on `duplicates_found`.
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/SalesforceRecord'
+          description: 'Present on `record_choice_required`: the existing Salesforce records that could be this person. Pick one and resend its `id` as `recordId`.'
+        accounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/SalesforceAccount'
+          description: 'Present on `account_choice_required`: the Accounts this prospect could be filed under. Pick one and resend its `id` as `accountId`.'
+      required:
+      - status
+    SalesforceExportAccepted:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - submitted
+        requestId:
+          type: string
+        savedAs:
+          type: string
+        message:
+          type: string
+      required:
+      - status
+      - message
+    VerifyStandaloneEmailResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - Verified
+          - VerifiedLikely
+          - Unverified
+          - Invalid
+      required:
+      - status
     Prospect:
       type: object
       properties:
@@ -620,73 +630,159 @@ components:
       - listIds
       - createdAt
       - updatedAt
-    ErrorResponse:
-      type: object
-      properties:
-        code:
-          type: string
-        message:
-          type: string
-        details:
-          nullable: true
-      required:
-      - code
-      - message
-    SalesforceExportRequest:
-      type: object
-      properties:
-        force:
-          type: boolean
-          default: false
-          description: 'Create the record even though Salesforce reported possible duplicates. Only send `true` after a previous call returned `status: "duplicates_found"` and a human confirmed none of the candidates is the same person. Forcing blindly is the main way duplicate Leads get into a customer CRM.'
-          example: false
-      additionalProperties: false
-    SalesforceExportResult:
-      type: object
-      properties:
-        status:
-          type: string
-          enum:
-          - created
-          - updated
-          - duplicates_found
-          description: '`created` — a new Salesforce record exists. `updated` — an existing record was enriched; **not currently returned** — this endpoint always attempts an insert and cannot target an existing Salesforce record, so the value is reserved for when that becomes possible. `duplicates_found` — **nothing was written**; see `duplicates`.'
-        entityId:
-          type: string
-          description: Salesforce id of the created/updated record. Absent on `duplicates_found`, and possible to be absent on `updated`.
-        entityType:
-          type: string
-        savedAs:
-          type: string
-          description: Which Salesforce object the export targeted, decided by the member's `Save to` setting and the org's governance — not by this API.
-        requestId:
-          type: string
-          description: Correlation id for the export, for support lookups.
-        duplicates:
-          type: array
-          items:
-            $ref: '#/components/schemas/SalesforceDuplicate'
-          description: Present on `duplicates_found`.
-      required:
-      - status
-    SalesforceDuplicate:
+    SalesforceAccount:
       type: object
       properties:
         id:
           type: string
-          description: Salesforce record id.
+          description: Salesforce Account id — send this back as `accountId`.
+        name:
+          type: string
+        link:
+          type: string
+          description: Opens the Account record in the connected Salesforce org.
+        ownerName:
+          type: string
+        parentName:
+          type: string
+          description: Parent Account name, when this one sits under another — often what tells two near-identical Accounts apart.
+      required:
+      - id
+    ProspectInput:
+      type: object
+      properties:
+        firstName:
+          type: string
+          minLength: 1
+        lastName:
+          type: string
+          minLength: 1
+        workEmail:
+          type: string
+          format: email
+        phone:
+          type: string
+          minLength: 1
+          description: Single mobile phone. Use phones, which takes precedence
+          deprecated: true
+        phones:
+          type: array
+          items:
+            type: string
+            minLength: 1
+          minItems: 1
+          maxItems: 10
+          description: Mobile phone numbers, best first
+        title:
+          type: string
+          minLength: 1
+        seniority:
+          type: string
+          enum:
+          - VP
+          - Manager
+          - Director
+          - Executive
+          - SeniorIndividualContributor
+          - Other
+        function:
+          type: string
+          minLength: 1
+        company:
+          type: string
+          minLength: 1
+        companyDomain:
+          type: string
+          minLength: 1
+        companyIndustry:
+          type: string
+          minLength: 1
+        companyId:
+          type: string
+          minLength: 1
+          pattern: ^[A-Za-z][A-Za-z0-9]*-[0-9a-f]{24}$
+          description: 'DataIQ company id (a search result''s `companyId`). Send it whenever the person came from a search: it links the prospect to the company record, so the company is captured once instead of twice.'
+        linkedinUrl:
+          type: string
+          format: uri
+        emailStatus:
+          type: string
+          enum:
+          - Unverified
+          - Verified
+          - VerifiedLikely
+        location:
+          $ref: '#/components/schemas/Location'
+        notes:
+          type: string
+          maxLength: 5000
+        personId:
+          type: string
+          minLength: 1
+          description: DataIQ ID. Provide it for better matching and deduplication
+      required:
+      - firstName
+      - lastName
+      additionalProperties: false
+    CompanyLocation:
+      type: object
+      properties:
+        streetLine1:
+          type: string
+        streetLine2:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zip:
+          type: string
+        country:
+          type: string
+        formatted:
+          type: string
+    SalesforceRecord:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Salesforce record id — send this back as `recordId`.
         entityType:
           type: string
-          description: Salesforce object of the candidate, e.g. `Lead`.
+          description: '`Lead` or `Contact`.'
         name:
           type: string
         email:
           type: string
+        title:
+          type: string
         company:
           type: string
+        link:
+          type: string
+        ownerName:
+          type: string
+        updatable:
+          type: boolean
+          description: False when one-click update is switched off for this record type. It is listed so you can see the record exists, but choosing it will not work.
       required:
       - id
       - entityType
+      - updatable
+    PaginatedProspects:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Prospect'
+        nextCursor:
+          type: string
+          nullable: true
+          pattern: ^[0-9a-fA-F]{24}$
+      required:
+      - items
+      - nextCursor
   securitySchemes:
     apiKeyAuth:
       type: apiKey
