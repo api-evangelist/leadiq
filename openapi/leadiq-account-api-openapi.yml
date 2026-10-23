@@ -100,3 +100,9 @@ components:
       scheme: bearer
       bearerFormat: JWT
       description: OAuth2 access token (JWT) issued for an audience accepted by this service.
+x-provenance:
+  method: harvested
+  publisher: LeadIQ
+  source: https://prospector.leadiq.com/openapi.json
+  note: split by refine-openapis from the provider's own published document, verified by fetch (openapi/_original/*.fetch.json);
+    stamped by stamp-openapi-provenance.py (roadmap#793)
