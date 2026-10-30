@@ -1,4 +1,4 @@
-# LeadIQ (leadiq)
+# LeadIQ
 
 <!-- API-EVANGELIST-PROVENANCE:BEGIN -->
 > ### About this repository
@@ -64,119 +64,152 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-LeadIQ is a B2B sales intelligence and contact data platform headquartered in Santa Clara, California (with engineering in Singapore and Brisbane) that helps outbound sales teams identify, capture, enrich, and engage prospects across Salesforce, HubSpot, Outreach, Salesloft, Gong, and other revenue tools. The product portfolio includes Prospector (Chrome extension for contact capture with verified work emails and direct-dial mobile phones), Scribe (AI message writer), Refresh / CRM Enrichment (continuous contact and account hygiene for Salesforce and HubSpot), Champion Tracking (job-change alerts on existing contacts), AI Account Prospecting (ICP-fit account and persona discovery), and Lando — an agentic AI assistant that fuses first-party CRM data with LeadIQ's third-party intelligence behind a conversational interface. LeadIQ exposes a public GraphQL Data API at https://api.leadiq.com/graphql for programmatic people search, company search, advanced grouped search, prospect-list management, usage reporting, and data-feedback submission, authenticated via HTTP Basic auth with an API key issued in the LeadIQ dashboard. The same API surface is also reachable through a Model Context Protocol (MCP) server so AI agents (including Claude) can query verified contact and account data conversationally. Rate limits default to 10 requests/minute on Free and 60 requests/minute on paid plans, with credit-based metering where an email costs 1 credit, a phone 10 credits, and account enrichment 3 credits.
+LeadIQ is a B2B sales intelligence and contact data platform headquartered in Santa Clara, California (with engineering in Singapore and Brisbane) that helps outbound sales teams identify, capture, enrich, and engage prospects across Salesforce, HubSpot, Outreach, Salesloft, Gong, and other revenue tools. The product portfolio includes Prospector (Chrome extension for contact capture with verified work emails and direct-dial mobile phones), Scribe (AI message writer), Refresh / CRM Enrichment (continuous contact and account hygiene for Salesforce and HubSpot), Champion Tracking (job-change alerts on existing contacts), AI Account Prospecting (ICP-fit account and persona discovery), and Lando — an agentic AI assistant that fuses first-party CRM data with LeadIQ's third-party intelligence behind a conversational interface. LeadIQ exposes a public GraphQL Data API at https://api.leadiq.com/graphql for programmatic people search, company search, advanced grouped search, prospect-list management, usage reporting, and data-feedback submission, authenticated via HTTP Basic auth with an API key issued in the LeadIQ dashboard. The same API surface is also reachable through a Model Context Protocol (MCP) server so AI agents (including Claude) can query verified contact and account data conversationally. LeadIQ actually runs three programmable surfaces over one data core: the GraphQL Data API, a REST Prospector API at https://prospector.leadiq.com described by an OpenAPI 3.1.0 document LeadIQ serves publicly (14 operations for lists, prospects, email verification, Salesforce export and caller identity), and a remote MCP connector at https://mcp.leadiq.com/mcp with seventeen tools behind OAuth 2.0 and dynamic client registration. The published rate limit is 60 requests/minute (Standard), with credit-based metering in Universal Credits where a verified work email costs 1 UC, a direct phone 10 UC, company firmographics 3 UC and a profile 0.1 UC. All plans get 50 one-off test calls; sustained API access is sales-gated.
 
-**APIs.json:** [https://raw.githubusercontent.com/api-evangelist/leadiq/refs/heads/main/apis.yml](https://raw.githubusercontent.com/api-evangelist/leadiq/refs/heads/main/apis.yml)
+**Areas:** Sales Intelligence · B2B Data · Contact Data · Lead Generation · Prospecting · CRM Enrichment · Sales Engagement · GraphQL · MCP · Revenue Operations · Go-To-Market · Data Enrichment
 
-## Scope
+## LeadIQ on APIs.io
 
-- **Type:** Index
-- **Position:** Provider
-- **Access:** 3rd-Party
+Everything profiled for LeadIQ is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/leadiq/](https://apis.io/providers/leadiq/)** — or go straight to one of the APIs or properties below.
 
-## Tags
+### APIs (5)
 
-- Sales Intelligence
-- B2B Data
-- Contact Data
-- Lead Generation
-- Prospecting
-- CRM Enrichment
-- Sales Engagement
-- GraphQL
-- Model Context Protocol
-- Revenue Operations
-- Go To Market
+- [LeadIQ MCP Server](https://apis.io/apis/leadiq/leadiq-mcp-server/) — Remote Model Context Protocol server at https://mcp.leadiq.com/mcp exposing LeadIQ's verified B2B contact and company intelligence to AI agents over…
+- [LeadIQ Account API](https://apis.io/apis/leadiq/leadiq-account-api/) — The account API from LeadIQ — 1 operation(s) for account.
+- [LeadIQ Lists API](https://apis.io/apis/leadiq/leadiq-lists-api/) — The lists API from LeadIQ — 5 operation(s) for lists.
+- [LeadIQ Prospects API](https://apis.io/apis/leadiq/leadiq-prospects-api/) — The prospects API from LeadIQ — 5 operation(s) for prospects.
+- [LeadIQ Graph QL API](https://apis.io/apis/leadiq/leadiq-graph-ql-api/) — Single GraphQL endpoint exposing all LeadIQ queries and mutations.
 
-## Timestamps
+### Published properties
 
-- **Created:** 2026-05-25
-- **Modified:** 2026-05-25
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
 
-## APIs
+#### GraphQL (1)
 
-### LeadIQ Data API
+GraphQL schemas.
 
-Public GraphQL Data API exposing LeadIQ's verified B2B contact and company intelligence. Supports people search by name + company / domain / LinkedIn URL / email, company search by name or domain, grouped and flat advanced search with ContactFilter and CompanyFilter inputs (industries, titles, seniorities, technologies, geography), prospect list management (createList, addProspectToList), account / usage / plan inspection, the workatoToken query for low-code integration, and submitPersonFeedback / markAsInvalid mutations for closed-loop data correction. Premium data fields (mobile phone) and ProfileFilter inputs (HasWorkEmail, HasVerifiedWorkEmail, HasWorkPhone, HasVerifiedWorkPhone, HasPersonalEmail) gate higher-cost lookups. Authentication is HTTP Basic with the API key as the username and an empty password.
+- [LeadIQ GraphQL API](https://apis.io/graphqls/leadiq/leadiq-graphql/)
 
-- **Human URL:** [https://developer.leadiq.com/](https://developer.leadiq.com/)
-- **Base URL:** `https://api.leadiq.com/graphql`
+#### MCP servers (1)
 
-#### Tags
+Model Context Protocol servers that expose the API to agents.
 
-- Sales Intelligence
-- Contact Data
-- GraphQL
-- Prospecting
+- [LeadIQ MCP Connector](https://apis.io/servers/leadiq/leadiq-mcp-connector/)
 
-#### Properties
+#### Agentic access (1)
 
-- [Documentation](https://developer.leadiq.com/)
-- [Documentation](https://leadiqhelp.zendesk.com/hc/en-us/articles/35509840045083-LeadIQ-Public-API-Overview)
-- [Documentation](https://leadiqhelp.zendesk.com/hc/en-us/articles/29375289152795-LeadIQ-Public-API-Guide)
-- [OpenAPI](openapi/leadiq-data-api-openapi.yml) — [OpenAPI Specification](https://spec.openapis.org/oas/latest.html)
-- [Postman Collection](collections/leadiq-data-api.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
-- [Open Collection](collections/leadiq-data-api.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
-- [A P I Blueprint](https://github.com/leadiq/dataiq-api-specs/blob/master/apiary.apib)
-- [Repository](https://github.com/leadiq/dataiq-api-specs)
-- [Samples](https://github.com/leadiq/api-samples)
-- [Graph Q L](https://api.leadiq.com/graphql)
-- [Authentication](https://leadiqhelp.zendesk.com/hc/en-us/sections/29405194605723-API)
-- [Rate Limits](https://leadiqhelp.zendesk.com/hc/en-us/articles/35509840045083-LeadIQ-Public-API-Overview)
-- [Pricing](https://leadiq.com/pricing)
-- [Sign Up](https://leadiq.com/sign-up)
-- [Support](https://leadiqhelp.zendesk.com/hc/en-us)
-- [Contact](mailto:api@leadiq.com)
+Which operations an agent can call, which act, and which need a human in the loop.
 
-### LeadIQ MCP Server
+- [Leadiq Agentic Access](https://apis.io/agentic-access/leadiq/leadiq-agentic-access/)
 
-Model Context Protocol server that exposes LeadIQ's verified B2B contact and company intelligence to AI agents (Claude Desktop, Claude Code, Cursor, and any MCP-compatible client). Provides conversational access to the same searchPeople, searchCompany, advanced search, prospect-list, and account-usage capabilities offered by the Data API, with credentialing handled via the LeadIQ API key.
+#### Collections (3)
 
-- **Human URL:** [https://leadiq.com/blog/claude-mcp/](https://leadiq.com/blog/claude-mcp/)
+Postman and Open Collection request collections.
 
-#### Tags
+- [LeadIQ Data API](https://apis.io/collections/leadiq/open-leadiq-data-api/)
+- [LeadIQ Data GraphQL API](https://apis.io/collections/leadiq/open-leadiq-graphql-api/)
+- [Prospector API](https://apis.io/collections/leadiq/open-leadiq-prospector-api/)
 
-- Model Context Protocol
-- AI Agents
-- Sales Intelligence
+#### Overlays (2)
 
-#### Properties
+OpenAPI overlays, including conversational phrasing for each operation.
 
-- [Documentation](https://leadiq.com/blog/claude-mcp/)
-- [Authentication](https://leadiqhelp.zendesk.com/hc/en-us/sections/29405194605723-API)
-- [Postman Collection](collections/leadiq-data-api.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
-- [Open Collection](collections/leadiq-data-api.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
+- [Leadiq Graphql Api Overlay](https://apis.io/overlays/leadiq/leadiq-graphql-api-overlay/)
+- [Leadiq Prospector Api Overlay](https://apis.io/overlays/leadiq/leadiq-prospector-api-overlay/)
 
-## Common Properties
+#### Security (2)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [Leadiq Authentication](https://apis.io/security/leadiq/leadiq-authentication/)
+- [Leadiq Domain Security](https://apis.io/security/leadiq/leadiq-domain-security/)
+
+#### OAuth scopes (1)
+
+The permissions the API asks for.
+
+- [Leadiq Scopes](https://apis.io/scopes/leadiq/leadiq-scopes/)
+
+#### Plans and pricing (1)
+
+Published plans, tiers and prices.
+
+- [Leadiq Plans Pricing](https://apis.io/plans/leadiq/leadiq-plans-pricing/)
+
+#### Rate limits (1)
+
+Published request limits.
+
+- [Leadiq Rate Limits](https://apis.io/rate-limits/leadiq/leadiq-rate-limits/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
 
 - [Website](https://leadiq.com)
-- [Developer Portal](https://developer.leadiq.com/)
 - [Documentation](https://leadiqhelp.zendesk.com/hc/en-us/sections/29405194605723-API)
+- [Getting started](https://leadiqhelp.zendesk.com/hc/en-us/articles/29375289152795-LeadIQ-Public-API-Guide)
+- [API reference](https://developer.leadiq.com/)
 - [Pricing](https://leadiq.com/pricing)
-- [Sign Up](https://leadiq.com/sign-up)
-- [Login](https://account.leadiq.com/login)
-- [Blog](https://leadiq.com/blog)
-- [Podcast](https://leadiq.com/podcast)
-- [Case Studies](https://leadiq.com/case-studies)
+- [Sign up](https://leadiq.com/sign-up)
 - [Support](https://leadiqhelp.zendesk.com/hc/en-us)
+- [Blog](https://leadiq.com/blog)
+- [Terms of service](https://leadiq.com/legal/terms-of-use)
+- [Privacy policy](https://leadiq.com/legal/privacy-policy)
+- [GitHub](https://github.com/leadiq)
 - [Status](https://status.leadiq.com)
-- [Security](https://leadiq.com/security)
-- [Privacy](https://leadiq.com/privacy)
-- [Terms](https://leadiq.com/terms)
-- [Careers](https://leadiq.com/careers)
-- [About](https://leadiq.com/about)
-- [Contact](https://leadiq.com/contact)
-- [Integrations](https://leadiq.com/integrations)
-- [Repository](https://github.com/leadiq)
-- [A P I Repository](https://github.com/leadiq/dataiq-api-specs)
-- [A P I Samples](https://github.com/leadiq/api-samples)
-- [LinkedIn](https://www.linkedin.com/company/leadiq)
-- [Twitter](https://twitter.com/leadiq)
-- [YouTube](https://www.youtube.com/@LeadIQ)
-- [Crunchbase](https://www.crunchbase.com/organization/leadiq)
-- [G2](https://www.g2.com/products/leadiq/reviews)
 
-## Maintainers
+## API Evangelist rating
 
-**FN:** Kin Lane
-**Email:** kin@apievangelist.com
+**Kin Score 55.8** — strong · rubric 0.25.0 · scored 2026-10-23
+
+| Facet | Score |
+|---|---|
+| Discoverability | 73.3 |
+| Contract quality | 54.3 |
+| Contract governance | 4.5 |
+| Operational transparency | 39.5 |
+| Developer ergonomics | 58.9 |
+| Access clarity | 76.3 |
+
+**Agent readiness 56.3** — agent-ready (gated down from agent-native)
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | derived (partial credit) |
+| Reversibility Documented | — |
+| MCP Server | verified |
+| Auth Clarity | served (partial credit) |
+| Idempotency | — |
+| Error Semantics | verified |
+| OpenAPI Examples | partial |
+| Rate Limit Signal | documented (partial credit) |
+| Event Surface Described | — |
+| Agent Skills | derived (partial credit) |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | served (partial credit) |
+| Protected Resource Metadata | verified |
+| Dynamic Client Registration | yes |
+| Agentic Commerce | — |
+| Pagination Ratio | paginated |
+| Operation Distinctiveness | distinct |
+
+**Regulatory alignment 34.3** — Horizontal (data, software, accessibility, platform)
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/leadiq/](https://apis.io/providers/leadiq/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for LeadIQ: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/leadiq/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
